@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail } from 'sequelize-typescript';
+import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
+
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John', description: 'first name' })
