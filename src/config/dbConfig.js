@@ -1,8 +1,8 @@
-// require('dotenv').config();
-// const process = require('node:process');
-import 'dotenv/config';
+require('dotenv').config();
+const process = require('node:process');
+// import 'dotenv/config';
 
-export default {
+module.exports = {
   development: {
     username: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD,

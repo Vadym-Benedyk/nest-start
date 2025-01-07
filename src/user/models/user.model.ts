@@ -1,4 +1,5 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { UserRole } from '../interfaces/role.enum';
 
 @Table({
   tableName: 'users',
@@ -6,7 +7,8 @@ import { Column, DataType, Model, Table } from 'sequelize-typescript';
 })
 export class User extends Model<User> {
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     autoIncrement: true,
     primaryKey: true,
   })
@@ -36,4 +38,10 @@ export class User extends Model<User> {
     allowNull: true,
   })
   password: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(UserRole)),
+    defaultValue: UserRole.GUEST,
+  })
+  role: UserRole;
 }
