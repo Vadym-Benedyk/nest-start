@@ -5,10 +5,11 @@ import {
   Body,
   Param,
   Delete,
-  Put,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('users')
@@ -43,8 +44,10 @@ export class UserController {
   }
 
   // @ApiOperation({ summary: 'Update user by id', description: 'Update user by id' })
-  // @Put(':id')
-  // async updateUser(@Param('id') id: string, @Body() user: CreateUserDto) {
-  //   return this.userService.updateUser(+id, user);
+  // @Patch(':id')
+  // async updateUser(
+  //   @Param('id') id: string,
+  //   @Body() updateUserDto: UpdateUserDto) {
+  //   return this.userService.updateUser(+id, updateUserDto);
   // }
 }
