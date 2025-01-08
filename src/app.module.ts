@@ -5,6 +5,8 @@ import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import 'dotenv/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 
 @Module({
@@ -23,8 +25,8 @@ import 'dotenv/config';
     // SequelizeModule.forFeature([User]),
     UserModule,
   ],
-  controllers: [UserController],
-  providers: [UserService],
+  controllers: [AppController, UserController],
+  providers: [AppService, UserService],
 })
 
 export class AppModule {}
