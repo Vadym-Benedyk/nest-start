@@ -12,7 +12,7 @@ export class User extends Model<User> {
     autoIncrement: true,
     primaryKey: true,
   })
-  id: number;
+  id: string;
 
   @Column({
     type: DataType.STRING,
@@ -38,6 +38,12 @@ export class User extends Model<User> {
     allowNull: true,
   })
   password: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  age: number;
 
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
