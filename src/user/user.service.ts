@@ -24,11 +24,11 @@ export class UserService {
     return this.userModel.findAll();
   }
 
-  async getUserById(id: number): Promise<UserInterfaces> {
+  async getUserById(id: string): Promise<UserInterfaces> {
     return this.userModel.findByPk(id);
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: string): Promise<void> {
     const user = await this.userModel.findByPk(id);
     if (user) {
       await user.destroy();
