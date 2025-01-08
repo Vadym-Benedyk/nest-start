@@ -16,7 +16,7 @@ import 'dotenv/config';
       username: process.env.DATABASE_USERNAME || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'postgres',
       database: process.env.DATABASE_NAME || 'usersdb',
-      models: [__dirname + '/models/*.model.js'],   //!Attention
+      models: [__dirname + '/models/*.model.js'],
       autoLoadModels: true,
       synchronize: false, //for migration use
     }),
