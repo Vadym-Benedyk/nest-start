@@ -1,8 +1,7 @@
-import { Model } from 'sequelize';
 import { UserRole } from '../../interfaces/role.enum';
-import { DataType } from 'sequelize-typescript';
+import { DataType, Model } from 'sequelize-typescript';
 
-module.exports = (sequelize: any, DataTypes: { INTEGER: any; STRING: any }) => {
+module.exports = (sequelize: any) => {
   class User extends Model {
     //   static associate(models) {
     // }
@@ -11,15 +10,15 @@ module.exports = (sequelize: any, DataTypes: { INTEGER: any; STRING: any }) => {
   User.init(
     {
       id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+        type: DataType.UUIDV4,
+        defaultValue: DataType.UUIDV4,
         primaryKey: true,
       },
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
-      email: DataTypes.STRING,
-      password: DataTypes.STRING,
-      age: DataTypes.INTEGER,
+      firstName: DataType.STRING,
+      lastName: DataType.STRING,
+      email: DataType.STRING,
+      password: DataType.STRING,
+      age: DataType.INTEGER,
       role: DataType.ENUM(...Object.values(UserRole)),
     },
     {

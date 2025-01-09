@@ -6,6 +6,8 @@ import {
   Param,
   Delete,
   Patch,
+  Res,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -37,17 +39,29 @@ export class UserController {
     return this.userService.getUserById(id);
   }
 
-  @ApiOperation({ summary: 'Delete user by id', description: 'Delete user by id' })
+  @ApiOperation({
+    summary: 'Delete user by id',
+    description: 'Delete user by id',
+  })
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     return this.userService.deleteUser(id);
   }
 
-  // @ApiOperation({ summary: 'Update user by id', description: 'Update user by id' })
-  // @Patch(':id')
-  // async updateUser(
-  //   @Param('id') id: string,
-  //   @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.updateUser(+id, updateUserDto);
-  // }
+  @ApiOperation({
+    summary: 'Update user by id',
+    description: 'Update user by id',
+  })
+  @ApiResponse({ type: CreateUserDto })
+  @Patch('update')
+  async updateUser(@Body() updateUserDto: UpdateUserDto, @Res() res) {
+    const updatedUser = await this.userService.updateUser(updateUserDto);
+
+    if (!updatedUser) {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: 'User not found' });
+    }
+    return res.status(HttpStatus.OK).json(updatedUser);
+  }
 }
