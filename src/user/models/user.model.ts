@@ -7,7 +7,7 @@ import { UserRole } from '../interfaces/role.enum';
 })
 export class User extends Model<User> {
   @Column({
-    type: DataType.UUID,
+    type: DataType.UUIDV4,
     defaultValue: DataType.UUIDV4,
     autoIncrement: true,
     primaryKey: true,

@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsEmail, IsNumber, Min, Max, IsEnum } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEmail,
+  IsNumber,
+  Min,
+  Max,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 import { UserRole } from '../interfaces/role.enum';
 
 export class CreateUserDto {
@@ -27,7 +36,7 @@ export class CreateUserDto {
     example: 25,
     description: 'The age of the user. Must be between 18 and 65.',
     minimum: 18,
-    maximum: 65
+    maximum: 65,
   })
   @IsNumber()
   @Min(18)
@@ -35,11 +44,12 @@ export class CreateUserDto {
   age: number;
 
   @ApiProperty({
-    example: UserRole.USER,
+    example: UserRole.GUEST,
     description: 'The role of the user.',
     enum: UserRole,
-    default: UserRole.USER,
+    default: UserRole.GUEST,
   })
   @IsEnum(UserRole)
-  role: UserRole;
+  @IsOptional()
+  role?: UserRole = UserRole.GUEST;
 }

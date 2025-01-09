@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserInterfaces } from './interfaces/user.interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -35,10 +36,10 @@ export class UserService {
     }
   }
 
-  // async updateUser(
-  //   id: UserInterfaces['id'],
-  //   user: UserInterfaces,
-  // ): Promise<[affectedCount: number, affectedRows: User[]]> {
-  //   return this.userModel.update(id, user);
-  // }
+  async updateUser(data: UpdateUserDto): Promise<User> {
+    const { id, ...user } = data;
+    await this.userModel.update(user, { where: { id } });
+
+    return await this.userModel.findByPk(id);
+  }
 }
