@@ -3,7 +3,11 @@ import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 export class GetUsersDto {
   @IsOptional()
   @IsString()
-  search?: string;
+  search: string;
+
+  @IsOptional()
+  @IsString()
+  searchField: string;
 
   @IsOptional()
   @IsInt()

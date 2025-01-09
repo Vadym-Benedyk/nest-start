@@ -8,11 +8,13 @@ import {
   Patch,
   Res,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @Controller('users')
 export class UserController {
@@ -30,6 +32,20 @@ export class UserController {
   @Get()
   async getAllUsers() {
     return this.userService.getAllUsers();
+  }
+
+  @ApiOperation({
+    summary: 'Get users with filters',
+    description: 'Get users with pagination, sorting and search',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns an array of users',
+    type: CreateUserDto,
+  })
+  @Get('list')
+  async getUsers(@Query() queryParams: GetUsersDto) {
+    return this.userService.getUsers(queryParams);
   }
 
   @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
