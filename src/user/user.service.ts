@@ -45,8 +45,9 @@ export class UserService {
     return await this.userModel.findByPk(id);
   }
 
+
   async getUsers(queryParams: GetUsersDto) {
-    const { search, searchField, page, pageSize, sortBy, sortDirection } =
+    const { search, searchField, limit, offset, sortBy, sortDirection } =
       queryParams;
 
     const where: any = {};
@@ -57,8 +58,6 @@ export class UserService {
     }
     let order = [];
 
-    const offset = (page - 1) * pageSize || 0;
-
     if (sortDirection || sortBy) {
       order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
     }
@@ -66,7 +65,7 @@ export class UserService {
     try {
       const users = await this.userModel.findAndCountAll({
         where,
-        limit: pageSize || 0,
+        limit,
         offset,
         order,
       });
@@ -74,7 +73,6 @@ export class UserService {
       return {
         total: users.count,
         data: users.rows,
-        totalPages: Math.ceil(users.count / pageSize),
       };
     } catch (error) {
       console.error('Error fetching users:', error);
