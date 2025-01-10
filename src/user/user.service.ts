@@ -46,29 +46,39 @@ export class UserService {
   }
 
   async getUsers(queryParams: GetUsersDto) {
-    const { search, searchField, limit, offset, sortBy, sortDirection } =
+    const { search, searchField, page, pageSize, sortBy, sortDirection } =
       queryParams;
 
-    const allowedSearchFields = ['firstName', 'lastName', 'email'];
-
     const where: any = {};
-
-    if (allowedSearchFields.includes(searchField)) {
+    if (search && searchField) {
       where[searchField] = {
         [Op.iLike]: `%${search}%`,
       };
     }
+    let order = [];
 
-    const users = await this.userModel.findAndCountAll({
-      where,
-      limit,
-      offset,
-      order: [sortBy, sortDirection],
-    });
+    const offset = (page - 1) * pageSize || 0;
 
-    return {
-      total: users.count,
-      data: users.rows,
-    };
+    if (sortDirection || sortBy) {
+      order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
+    }
+
+    try {
+      const users = await this.userModel.findAndCountAll({
+        where,
+        limit: pageSize || 0,
+        offset,
+        order,
+      });
+
+      return {
+        total: users.count,
+        data: users.rows,
+        totalPages: Math.ceil(users.count / pageSize),
+      };
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw new Error('Failed to fetch users');
+    }
   }
 }

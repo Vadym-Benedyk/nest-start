@@ -2,10 +2,7 @@ import { UserRole } from '../../../user/interfaces/role.enum';
 import { DataType, Model } from 'sequelize-typescript';
 
 module.exports = (sequelize: any) => {
-  class User extends Model {
-    //   static associate(models) {
-    // }
-  }
+  class User extends Model {}
 
   User.init(
     {
