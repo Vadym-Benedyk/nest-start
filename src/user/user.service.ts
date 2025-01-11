@@ -52,14 +52,13 @@ export class UserService {
     const {
       search,
       searchField,
-      limit,
       offset,
+      limit,
       page,
       pageSize,
       sortBy,
       sortDirection,
     } = queryParams;
-
 
     const where: any = {};
     if (search && searchField) {
@@ -68,9 +67,14 @@ export class UserService {
       };
     }
     let order = [];
+    // let limit =
     if (sortDirection || sortBy) {
       order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
     }
+    // if(page && pageSize) {
+    //    limit = ( page - 1 ) * pageSize;
+    // }
+
 
     try {
       const users = await this.userModel.findAndCountAll({
@@ -82,14 +86,17 @@ export class UserService {
 
       // if (users) {
       //
+      //
       // }
 
       return {
-        total: users.count,
-        totalPages: Math.ceil(users.count / limit),
         data: users.rows,
-        page,
-        pageSize,
+        meta: {
+          total: users.count,
+          totalPages: Math.ceil(users.count / pageSize),
+          page,
+          pageSize,
+        },
       };
     } catch (error) {
       console.error('Error fetching users:', error);
