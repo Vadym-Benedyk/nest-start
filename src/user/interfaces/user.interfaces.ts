@@ -8,4 +8,14 @@ export interface UserInterfaces {
   password: string;
   age: number;
   role: UserRole;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface UserListInterfaces {
+  total?: number;
+  totalPages?: number;
+  data?: UserInterfaces[];
+  page?: number;
+  pageSize?: number;
 }

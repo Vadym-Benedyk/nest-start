@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserInterfaces } from './interfaces/user.interfaces';
+import {
+  UserInterfaces,
+  UserListInterfaces,
+} from './interfaces/user.interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
@@ -45,10 +48,18 @@ export class UserService {
     return await this.userModel.findByPk(id);
   }
 
+  async getUsers(queryParams: GetUsersDto): Promise<UserListInterfaces> {
+    const {
+      search,
+      searchField,
+      limit,
+      offset,
+      page,
+      pageSize,
+      sortBy,
+      sortDirection,
+    } = queryParams;
 
-  async getUsers(queryParams: GetUsersDto) {
-    const { search, searchField, limit, offset, sortBy, sortDirection } =
-      queryParams;
 
     const where: any = {};
     if (search && searchField) {
@@ -57,7 +68,6 @@ export class UserService {
       };
     }
     let order = [];
-
     if (sortDirection || sortBy) {
       order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
     }
@@ -70,9 +80,16 @@ export class UserService {
         order,
       });
 
+      // if (users) {
+      //
+      // }
+
       return {
         total: users.count,
+        totalPages: Math.ceil(users.count / limit),
         data: users.rows,
+        page,
+        pageSize,
       };
     } catch (error) {
       console.error('Error fetching users:', error);
