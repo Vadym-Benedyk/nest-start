@@ -13,9 +13,11 @@ export interface UserInterfaces {
 }
 
 export interface UserListInterfaces {
-  total?: number;
-  totalPages?: number;
   data?: UserInterfaces[];
-  page?: number;
-  pageSize?: number;
+  meta?: {
+    total?: number;
+    totalPages?: number;
+    page?: number;
+    pageSize?: number;
+  };
 }
