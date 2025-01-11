@@ -1,37 +1,74 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserInterfaces } from './interfaces/user.interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetUsersDto } from './dto/get-users.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
-    const { firstName, lastName, email, password } = createUserDto;
-    return this.userModel.create({ firstName, lastName, email, password });
+    const { firstName, lastName, email, password, age, role } = createUserDto;
+    return this.userModel.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      age,
+      role,
+    });
   }
 
   async getAllUsers(): Promise<UserInterfaces[]> {
     return this.userModel.findAll();
   }
 
-  async getUserById(id: number): Promise<UserInterfaces> {
+  async getUserById(id: string): Promise<UserInterfaces> {
     return this.userModel.findByPk(id);
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: string): Promise<void> {
     const user = await this.userModel.findByPk(id);
     if (user) {
       await user.destroy();
     }
   }
 
-  // async updateUser(
-  //   id: UserInterfaces['id'],
-  //   user: UserInterfaces,
-  // ): Promise<[affectedCount: number, affectedRows: User[]]> {
-  //   return this.userModel.update(id, user);
-  // }
+  async updateUser(data: UpdateUserDto): Promise<User> {
+    const { id, ...user } = data;
+    await this.userModel.update(user, { where: { id } });
+
+    return await this.userModel.findByPk(id);
+  }
+
+  async getUsers(queryParams: GetUsersDto) {
+    const { search, searchField, limit, offset, sortBy, sortDirection } =
+      queryParams;
+
+    const allowedSearchFields = ['firstName', 'lastName', 'email'];
+
+    const where: any = {};
+
+    if (allowedSearchFields.includes(searchField)) {
+      where[searchField] = {
+        [Op.iLike]: `%${search}%`,
+      };
+    }
+
+    const users = await this.userModel.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [sortBy, sortDirection],
+    });
+
+    return {
+      total: users.count,
+      data: users.rows,
+    };
+  }
 }
