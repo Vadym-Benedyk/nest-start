@@ -3,6 +3,7 @@ import { DirectionEnum } from '../interfaces/direction.enum';
 import { SortByEnum } from '../interfaces/sortBy.enum';
 import { SearchFieldEnum } from '../interfaces/searchField.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class GetUsersDto {
   @ApiProperty({ example: 'John', description: 'search' })
@@ -22,12 +23,14 @@ export class GetUsersDto {
 
   @ApiProperty({ example: 0, description: 'number of selected page' })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   @Min(1)
   page: number = 1;
 
   @ApiProperty({ example: 10, description: 'limit execute values on page' })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   @Min(1)
   @Max(100)

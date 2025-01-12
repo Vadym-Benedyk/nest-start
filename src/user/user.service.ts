@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -48,15 +48,11 @@ export class UserService {
     return await this.userModel.findByPk(id);
   }
 
-  async getUsers(queryParams: GetUsersDto): Promise<UserListInterfaces> {
-    const {
-      search,
-      searchField,
-      page,
-      pageSize,
-      sortBy,
-      sortDirection,
-    } = queryParams;
+  async getUsers(
+    @Query() queryParams: GetUsersDto,
+  ): Promise<UserListInterfaces> {
+    const { search, searchField, page, pageSize, sortBy, sortDirection } =
+      queryParams;
 
     const where: any = {};
     if (search && searchField) {
@@ -70,7 +66,7 @@ export class UserService {
       order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
     }
 
-    let limit = 2;
+    let limit = 10;
     let offset = 0;
 
     if (page || pageSize) {
