@@ -52,8 +52,6 @@ export class UserService {
     const {
       search,
       searchField,
-      offset,
-      limit,
       page,
       pageSize,
       sortBy,
@@ -67,14 +65,20 @@ export class UserService {
       };
     }
     let order = [];
-    // let limit =
+
     if (sortDirection || sortBy) {
       order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
     }
-    // if(page && pageSize) {
-    //    limit = ( page - 1 ) * pageSize;
-    // }
 
+    let limit = 2;
+    let offset = 0;
+
+    if (page || pageSize) {
+      limit = pageSize;
+      offset = (page - 1) * pageSize;
+    }
+
+    console.log(page, pageSize);
 
     try {
       const users = await this.userModel.findAndCountAll({
@@ -83,11 +87,6 @@ export class UserService {
         offset,
         order,
       });
-
-      // if (users) {
-      //
-      //
-      // }
 
       return {
         data: users.rows,

@@ -20,14 +20,7 @@ export class GetUsersDto {
   @IsEnum(SearchFieldEnum)
   searchField: string;
 
-  @ApiProperty({ example: 10, description: 'limit execute values' })
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  limit: number = 10;
-
-  @ApiProperty({ example: 0, description: 'page number' })
+  @ApiProperty({ example: 0, description: 'number of selected page' })
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -39,12 +32,6 @@ export class GetUsersDto {
   @Min(1)
   @Max(100)
   pageSize: number = 10;
-
-  @ApiProperty({ example: 0, description: 'offset execute values' })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  offset: number = 0;
 
   @ApiProperty({
     example: 'createdAt',
