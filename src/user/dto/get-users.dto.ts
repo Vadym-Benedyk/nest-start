@@ -2,16 +2,16 @@ import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { DirectionEnum } from '../interfaces/direction.enum';
 import { SortByEnum } from '../interfaces/sortBy.enum';
 import { SearchFieldEnum } from '../interfaces/searchField.enum';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class GetUsersDto {
-  @ApiProperty({ example: 'John', description: 'search' })
+  @ApiPropertyOptional({ example: 'John', description: 'search' })
   @IsOptional()
   @IsString()
-  search: string;
+  search?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'firstName',
     description:
       'search by field. Allowed values: firstName, lastName, email, age, createdAt',
@@ -19,24 +19,27 @@ export class GetUsersDto {
   @IsOptional()
   @IsString()
   @IsEnum(SearchFieldEnum)
-  searchField: string;
+  searchField?: string;
 
-  @ApiProperty({ example: 0, description: 'number of selected page' })
+  @ApiPropertyOptional({ example: 0, description: 'number of selected page' })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   @Min(1)
-  page: number = 1;
+  page?: number = 1;
 
-  @ApiProperty({ example: 10, description: 'limit execute values on page' })
+  @ApiPropertyOptional({
+    example: 10,
+    description: 'limit execute values on page',
+  })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   @Min(1)
   @Max(100)
-  pageSize: number = 10;
+  pageSize?: number = 10;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'createdAt',
     description:
       'sort by field. Allowed values: firstName, lastName, email, age, createdAt',
@@ -44,14 +47,14 @@ export class GetUsersDto {
   @IsOptional()
   @IsString()
   @IsEnum(SortByEnum)
-  sortBy: string = 'createdAt';
+  sortBy?: string = 'createdAt';
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'ASC',
     description: 'sort direction. Allowed values: ASC, DESC',
   })
   @IsOptional()
   @IsString()
   @IsEnum(DirectionEnum)
-  sortDirection: string = 'ASC';
+  sortDirection?: string = 'ASC';
 }

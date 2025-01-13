@@ -69,7 +69,7 @@ export class UserService {
     let limit = 10;
     let offset = 0;
 
-    if (page || pageSize) {
+    if (page && pageSize) {
       limit = pageSize;
       offset = (page - 1) * pageSize;
     }
@@ -87,10 +87,10 @@ export class UserService {
       return {
         data: users.rows,
         meta: {
-          total: users.count,
+          totalItems: users.count,
           totalPages: Math.ceil(users.count / pageSize),
-          page,
-          pageSize,
+          currentPage: parseInt(String(page)),
+          itemsOnPage: parseInt(String(pageSize)),
         },
       };
     } catch (error) {
