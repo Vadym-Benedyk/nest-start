@@ -15,9 +15,9 @@ export interface UserInterfaces {
 export interface UserListInterfaces {
   data?: UserInterfaces[];
   meta?: {
-    total?: number;
+    totalItems?: number;
     totalPages?: number;
-    page?: number;
-    pageSize?: number;
+    currentPage?: number;
+    itemsOnPage?: number;
   };
 }
