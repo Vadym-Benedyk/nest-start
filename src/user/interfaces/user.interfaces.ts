@@ -8,4 +8,16 @@ export interface UserInterfaces {
   password: string;
   age: number;
   role: UserRole;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface UserListInterfaces {
+  data?: UserInterfaces[];
+  meta?: {
+    totalItems?: number;
+    totalPages?: number;
+    currentPage?: number;
+    itemsOnPage?: number;
+  };
 }

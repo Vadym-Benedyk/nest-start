@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserInterfaces } from './interfaces/user.interfaces';
+import {
+  UserInterfaces,
+  UserListInterfaces,
+} from './interfaces/user.interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
@@ -45,30 +48,54 @@ export class UserService {
     return await this.userModel.findByPk(id);
   }
 
-  async getUsers(queryParams: GetUsersDto) {
-    const { search, searchField, limit, offset, sortBy, sortDirection } =
+  async getUsers(
+    @Query() queryParams: GetUsersDto,
+  ): Promise<UserListInterfaces> {
+    const { search, searchField, page, pageSize, sortBy, sortDirection } =
       queryParams;
 
-    const allowedSearchFields = ['firstName', 'lastName', 'email'];
-
     const where: any = {};
-
-    if (allowedSearchFields.includes(searchField)) {
+    if (search && searchField) {
       where[searchField] = {
         [Op.iLike]: `%${search}%`,
       };
     }
+    let order = [];
 
-    const users = await this.userModel.findAndCountAll({
-      where,
-      limit,
-      offset,
-      order: [sortBy, sortDirection],
-    });
+    if (sortDirection || sortBy) {
+      order = [[sortBy || 'createdAt', sortDirection || 'ASC']];
+    }
 
-    return {
-      total: users.count,
-      data: users.rows,
-    };
+    let limit = 10;
+    let offset = 0;
+
+    if (page && pageSize) {
+      limit = pageSize;
+      offset = (page - 1) * pageSize;
+    }
+
+    console.log(page, pageSize);
+
+    try {
+      const users = await this.userModel.findAndCountAll({
+        where,
+        limit,
+        offset,
+        order,
+      });
+
+      return {
+        data: users.rows,
+        meta: {
+          totalItems: users.count,
+          totalPages: Math.ceil(users.count / pageSize),
+          currentPage: parseInt(String(page)),
+          itemsOnPage: parseInt(String(pageSize)),
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw new Error('Failed to fetch users');
+    }
   }
 }
