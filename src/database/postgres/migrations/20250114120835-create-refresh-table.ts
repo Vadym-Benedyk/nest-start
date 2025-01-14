@@ -4,7 +4,7 @@ export default {
   up: async (queryInterface: QueryInterface) => {
     await queryInterface.createTable('refresh_tokens', {
       id: {
-        type: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false,
@@ -15,7 +15,7 @@ export default {
         allowNull: false,
       },
       userId: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'users',
