@@ -7,8 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-import databaseConfig from './database/postgres/dbConfig.js';
-
+import databaseConfig from './database/postgres/dbConfig';
 
 const config = databaseConfig.development;
 

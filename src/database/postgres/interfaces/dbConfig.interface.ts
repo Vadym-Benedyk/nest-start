@@ -1,7 +1,6 @@
 import { Dialect } from 'sequelize';
 import 'dotenv/config';
 
-// Інтерфейс для однієї конфігурації
 interface baseConfigInterface {
   username: string;
   password: string;
@@ -11,7 +10,6 @@ interface baseConfigInterface {
   dialect: Dialect;
 }
 
-// Інтерфейс для повної конфігурації середовищ
 interface DbConfigInterface {
   development: baseConfigInterface;
   production: baseConfigInterface;
