@@ -9,7 +9,6 @@ export class User extends Model<User> {
   @Column({
     type: DataType.UUIDV4,
     defaultValue: DataType.UUIDV4,
-    autoIncrement: true,
     primaryKey: true,
   })
   id: string;

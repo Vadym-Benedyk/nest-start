@@ -49,6 +49,6 @@ export default {
   },
 
   down: async (queryInterface: QueryInterface) => {
-    await queryInterface.dropTable('users'); // Назва таблиці має збігатися з `up`
+    await queryInterface.dropTable('users');
   },
 };

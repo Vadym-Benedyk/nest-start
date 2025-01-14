@@ -9,7 +9,6 @@ import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from './database/postgres/dbConfig.general';
 
-
 @Module({
   imports: [
     SequelizeModule.forRoot({
@@ -22,5 +21,4 @@ import databaseConfig from './database/postgres/dbConfig.general';
   controllers: [AppController, UserController, AuthController],
   providers: [AppService, UserService],
 })
-
 export class AppModule {}
