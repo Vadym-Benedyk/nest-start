@@ -1,22 +1,54 @@
-'use strict';
+import { QueryInterface, DataTypes } from 'sequelize';
+import { UserRole } from '../../../user/interfaces/role.enum';
 
-/** @type {import('sequelize-cli').Migration} */
-module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    await queryInterface.createTable('users', {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+        primaryKey: true,
+        unique: true,
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      age: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      role: {
+        type: DataTypes.ENUM(...Object.values(UserRole)),
+        allowNull: true,
+        defaultValue: UserRole.GUEST,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+    });
   },
 
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-  }
+  down: async (queryInterface: QueryInterface) => {
+    await queryInterface.dropTable('users'); // Назва таблиці має збігатися з `up`
+  },
 };

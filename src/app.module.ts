@@ -5,6 +5,8 @@ import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 import databaseConfig from './database/postgres/dbConfig.general';
 
 
@@ -12,11 +14,12 @@ import databaseConfig from './database/postgres/dbConfig.general';
   imports: [
     SequelizeModule.forRoot({
       models: [__dirname + '/models/*.model.js'],
-     ...databaseConfig
+      ...databaseConfig,
     }),
     UserModule,
+    AuthModule,
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController, UserController, AuthController],
   providers: [AppService, UserService],
 })
 

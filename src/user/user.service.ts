@@ -34,6 +34,10 @@ export class UserService {
     return this.userModel.findByPk(id);
   }
 
+  async getUserByEmail(email: string): Promise<UserInterfaces> {
+    return this.userModel.findOne({ where: { email } });
+  }
+
   async deleteUser(id: string): Promise<void> {
     const user = await this.userModel.findByPk(id);
     if (user) {

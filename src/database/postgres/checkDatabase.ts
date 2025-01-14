@@ -1,6 +1,4 @@
-import { Sequelize } from 'sequelize';
 import { Client } from 'pg';
-import databaseConfig from './dbConfig.general';
 import * as process from 'node:process';
 
 async function checkAndCreateDatabase() {
@@ -17,7 +15,7 @@ async function checkAndCreateDatabase() {
   try {
     await client.connect();
 
-    const res = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [dbName]);
+    const res = await client.query(`SELECT * FROM pg_database WHERE datname = $1`, [dbName]);
 
     if (res.rowCount === 0) {
       console.log(`Database "${dbName}" does not exist. Creating...`);

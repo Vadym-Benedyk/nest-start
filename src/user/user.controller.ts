@@ -8,7 +8,7 @@ import {
   Patch,
   Res,
   HttpStatus,
-  Query,
+  Query, UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -53,6 +53,20 @@ export class UserController {
   @Get(':id')
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
+  }
+
+  @ApiOperation({
+    summary: 'Get user by email',
+    description: 'Get user by email',
+  })
+  @ApiResponse({ type: CreateUserDto })
+  @Get('email/:email')
+  async getUserByEmail(@Param('email') email: string) {
+    const user = await this.userService.getUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException(`User with email ${email} not found`);
+    }
+    return user;
   }
 
   @ApiOperation({
