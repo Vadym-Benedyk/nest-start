@@ -2,9 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import checkAndCreateDatabase from './database/postgres/checkDatabase';
-import syncTables from './database/postgres/syncTables';
-
 
 async function bootstrap() {
   // await checkAndCreateDatabase();
