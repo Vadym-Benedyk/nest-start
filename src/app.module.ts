@@ -7,36 +7,30 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-// import databaseConfig from './database/postgres/dbConfig';
-//
-// const config = databaseConfig.development;
+import { databaseConfig } from './database/postgres/dbConfig';
+import { RefreshTokenController } from './refresh-token/refresh-token.controller';
+import { RefreshTokenModule } from './refresh-token/refresh-token.module';
+
+const config = databaseConfig.development;
 
 @Module({
   imports: [
     SequelizeModule.forRoot({
       models: [__dirname + '/models/*.model.js'],
-      // dialect: config.dialect,
-      // host: config.host,
-      // port: config.port,
-      // username: config.username,
-      // password: config.password,
-      // database: config.database,
-      // synchronize: false,
-      // autoLoadModels: true,
-
-      dialect: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'usersdb',
+      dialect: config.dialect,
+      host: config.host,
+      port: config.port,
+      username: config.username,
+      password: config.password,
+      database: config.database,
       synchronize: false,
       autoLoadModels: true,
     }),
     UserModule,
     AuthModule,
+    RefreshTokenModule,
   ],
-  controllers: [AppController, UserController, AuthController],
+  controllers: [AppController, UserController, AuthController, RefreshTokenController],
   providers: [AppService, UserService],
 })
 export class AppModule {}
