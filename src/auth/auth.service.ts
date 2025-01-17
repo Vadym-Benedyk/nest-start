@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
@@ -14,7 +14,7 @@ export class AuthService {
   ) {}
 
   // Hash the password and create a new user
-  async signUp(createUserDto: CreateUserDto): Promise<UserInterfaces> {
+  async signUp(createUserDto: UserDto): Promise<UserInterfaces> {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       return await this.user.createUser({
@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   // Register a new user and return tokens
-  async registerUser(createUserDto: CreateUserDto) {
+  async registerUser(createUserDto: UserDto) {
     // Check if user already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {

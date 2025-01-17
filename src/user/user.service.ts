@@ -6,7 +6,7 @@ import {
   UserInterfaces,
   UserListInterfaces,
 } from './interfaces/user.interfaces';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
 
@@ -14,7 +14,7 @@ import { Op } from 'sequelize';
 export class UserService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
+  async createUser(createUserDto: UserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password, age, role } = createUserDto;
     return this.userModel.create({
       firstName,

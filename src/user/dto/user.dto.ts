@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { UserRole } from '../interfaces/role.enum';
 
-export class CreateUserDto {
+export class UserDto {
   @ApiProperty({ example: 'John', description: 'first name' })
   @IsString()
   @IsNotEmpty()

@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UserDto } from '../user/dto/user.dto';
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -7,11 +7,14 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({ summary: 'Create user', description: 'Create user' })
-  @ApiResponse({ type: CreateUserDto })
-  @Post('/register')
-  public async register(@Body() req: CreateUserDto) {
-    const payload = await this.authService.registerUser(req);
+  @ApiOperation({
+    summary: 'Create new user',
+    description: 'Registration new user',
+  })
+  @ApiResponse({ type: UserDto })
+  @Post('register')
+  public async register(@Body() createUserDto: UserDto) {
+    const payload = await this.authService.registerUser(createUserDto);
 
     return {
       status: 'success',

@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
   Delete,
@@ -12,7 +11,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
@@ -21,15 +20,8 @@ import { GetUsersDto } from './dto/get-users.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: 'Create user', description: 'Create user' })
-  @ApiResponse({ type: CreateUserDto })
-  @Post('create')
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
-  }
-
   @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
-  @ApiResponse({ type: [CreateUserDto] })
+  @ApiResponse({ type: [UserDto] })
   @Get()
   async getAllUsers() {
     return this.userService.getAllUsers();
@@ -42,7 +34,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns an array of users',
-    type: CreateUserDto,
+    type: UserDto,
   })
   @Get('list')
   async getUsers(@Query() queryParams: GetUsersDto) {
@@ -50,7 +42,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
-  @ApiResponse({ type: CreateUserDto })
+  @ApiResponse({ type: UserDto })
   @Get(':id')
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
@@ -60,7 +52,7 @@ export class UserController {
     summary: 'Get user by email',
     description: 'Get user by email',
   })
-  @ApiResponse({ type: CreateUserDto })
+  @ApiResponse({ type: UserDto })
   @Get('email/:email')
   async getUserByEmail(@Param('email') email: string) {
     const user = await this.userService.getUserByEmail(email);
@@ -83,7 +75,7 @@ export class UserController {
     summary: 'Update user by id',
     description: 'Update user by id',
   })
-  @ApiResponse({ type: CreateUserDto })
+  @ApiResponse({ type: UserDto })
   @Patch('update')
   async updateUser(@Body() updateUserDto: UpdateUserDto, @Res() res) {
     const updatedUser = await this.userService.updateUser(updateUserDto);
