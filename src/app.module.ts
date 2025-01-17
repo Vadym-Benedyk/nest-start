@@ -8,8 +8,6 @@ import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { databaseConfig } from './database/postgres/dbConfig';
-import { RefreshTokenController } from './refresh-token/refresh-token.controller';
-import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 
@@ -30,10 +28,9 @@ const config = databaseConfig.development;
     }),
     UserModule,
     AuthModule,
-    RefreshTokenModule,
     RefreshModule,
   ],
-  controllers: [AppController, UserController, AuthController, RefreshTokenController],
+  controllers: [AppController, UserController, AuthController],
   providers: [AppService, UserService, RefreshService],
 })
 export class AppModule {}

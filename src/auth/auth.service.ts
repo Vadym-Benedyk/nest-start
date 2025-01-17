@@ -22,7 +22,7 @@ export class AuthService {
         password: hashedPassword,
       });
     } catch (error) {
-      throw new Error('Failed to create user: ' + error.message);
+      throw new Error('Failed to create user: ' + error);
     }
   }
 
@@ -61,7 +61,7 @@ export class AuthService {
       access = await this.token.generateAccessToken(user);
       refresh = this.token.generateRefreshToken(user.id);
     } catch (error) {
-      throw new Error('Failed to register user: ' + error.message);
+      throw new Error('Failed to register user: ' + error);
     }
 
     return this.buildResponsePayload(user, access, refresh);
