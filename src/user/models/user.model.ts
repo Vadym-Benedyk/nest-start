@@ -39,12 +39,6 @@ export class User extends Model<User> {
   password: string;
 
   @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  age: number;
-
-  @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
     defaultValue: UserRole.GUEST,
   })

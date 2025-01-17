@@ -7,22 +7,22 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-import { databaseConfig } from './database/postgres/dbConfig';
+// import { databaseConfig } from './database/postgres/dbConfig';
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 
-const config = databaseConfig.development;
+// const config = databaseConfig.development;
 
 @Module({
   imports: [
     SequelizeModule.forRoot({
       models: [__dirname + '/models/*.model.js'],
-      dialect: config.dialect,
-      host: config.host,
-      port: config.port,
-      username: config.username,
-      password: config.password,
-      database: config.database,
+      dialect: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'usersdb',
       synchronize: false,
       autoLoadModels: true,
     }),

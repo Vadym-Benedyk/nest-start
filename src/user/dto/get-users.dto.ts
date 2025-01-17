@@ -14,7 +14,7 @@ export class GetUsersDto {
   @ApiPropertyOptional({
     example: 'firstName',
     description:
-      'search by field. Allowed values: firstName, lastName, email, age, createdAt',
+      'search by field. Allowed values: firstName, lastName, email, createdAt',
   })
   @IsOptional()
   @IsString()
@@ -42,7 +42,7 @@ export class GetUsersDto {
   @ApiPropertyOptional({
     example: 'createdAt',
     description:
-      'sort by field. Allowed values: firstName, lastName, email, age, createdAt',
+      'sort by field. Allowed values: firstName, lastName, email, createdAt',
   })
   @IsOptional()
   @IsString()
