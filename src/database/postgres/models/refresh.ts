@@ -36,7 +36,7 @@ module.exports = (sequelize: Sequelize) => {
       sequelize,
       modelName: 'RefreshToken',
       tableName: 'refresh_tokens',
-      timestamps: true, // якщо хочете `updatedAt`, залиште true
+      timestamps: true,
     },
   );
   return RefreshToken;

@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
 import { RefreshService } from './refresh.service';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { RefreshToken } from './models/refresh.model';
+
 
 @Module({
+  imports: [SequelizeModule.forFeature([RefreshToken])],
   providers: [RefreshService],
-  exports: [RefreshService], // Експортуємо, щоб інші модулі могли використовувати цей сервіс
+  exports: [RefreshService, SequelizeModule],
 })
 export class RefreshModule {}
