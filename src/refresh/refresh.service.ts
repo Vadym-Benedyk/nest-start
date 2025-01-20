@@ -30,7 +30,7 @@ export class RefreshService {
     }
   }
 
-  async generateRefreshToken(userId: string): Promise<string> {
+  async generateRefreshToken(user: UserInterfaces): Promise<string> {
     if (
       !process.env.JWT_REFRESH_SECRET ||
       !process.env.JWT_REFRESH_EXPIRATION
@@ -41,7 +41,7 @@ export class RefreshService {
     }
 
     const token: string = this.jwtweb.sign(
-      { userId },
+      { userId: user.id },
       process.env.JWT_REFRESH_SECRET,
       {
         expiresIn: process.env.JWT_REFRESH_EXPIRATION,
@@ -52,16 +52,25 @@ export class RefreshService {
       throw new Error('Failed to generate refresh token');
     }
 
-    const isSavedToken = await this.saveRefreshToken(token);
+    const isSavedToken = await this.saveRefreshToken(user.id, token);
+
     if (isSavedToken) {
       return token;
     }
   }
 
   //Save refresh token to database
-  async saveRefreshToken(token: string): Promise<boolean> {
+  async saveRefreshToken(userId: string, token: string): Promise<boolean> {
+    const expires = new Date(
+      Date.now() +
+        parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60 * 1000,
+    );
     try {
-      await this.refreshModel.create({ refreshToken: token });
+      await this.refreshModel.create({
+        userId: userId,
+        refreshToken: token,
+        expires: expires,
+      });
       return true;
     } catch (error) {
       console.error('Failed to save refresh token:', error);

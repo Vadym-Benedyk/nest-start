@@ -5,7 +5,6 @@ import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
-import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +23,7 @@ export class AuthService {
   }
 
   //change password
-  async updateUser(userDto: UserDto): Promise<UserInterfaces> {
+  async updateUserPassword(userDto: UserDto): Promise<UserInterfaces> {
     const hashedPassword = this.hashPassword(userDto.password);
     return await this.user.createUser({
       ...userDto,
@@ -49,18 +48,18 @@ export class AuthService {
   }
 
   // Register a new user and return tokens
-  async registerUser(createUserDto: CreateUserDto) {
+  async registerUser(userDto: UserDto) {
     // Check if user already exists
-    const userExist = await this.user.getUserByEmail(createUserDto.email);
+    const userExist = await this.user.getUserByEmail(userDto.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
     // Create user
-    const user = await this.updateUser(createUserDto);
+    const user = await this.updateUserPassword(userDto);
     // Generate tokens
     if (user) {
       const access = await this.token.generateAccessToken(user);
-      const refresh = await this.token.generateRefreshToken(user.id);
+      const refresh = await this.token.generateRefreshToken(user);
       return this.buildResponsePayload(user, access, refresh);
     } else {
       throw new Error('Failed to register user');

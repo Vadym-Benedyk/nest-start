@@ -1,5 +1,6 @@
 import { Table, Model, Column, DataType } from 'sequelize-typescript';
 import { RefreshInterfaces } from '../../database/postgres/interfaces/refresh.interfaces';
+import process from 'node:process';
 
 @Table({
   tableName: 'refresh_tokens',
@@ -21,7 +22,7 @@ export class RefreshToken extends Model<RefreshInterfaces> {
   refreshToken: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUIDV4,
     allowNull: false,
     references: {
       model: 'users',

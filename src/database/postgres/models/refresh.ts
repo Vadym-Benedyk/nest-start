@@ -21,6 +21,7 @@ module.exports = (sequelize: Sequelize) => {
           model: 'users',
           key: 'id',
         },
+        onDelete: 'CASCADE',
       },
       expires: {
         type: DataTypes.DATE,
