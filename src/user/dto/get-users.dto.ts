@@ -21,7 +21,7 @@ export class GetUsersDto {
   @IsEnum(SearchFieldEnum)
   searchField?: string;
 
-  @ApiPropertyOptional({ example: 0, description: 'number of selected page' })
+  @ApiPropertyOptional({ example: 1, description: 'number of selected page' })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsInt()

@@ -1,4 +1,4 @@
-import { Injectable, Query } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,6 +9,7 @@ import {
 import { UserDto } from './dto/user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
+import { count } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -72,12 +73,10 @@ export class UserService {
     let limit = 10;
     let offset = 0;
 
-    if (page && pageSize) {
+    if (page && page >= 1 && pageSize) {
       limit = pageSize;
       offset = (page - 1) * pageSize;
     }
-
-    console.log(page, pageSize);
 
     try {
       const users = await this.userModel.findAndCountAll({
@@ -86,6 +85,10 @@ export class UserService {
         offset,
         order,
       });
+
+      // if (users.count === 0) {
+      //   throw new HttpException('No users found', HttpStatus.NOT_FOUND);
+      // }
 
       return {
         data: users.rows,
