@@ -60,7 +60,7 @@ export class AuthService {
     // Generate tokens
     if (user) {
       const access = await this.token.generateAccessToken(user);
-      const refresh = this.token.generateRefreshToken(user.id);
+      const refresh = await this.token.generateRefreshToken(user.id);
       return this.buildResponsePayload(user, access, refresh);
     } else {
       throw new Error('Failed to register user');

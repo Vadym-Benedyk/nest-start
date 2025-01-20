@@ -10,6 +10,7 @@ export class RefreshToken extends Model<RefreshInterfaces> {
     type: DataType.UUIDV4,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
