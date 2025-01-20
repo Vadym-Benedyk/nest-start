@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,17 +14,22 @@ export class AuthService {
     private readonly token: RefreshService,
   ) {}
 
-  // Hash the password and create a new user
-  async signUp(createUserDto: UserDto): Promise<UserInterfaces> {
-    try {
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      return await this.user.createUser({
-        ...createUserDto,
-        password: hashedPassword,
-      });
-    } catch (error) {
-      throw new Error('Failed to create user: ' + error);
+  // Hash the password
+  public hashPassword(password: string): string {
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    if (!hashedPassword) {
+      throw new Error('Failed to hash password');
     }
+    return hashedPassword;
+  }
+
+  //change password
+  async updateUser(userDto: UserDto): Promise<UserInterfaces> {
+    const hashedPassword = this.hashPassword(userDto.password);
+    return await this.user.createUser({
+      ...userDto,
+      password: hashedPassword,
+    });
   }
 
   // Build authentication response payload
@@ -43,27 +49,21 @@ export class AuthService {
   }
 
   // Register a new user and return tokens
-  async registerUser(createUserDto: UserDto) {
+  async registerUser(createUserDto: CreateUserDto) {
     // Check if user already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
-
-    let user: UserInterfaces;
-    let access: string;
-    let refresh: string;
-
-    try {
-      // Create user
-      user = await this.signUp(createUserDto);
-      // Generate tokens
-      access = await this.token.generateAccessToken(user);
-      refresh = this.token.generateRefreshToken(user.id);
-    } catch (error) {
-      throw new Error('Failed to register user: ' + error);
+    // Create user
+    const user = await this.updateUser(createUserDto);
+    // Generate tokens
+    if (user) {
+      const access = await this.token.generateAccessToken(user);
+      const refresh = this.token.generateRefreshToken(user.id);
+      return this.buildResponsePayload(user, access, refresh);
+    } else {
+      throw new Error('Failed to register user');
     }
-
-    return this.buildResponsePayload(user, access, refresh);
   }
 }

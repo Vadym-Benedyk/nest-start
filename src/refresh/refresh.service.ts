@@ -20,14 +20,19 @@ export class RefreshService {
       userId: user.id,
       role: user.role,
     };
+
+    console.log(payload, process.env.JWT_SECRET);
     try {
+      console.log('Generating access token with payload:', payload);
       return await this.jwtService.signAsync(payload);
     } catch (error) {
-      throw new Error('Failed to generate access token. Error:', error);
+      throw new Error(
+        'Failed to generate access token. Error: ' + error
+      );
     }
   }
 
-  generateRefreshToken(userId: string): string {
+  public generateRefreshToken(userId: string): string {
     if (
       !process.env.JWT_REFRESH_SECRET ||
       !process.env.JWT_REFRESH_EXPIRATION
