@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException, Query } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Query,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
-import { UpdateUserDto } from './dto/update-user.dto';
 import {
   UserInterfaces,
   UserListInterfaces,
@@ -9,19 +14,20 @@ import {
 import { UserDto } from './dto/user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
-  async createUser(createUserDto: UserDto): Promise<UserInterfaces> {
-    const { firstName, lastName, email, password, role } = createUserDto;
+  async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
+    const { firstName, lastName, email, password } = createUserDto;
     return this.userModel.create({
       firstName,
       lastName,
       email,
       password,
-      role,
     });
   }
 
@@ -38,7 +44,11 @@ export class UserService {
   }
 
   async getUserByEmail(email: string): Promise<UserInterfaces> {
-    return this.userModel.findOne({ where: { email } });
+    const user = await this.userModel.findOne({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException(`User with email ${email} not found`);
+    }
+    return user;
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -49,11 +59,19 @@ export class UserService {
     await user.destroy();
   }
 
-  async updateUser(data: UpdateUserDto): Promise<User> {
-    const { id, ...user } = data;
-    await this.userModel.update(user, { where: { id } });
+  async updateUser(updateUserDto: UpdateUserDto): Promise<any> {
+    const isUser = await this.userModel.findByPk(updateUserDto.id);
+    if (!isUser) {
+      throw new NotFoundException('Error by editing. User not found');
+    }
+    const { id, ...user } = updateUserDto;
+    const [affectedRows] = await this.userModel.update(user, { where: { id } });
+    const updatedUser = await this.userModel.findByPk(id);
 
-    return await this.userModel.findByPk(id);
+    return {
+      updates: affectedRows,
+      user: updatedUser,
+    };
   }
 
   async getUsers(
@@ -100,8 +118,7 @@ export class UserService {
         },
       };
     } catch (error) {
-      console.error('Error fetching users:', error);
-      throw new Error('Failed to fetch users');
+      throw new Error('Failed to fetch users' + error);
     }
   }
 }

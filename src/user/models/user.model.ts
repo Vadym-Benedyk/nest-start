@@ -40,7 +40,7 @@ export class User extends Model<User> {
 
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
-    defaultValue: UserRole.GUEST,
+    defaultValue: UserRole.USER,
   })
   role: UserRole;
 }

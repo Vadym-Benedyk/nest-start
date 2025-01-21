@@ -6,6 +6,7 @@ import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -49,14 +50,14 @@ export class AuthService {
   }
 
   // Register a new user and return tokens
-  async registerUser(userDto: UserDto) {
+  async registerUser(createUserDto: CreateUserDto) {
     // Check if user already exists
-    const userExist = await this.user.getUserByEmail(userDto.email);
+    const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
     // Create user
-    const user = await this.updateUserPassword(userDto);
+    const user = await this.updateUserPassword(createUserDto);
     // Generate tokens
     if (user) {
       const access = await this.token.generateAccessToken(user);
@@ -69,5 +70,6 @@ export class AuthService {
   // Login
   async loginUser(loginUserDto: LoginUserDto) {
     const user = await this.user.getUserByEmail(loginUserDto.email);
+    // const isValid = await bcrypt.compare(loginUserDto.password, user.password);
   }
 }

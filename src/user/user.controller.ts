@@ -5,16 +5,14 @@ import {
   Param,
   Delete,
   Patch,
-  Res,
   HttpStatus,
   Query,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -55,11 +53,7 @@ export class UserController {
   @ApiResponse({ type: UserDto })
   @Get('email/:email')
   async getUserByEmail(@Param('email') email: string) {
-    const user = await this.userService.getUserByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException(`User with email ${email} not found`);
-    }
-    return user;
+    return await this.userService.getUserByEmail(email);
   }
 
   @ApiOperation({
@@ -68,7 +62,7 @@ export class UserController {
   })
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
-    return this.userService.deleteUser(id);
+    return await this.userService.deleteUser(id);
   }
 
   @ApiOperation({
@@ -77,14 +71,7 @@ export class UserController {
   })
   @ApiResponse({ type: UserDto })
   @Patch('update')
-  async updateUser(@Body() updateUserDto: UpdateUserDto, @Res() res) {
-    const updatedUser = await this.userService.updateUser(updateUserDto);
-
-    if (!updatedUser) {
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json({ message: 'User not found' });
-    }
-    return res.status(HttpStatus.OK).json(updatedUser);
+  async updateUser(@Body() updateUserDto: UpdateUserDto) {
+    return await this.userService.updateUser(updateUserDto);
   }
 }
