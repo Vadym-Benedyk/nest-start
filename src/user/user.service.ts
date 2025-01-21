@@ -1,4 +1,4 @@
-import { Injectable, Query } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,22 +6,22 @@ import {
   UserInterfaces,
   UserListInterfaces,
 } from './interfaces/user.interfaces';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
+import { count } from 'rxjs';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
-    const { firstName, lastName, email, password, age, role } = createUserDto;
+  async createUser(createUserDto: UserDto): Promise<UserInterfaces> {
+    const { firstName, lastName, email, password, role } = createUserDto;
     return this.userModel.create({
       firstName,
       lastName,
       email,
       password,
-      age,
       role,
     });
   }
@@ -32,6 +32,10 @@ export class UserService {
 
   async getUserById(id: string): Promise<UserInterfaces> {
     return this.userModel.findByPk(id);
+  }
+
+  async getUserByEmail(email: string): Promise<UserInterfaces> {
+    return this.userModel.findOne({ where: { email } });
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -69,12 +73,10 @@ export class UserService {
     let limit = 10;
     let offset = 0;
 
-    if (page && pageSize) {
+    if (page && page >= 1 && pageSize) {
       limit = pageSize;
       offset = (page - 1) * pageSize;
     }
-
-    console.log(page, pageSize);
 
     try {
       const users = await this.userModel.findAndCountAll({
@@ -83,6 +85,10 @@ export class UserService {
         offset,
         order,
       });
+
+      // if (users.count === 0) {
+      //   throw new HttpException('No users found', HttpStatus.NOT_FOUND);
+      // }
 
       return {
         data: users.rows,

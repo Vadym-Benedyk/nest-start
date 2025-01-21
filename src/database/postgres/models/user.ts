@@ -10,6 +10,7 @@ module.exports = (sequelize: any) => {
         type: DataType.UUIDV4,
         defaultValue: DataType.UUIDV4,
         primaryKey: true,
+        onDelete: 'CASCADE',
       },
       firstName: DataType.STRING,
       lastName: DataType.STRING,
