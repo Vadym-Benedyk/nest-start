@@ -20,8 +20,6 @@ export class RefreshService {
       userId: user.id,
       role: user.role,
     };
-
-    console.log(payload, process.env.JWT_SECRET);
     try {
       console.log('Generating access token with payload:', payload);
       return await this.jwtService.signAsync(payload);
