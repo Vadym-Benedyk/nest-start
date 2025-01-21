@@ -9,7 +9,6 @@ import {
   HttpStatus,
   Query,
   UnauthorizedException,
-  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
