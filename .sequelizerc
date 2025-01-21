@@ -1,10 +1,8 @@
 const path = require('path');
 
 module.exports = {
-    'config': path.resolve('./src/config/dbConfig.js'),
-    'models-path': path.resolve('./src/user/migrate-db/models'),
-    'seeders-path': path.resolve('./src/user/migrate-db/seeders'),
-    'migrations-path': path.resolve('./src/user/migrate-db/migrations')
+    'config': path.resolve('./src/database/postgres/config.js'),
+    'models-path': path.resolve('./src/database/postgres/models'),
+    'seeders-path': path.resolve('./src/database/postgres/seeders'),
+    'migrations-path': path.resolve('./src/database/postgres/migrations')
 };
-
-//for modify path default config.json file to config/dbConfig.js

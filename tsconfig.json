@@ -20,5 +20,13 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*.ts", "migrations/**/*.ts", "models/**/*.ts", "seeders/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "migrations/**/*.ts",
+    "models/**/*.ts",
+    "seeders/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

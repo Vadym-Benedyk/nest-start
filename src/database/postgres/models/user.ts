@@ -1,4 +1,4 @@
-import { UserRole } from '../../interfaces/role.enum';
+import { UserRole } from '../../../user/interfaces/role.enum';
 import { DataType, Model } from 'sequelize-typescript';
 
 module.exports = (sequelize: any) => {
@@ -10,6 +10,7 @@ module.exports = (sequelize: any) => {
         type: DataType.UUIDV4,
         defaultValue: DataType.UUIDV4,
         primaryKey: true,
+        onDelete: 'CASCADE',
       },
       firstName: DataType.STRING,
       lastName: DataType.STRING,
