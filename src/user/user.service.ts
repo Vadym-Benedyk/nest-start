@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,7 +15,6 @@ import {
 import { UserDto } from './dto/user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
-import { count } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -40,9 +45,10 @@ export class UserService {
 
   async deleteUser(id: string): Promise<void> {
     const user = await this.userModel.findByPk(id);
-    if (user) {
-      await user.destroy();
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+    await user.destroy();
   }
 
   async updateUser(data: UpdateUserDto): Promise<User> {
