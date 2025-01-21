@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   Query,
-  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -11,7 +10,6 @@ import {
   UserInterfaces,
   UserListInterfaces,
 } from './interfaces/user.interfaces';
-import { UserDto } from './dto/user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
