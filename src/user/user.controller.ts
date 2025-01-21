@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Query,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
@@ -38,14 +39,14 @@ export class UserController {
   })
   @Get('list')
   async getUsers(@Query() queryParams: GetUsersDto) {
-    return this.userService.getUsers(queryParams);
+    return await this.userService.getUsers(queryParams);
   }
 
   @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
   @ApiResponse({ type: UserDto })
   @Get(':id')
   async getUserById(@Param('id') id: string) {
-    return this.userService.getUserById(id);
+    return await this.userService.getUserById(id);
   }
 
   @ApiOperation({

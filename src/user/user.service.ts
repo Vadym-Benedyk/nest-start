@@ -30,7 +30,11 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<UserInterfaces> {
-    return this.userModel.findByPk(id);
+    const user = await this.userModel.findByPk(id);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 
   async getUserByEmail(email: string): Promise<UserInterfaces> {
