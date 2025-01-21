@@ -5,6 +5,7 @@ import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -64,5 +65,9 @@ export class AuthService {
     } else {
       throw new Error('Failed to register user');
     }
+  }
+  // Login
+  async loginUser(loginUserDto: LoginUserDto) {
+    const user = await this.user.getUserByEmail(loginUserDto.email);
   }
 }

@@ -1,10 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  Query,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -91,10 +85,6 @@ export class UserService {
         offset,
         order,
       });
-
-      // if (users.count === 0) {
-      //   throw new HttpException('No users found', HttpStatus.NOT_FOUND);
-      // }
 
       return {
         data: users.rows,
