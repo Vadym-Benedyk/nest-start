@@ -18,13 +18,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
-  @ApiResponse({ type: [UserDto] })
-  @Get()
-  async getAllUsers() {
-    return this.userService.getAllUsers();
-  }
-
   @ApiOperation({
     summary: 'Get users with filters',
     description: 'Get users with pagination, sorting and search',
@@ -35,6 +28,8 @@ export class UserController {
     type: UserDto,
   })
   @Get('list')
+  @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
+  @ApiResponse({ type: [UserDto] })
   async getUsers(@Query() queryParams: GetUsersDto) {
     return await this.userService.getUsers(queryParams);
   }

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Query,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import {
@@ -29,10 +24,6 @@ export class UserService {
     });
   }
 
-  async getAllUsers(): Promise<UserInterfaces[]> {
-    return this.userModel.findAll();
-  }
-
   async getUserById(id: string): Promise<UserInterfaces> {
     const user = await this.userModel.findByPk(id);
     if (!user) {
@@ -42,11 +33,7 @@ export class UserService {
   }
 
   async getUserByEmail(email: string): Promise<UserInterfaces> {
-    const user = await this.userModel.findOne({ where: { email } });
-    if (!user) {
-      throw new UnauthorizedException(`User with email ${email} not found`);
-    }
-    return user;
+    return await this.userModel.findOne({ where: { email } });
   }
 
   async deleteUser(id: string): Promise<void> {

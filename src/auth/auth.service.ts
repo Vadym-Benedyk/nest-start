@@ -70,6 +70,15 @@ export class AuthService {
   // Login
   async loginUser(loginUserDto: LoginUserDto) {
     const user = await this.user.getUserByEmail(loginUserDto.email);
-    // const isValid = await bcrypt.compare(loginUserDto.password, user.password);
+    if (!user) {
+      throw new UnauthorizedException('login not found');
+    }
+    const isValid = await bcrypt.compare(loginUserDto.password, user.password);
+    if (!isValid) {
+      throw new UnauthorizedException('Wrong password');
+    }
+    const access: string = await this.token.generateAccessToken(user);
+    const refresh: string = await this.token.generateRefreshToken(user);
+    return this.buildResponsePayload(user, access, refresh);
   }
 }
