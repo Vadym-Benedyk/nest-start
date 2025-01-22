@@ -50,7 +50,9 @@ export class AuthService {
   }
 
   // Register a new user and return tokens
-  async registerUser(createUserDto: CreateUserDto) {
+  async registerUser(
+    createUserDto: CreateUserDto,
+  ): Promise<AuthenticationPayloadInterface> {
     // Check if user already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
@@ -68,7 +70,9 @@ export class AuthService {
     }
   }
   // Login
-  async loginUser(loginUserDto: LoginUserDto) {
+  async loginUser(
+    loginUserDto: LoginUserDto,
+  ): Promise<AuthenticationPayloadInterface> {
     const user = await this.user.getUserByEmail(loginUserDto.email);
     if (!user) {
       throw new UnauthorizedException('login not found');

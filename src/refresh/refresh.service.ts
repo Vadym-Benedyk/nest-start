@@ -77,4 +77,23 @@ export class RefreshService {
       return false;
     }
   }
+
+  //Decode refresh token
+  public decodeRefreshToken(token: string) {
+    try {
+      return this.jwtweb.decode(token);
+    } catch (error) {
+      console.error('Failed to decode refresh token:', error);
+      return null;
+    }
+  }
+
+  public validateRefreshToken(token: string) {
+    try {
+      return this.jwtweb.verify(token, process.env.JWT_REFRESH_SECRET);
+    } catch (error) {
+      console.error('Failed to validate refresh token:', error);
+      return null;
+    }
+  }
 }
