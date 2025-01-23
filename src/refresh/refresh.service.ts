@@ -21,10 +21,7 @@ export class RefreshService {
       userId: user.id,
       role: user.role,
     };
-
-    console.log(payload, process.env.JWT_SECRET);
     try {
-      console.log('Generating access token with payload:', payload);
       return await this.jwtService.signAsync(payload);
     } catch (error) {
       throw new Error('Failed to generate access token. Error: ' + error);
@@ -32,21 +29,13 @@ export class RefreshService {
   }
 
   async generateRefreshToken(user: UserInterfaces): Promise<string> {
-    if (
-      !process.env.JWT_REFRESH_SECRET ||
-      !process.env.JWT_REFRESH_EXPIRATION
-    ) {
-      throw new Error(
-        'JWT_REFRESH_SECRET or JWT_REFRESH_EXPIRATION is not set in the .env',
-      );
-    }
-
+    const expirationTime =
+      parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60;
     const token: string = this.jwtweb.sign(
       { userId: user.id },
       process.env.JWT_REFRESH_SECRET,
       {
-        expiresIn:
-          parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60 * 1000,
+        expiresIn: expirationTime,
       },
     );
     if (!token) {
@@ -59,12 +48,13 @@ export class RefreshService {
     }
   }
 
-  //Save refresh token to database
+  // Save refresh token to database
   async saveRefreshToken(userId: string, token: string): Promise<boolean> {
     const expires = new Date(
       Date.now() +
         parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60 * 1000,
     );
+
     try {
       await this.refreshModel.create({
         userId: userId,
@@ -81,7 +71,6 @@ export class RefreshService {
   //Decode refresh token
   public decodeRefreshToken(token: string): any {
     try {
-      console.log(this.jwtweb.decode(token));
       return this.jwtweb.decode(token);
     } catch (error) {
       console.error('Failed to decode refresh token:', error);

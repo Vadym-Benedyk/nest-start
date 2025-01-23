@@ -7,6 +7,7 @@ import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.in
 import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as process from 'node:process';
 
 @Injectable()
 export class AuthService {
@@ -72,13 +73,14 @@ export class AuthService {
     }
     // Create user
     const user = await this.updateUserPassword(createUserDto);
-    // Generate tokens
+    // Generate token
     if (user) {
       return this.composeGenerateTokens(user);
     } else {
       throw new Error('Failed to register user');
     }
   }
+
   // Login
   async loginUser(
     loginUserDto: LoginUserDto,
@@ -95,9 +97,7 @@ export class AuthService {
   }
 
   //refresh token
-  async refreshValidate(
-    refreshToken: string,
-  ): Promise<AuthenticationPayloadInterface> {
+  async refreshValidate(refreshToken: string): Promise<any> {
     const decodedToken = this.token.decodeRefreshToken(refreshToken);
 
     if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
@@ -109,20 +109,35 @@ export class AuthService {
       throw new UnauthorizedException('User in refresh token not found');
     }
 
-    const dbToken = await this.token.getDBToken(refreshToken);
-    if (!dbToken) {
+    const databaseToken = await this.token.getDBToken(refreshToken);
+    if (!databaseToken) {
       await this.token.deleteRefreshToken(user.id);
       throw new UnauthorizedException('Refresh token has not register in DB');
     }
 
-    const isExpired = new Date(dbToken.expires).getTime();
-    const decodedTokenExpiration = decodedToken.exp * 1000;
+    const databaseTokenExpiration = new Date(databaseToken.expires).getTime();
+    const decodedTokenExpiration = new Date(decodedToken.exp * 1000).getTime();
 
-    if (decodedTokenExpiration < Date.now() || isExpired < Date.now()) {
+    console.log(databaseTokenExpiration, decodedTokenExpiration, Date.now());
+
+    if (
+      decodedTokenExpiration < Date.now() ||
+      databaseTokenExpiration < Date.now()
+    ) {
       await this.token.deleteRefreshToken(user.id);
       throw new UnauthorizedException('Refresh token is expired');
     }
 
-    return this.composeGenerateTokens(user);
+    const expTokenRange: number =
+      Date.now() +
+      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
+
+    //If expiration date leas then 5 days remaining let's generate both tokens, else gen access token only
+    if (decodedTokenExpiration < expTokenRange) {
+      return this.composeGenerateTokens(user);
+    } else {
+      const access: string = await this.token.generateAccessToken(user);
+      return this.buildResponsePayload(user, access);
+    }
   }
 }
