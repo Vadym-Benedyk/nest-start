@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { InjectModel } from '@nestjs/sequelize';
 import { RefreshToken } from './models/refresh.model';
+import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
 
 @Injectable()
 export class RefreshService {
@@ -44,14 +45,13 @@ export class RefreshService {
       { userId: user.id },
       process.env.JWT_REFRESH_SECRET,
       {
-        expiresIn: process.env.JWT_REFRESH_EXPIRATION,
+        expiresIn:
+          parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60 * 1000,
       },
     );
-
     if (!token) {
       throw new Error('Failed to generate refresh token');
     }
-
     const isSavedToken = await this.saveRefreshToken(user.id, token);
 
     if (isSavedToken) {
@@ -84,16 +84,28 @@ export class RefreshService {
       return this.jwtweb.decode(token);
     } catch (error) {
       console.error('Failed to decode refresh token:', error);
-      return null;
     }
   }
-
-  public validateRefreshToken(token: string) {
+  //delete refresh tokens.Return number of deleted tokens
+  async deleteRefreshToken(userId: string) {
     try {
-      return this.jwtweb.verify(token, process.env.JWT_REFRESH_SECRET);
+      return await this.refreshModel.destroy({
+        where: {
+          userId: userId,
+        },
+      });
     } catch (error) {
-      console.error('Failed to validate refresh token:', error);
-      return null;
+      throw new Error('Failed to delete refresh token. Error: ' + error);
+    }
+  }
+  // Get refresh token from DB
+  async getDBToken(token: string): Promise<RefreshTokenInterface> {
+    try {
+      return await this.refreshModel.findOne({
+        where: { refreshToken: token },
+      });
+    } catch (error) {
+      throw new Error('Failed to read refresh token from DB. Error: ' + error);
     }
   }
 }

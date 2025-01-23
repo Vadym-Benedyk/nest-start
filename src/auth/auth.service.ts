@@ -49,6 +49,18 @@ export class AuthService {
     };
   }
 
+  async composeGenerateTokens(
+    user: UserInterfaces,
+  ): Promise<AuthenticationPayloadInterface> {
+    try {
+      const access = await this.token.generateAccessToken(user);
+      const refresh = await this.token.generateRefreshToken(user);
+      return this.buildResponsePayload(user, access, refresh);
+    } catch (error) {
+      throw new Error('Failed to generate tokens. Error: ' + error);
+    }
+  }
+
   // Register a new user and return tokens
   async registerUser(
     createUserDto: CreateUserDto,
@@ -62,9 +74,7 @@ export class AuthService {
     const user = await this.updateUserPassword(createUserDto);
     // Generate tokens
     if (user) {
-      const access = await this.token.generateAccessToken(user);
-      const refresh = await this.token.generateRefreshToken(user);
-      return this.buildResponsePayload(user, access, refresh);
+      return this.composeGenerateTokens(user);
     } else {
       throw new Error('Failed to register user');
     }
@@ -81,8 +91,38 @@ export class AuthService {
     if (!isValid) {
       throw new UnauthorizedException('Wrong password');
     }
-    const access: string = await this.token.generateAccessToken(user);
-    const refresh: string = await this.token.generateRefreshToken(user);
-    return this.buildResponsePayload(user, access, refresh);
+    return this.composeGenerateTokens(user);
+  }
+
+  //refresh token
+  async refreshValidate(
+    refreshToken: string,
+  ): Promise<AuthenticationPayloadInterface> {
+    const decodedToken = this.token.decodeRefreshToken(refreshToken);
+
+    if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
+      throw new UnauthorizedException('Refresh token is invalid');
+    }
+    const user = await this.user.getUserById(decodedToken.userId);
+    if (!user) {
+      await this.token.deleteRefreshToken(user.id);
+      throw new UnauthorizedException('User in refresh token not found');
+    }
+
+    const dbToken = await this.token.getDBToken(refreshToken);
+    if (!dbToken) {
+      await this.token.deleteRefreshToken(user.id);
+      throw new UnauthorizedException('Refresh token has not register in DB');
+    }
+
+    const isExpired = new Date(dbToken.expires).getTime();
+    const decodedTokenExpiration = decodedToken.exp * 1000;
+
+    if (decodedTokenExpiration < Date.now() || isExpired < Date.now()) {
+      await this.token.deleteRefreshToken(user.id);
+      throw new UnauthorizedException('Refresh token is expired');
+    }
+
+    return this.composeGenerateTokens(user);
   }
 }

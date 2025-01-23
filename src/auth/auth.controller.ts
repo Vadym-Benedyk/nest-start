@@ -1,17 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshService } from '../refresh/refresh.service';
-import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly refreshService: RefreshService,
   ) {}
 
   @ApiOperation({
@@ -49,7 +48,12 @@ export class AuthController {
     description: 'Refresh token',
   })
   @Post('/refresh')
-  public async refresh(@Body() body: RefreshTokenDto) :Promise<AuthenticationPayloadInterface>{
-    return this.refreshService.validateRefreshToken(body.refreshToken);
+  // @UseFilters(new HttpExceptionFilter())
+  public async refresh(@Body() body: RefreshTokenDto): Promise<any> {
+    try {
+      return await this.authService.refreshValidate(body.refreshToken);
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
   }
 }
