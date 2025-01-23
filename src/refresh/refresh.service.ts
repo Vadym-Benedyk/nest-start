@@ -79,8 +79,9 @@ export class RefreshService {
   }
 
   //Decode refresh token
-  public decodeRefreshToken(token: string) {
+  public decodeRefreshToken(token: string): any {
     try {
+      console.log(this.jwtweb.decode(token));
       return this.jwtweb.decode(token);
     } catch (error) {
       console.error('Failed to decode refresh token:', error);

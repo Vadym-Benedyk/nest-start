@@ -4,14 +4,10 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { RefreshService } from '../refresh/refresh.service';
-
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({
     summary: 'Create new user',
@@ -48,7 +44,6 @@ export class AuthController {
     description: 'Refresh token',
   })
   @Post('/refresh')
-  // @UseFilters(new HttpExceptionFilter())
   public async refresh(@Body() body: RefreshTokenDto): Promise<any> {
     try {
       return await this.authService.refreshValidate(body.refreshToken);
