@@ -5,7 +5,6 @@ import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-
 async function bootstrap() {
   // await checkAndCreateDatabase();
   // await syncTables()

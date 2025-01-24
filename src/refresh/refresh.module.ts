@@ -4,8 +4,6 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { RefreshToken } from './models/refresh.model';
 import { JwtModule } from '@nestjs/jwt';
 
-
-
 @Module({
   imports: [
     SequelizeModule.forFeature([RefreshToken]),

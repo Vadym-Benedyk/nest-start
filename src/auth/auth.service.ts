@@ -5,6 +5,9 @@ import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
+import { LoginUserDto } from './dto/login-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import * as process from 'node:process';
 
 @Injectable()
 export class AuthService {
@@ -47,22 +50,92 @@ export class AuthService {
     };
   }
 
+  async composeGenerateTokens(
+    user: UserInterfaces,
+  ): Promise<AuthenticationPayloadInterface> {
+    try {
+      const access = await this.token.generateAccessToken(user);
+      const refresh = await this.token.generateRefreshToken(user);
+      return this.buildResponsePayload(user, access, refresh);
+    } catch (error) {
+      throw new Error('Failed to generate tokens. Error: ' + error);
+    }
+  }
+
   // Register a new user and return tokens
-  async registerUser(userDto: UserDto) {
+  async registerUser(
+    createUserDto: CreateUserDto,
+  ): Promise<AuthenticationPayloadInterface> {
     // Check if user already exists
-    const userExist = await this.user.getUserByEmail(userDto.email);
+    const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
     // Create user
-    const user = await this.updateUserPassword(userDto);
-    // Generate tokens
+    const user = await this.updateUserPassword(createUserDto);
+    // Generate token
     if (user) {
-      const access = await this.token.generateAccessToken(user);
-      const refresh = await this.token.generateRefreshToken(user);
-      return this.buildResponsePayload(user, access, refresh);
+      return this.composeGenerateTokens(user);
     } else {
       throw new Error('Failed to register user');
+    }
+  }
+
+  // Login
+  async loginUser(
+    loginUserDto: LoginUserDto,
+  ): Promise<AuthenticationPayloadInterface> {
+    const user = await this.user.getUserByEmail(loginUserDto.email);
+    if (!user) {
+      throw new UnauthorizedException('login not found');
+    }
+    const isValid = await bcrypt.compare(loginUserDto.password, user.password);
+    if (!isValid) {
+      throw new UnauthorizedException('Wrong password');
+    }
+    return this.composeGenerateTokens(user);
+  }
+
+  //refresh token
+  async refreshValidate(refreshToken: string): Promise<any> {
+    const decodedToken = this.token.decodeRefreshToken(refreshToken);
+
+    if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
+      throw new UnauthorizedException('Refresh token is invalid');
+    }
+    const user = await this.user.getUserById(decodedToken.userId);
+    if (!user) {
+      await this.token.deleteRefreshToken(user.id);
+      throw new UnauthorizedException('User in refresh token not found');
+    }
+
+    const databaseToken = await this.token.getDBToken(refreshToken);
+    if (!databaseToken) {
+      await this.token.deleteRefreshToken(user.id);
+      throw new UnauthorizedException('Refresh token has not register in DB');
+    }
+
+    const databaseTokenExpiration = new Date(databaseToken.expires).getTime();
+    const decodedTokenExpiration = new Date(decodedToken.exp * 1000).getTime();
+
+    if (
+      decodedTokenExpiration < Date.now() ||
+      databaseTokenExpiration < Date.now()
+    ) {
+      await this.token.deleteRefreshToken(user.id);
+      throw new UnauthorizedException('Refresh token is expired');
+    }
+
+    const expTokenRange: number =
+      Date.now() +
+      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
+
+    //If expiration date leas then 5 days remaining let's generate both tokens, else gen access token only
+    if (decodedTokenExpiration < expTokenRange) {
+      return this.composeGenerateTokens(user);
+    } else {
+      const access: string = await this.token.generateAccessToken(user);
+      return this.buildResponsePayload(user, access);
     }
   }
 }
