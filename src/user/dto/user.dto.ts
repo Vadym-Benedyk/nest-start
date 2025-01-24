@@ -9,6 +9,12 @@ import {
 import { UserRole } from '../interfaces/role.enum';
 
 export class UserDto {
+  @ApiProperty({ example: 'id', description: 'UUIDV4' })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  id?: string;
+
   @ApiProperty({ example: 'John', description: 'first name' })
   @IsString()
   @IsNotEmpty()
