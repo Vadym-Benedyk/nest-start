@@ -118,8 +118,6 @@ export class AuthService {
     const databaseTokenExpiration = new Date(databaseToken.expires).getTime();
     const decodedTokenExpiration = new Date(decodedToken.exp * 1000).getTime();
 
-    console.log(databaseTokenExpiration, decodedTokenExpiration, Date.now());
-
     if (
       decodedTokenExpiration < Date.now() ||
       databaseTokenExpiration < Date.now()
