@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
+import { Response } from 'express';
 import * as bcrypt from 'bcryptjs';
 import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
@@ -38,25 +39,34 @@ export class AuthService {
   public buildResponsePayload(
     user: UserInterfaces,
     access: string,
-    refresh?: string,
+    // refresh?: string,
   ): AuthenticationPayloadInterface {
     return {
       user: user,
       payload: {
         type: 'bearer',
         token: access,
-        ...(refresh ? { refreshToken: refresh } : {}),
       },
     };
   }
 
   async composeGenerateTokens(
     user: UserInterfaces,
+    res: Response,
   ): Promise<AuthenticationPayloadInterface> {
     try {
       const access = await this.token.generateAccessToken(user);
       const refresh = await this.token.generateRefreshToken(user);
-      return this.buildResponsePayload(user, access, refresh);
+
+      res.cookie('refreshToken', refresh, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge:
+          parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60 * 1000,
+      });
+
+      return this.buildResponsePayload(user, access);
     } catch (error) {
       throw new Error('Failed to generate tokens. Error: ' + error);
     }
@@ -65,25 +75,26 @@ export class AuthService {
   // Register a new user and return tokens
   async registerUser(
     createUserDto: CreateUserDto,
+    res: Response,
   ): Promise<AuthenticationPayloadInterface> {
     // Check if user already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
-    // Create user
+    // Create user and hash password in database
     const user = await this.updateUserPassword(createUserDto);
-    // Generate token
-    if (user) {
-      return this.composeGenerateTokens(user);
-    } else {
+    if (!user) {
       throw new Error('Failed to register user');
     }
+
+    return this.composeGenerateTokens(user, res);
   }
 
   // Login
   async loginUser(
     loginUserDto: LoginUserDto,
+    res: Response,
   ): Promise<AuthenticationPayloadInterface> {
     const user = await this.user.getUserByEmail(loginUserDto.email);
     if (!user) {
@@ -93,11 +104,12 @@ export class AuthService {
     if (!isValid) {
       throw new UnauthorizedException('Wrong password');
     }
-    return this.composeGenerateTokens(user);
+
+    return this.composeGenerateTokens(user, res);
   }
 
   //refresh token
-  async refreshValidate(refreshToken: string): Promise<any> {
+  async refreshValidate(refreshToken: string, res: Response): Promise<any> {
     const decodedToken = this.token.decodeRefreshToken(refreshToken);
 
     if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
@@ -130,9 +142,9 @@ export class AuthService {
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
 
-    //If expiration date leas then 5 days remaining let's generate both tokens, else gen access token only
+    //If expiration date leas then 3 days remaining let's generate both tokens, else gen access token only
     if (decodedTokenExpiration < expTokenRange) {
-      return this.composeGenerateTokens(user);
+      return this.composeGenerateTokens(user, res);
     } else {
       const access: string = await this.token.generateAccessToken(user);
       return this.buildResponsePayload(user, access);

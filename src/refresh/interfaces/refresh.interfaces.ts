@@ -5,7 +5,6 @@ export interface AuthenticationPayloadInterface {
   payload: {
     type: string;
     token: string;
-    refreshToken?: string;
   };
 }
 
