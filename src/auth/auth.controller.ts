@@ -1,9 +1,11 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { Response } from 'express';
+import { cookiesGenerator } from './utility/cookiesGenerator';
 
 @Controller('auth')
 export class AuthController {
@@ -15,9 +17,13 @@ export class AuthController {
   })
   @ApiResponse({ type: CreateUserDto })
   @Post('register')
-  public async register(@Body() createUserDto: CreateUserDto) {
-    const payload = await this.authService.registerUser(createUserDto);
-
+  public async register(
+    @Body() createUserDto: CreateUserDto,
+    @Res() res: Response,
+  ) {
+    const { payload, refreshToken } =
+      await this.authService.registerUser(createUserDto);
+    cookiesGenerator(res, refreshToken);
     return {
       status: 'success',
       data: payload,
@@ -25,14 +31,15 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: 'Authorization',
+    summary: 'Authentication',
     description: 'Login user by email & password',
   })
   @ApiResponse({ type: CreateUserDto })
   @Post('login')
-  public async login(@Body() loginUserDto: LoginUserDto) {
-    const payload = await this.authService.loginUser(loginUserDto);
-
+  public async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
+    const { payload, refreshToken } =
+      await this.authService.loginUser(loginUserDto);
+    cookiesGenerator(res, refreshToken);
     return {
       status: 'success',
       data: payload,
@@ -44,11 +51,17 @@ export class AuthController {
     description: 'Refresh token',
   })
   @Post('/refresh')
-  public async refresh(@Body() body: RefreshTokenDto): Promise<any> {
-    try {
-      return await this.authService.refreshValidate(body.refreshToken);
-    } catch (error) {
-      throw new UnauthorizedException(error);
-    }
+  public async refresh(
+    @Body() body: RefreshTokenDto,
+    @Res() res: Response,
+  ): Promise<any> {
+    const { payload, refreshToken } = await this.authService.refreshValidate(
+      body.refreshToken,
+    );
+    cookiesGenerator(res, refreshToken);
+    return {
+      status: 'success',
+      data: payload,
+    };
   }
 }

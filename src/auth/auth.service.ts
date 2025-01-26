@@ -1,10 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { Response } from 'express';
 import * as bcrypt from 'bcryptjs';
 import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
-import { AuthenticationPayloadInterface } from '../refresh/interfaces/refresh.interfaces';
+import {
+  PayloadUserInterface,
+  RefreshPayloadUserInterface,
+} from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -35,38 +37,17 @@ export class AuthService {
     });
   }
 
-  // Build authentication response payload
-  public buildResponsePayload(
-    user: UserInterfaces,
-    access: string,
-    // refresh?: string,
-  ): AuthenticationPayloadInterface {
-    return {
-      user: user,
-      payload: {
-        type: 'bearer',
-        token: access,
-      },
-    };
-  }
-
-  async composeGenerateTokens(
-    user: UserInterfaces,
-    res: Response,
-  ): Promise<AuthenticationPayloadInterface> {
+  async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
     try {
       const access = await this.token.generateAccessToken(user);
-      const refresh = await this.token.generateRefreshToken(user);
 
-      res.cookie('refreshToken', refresh, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        maxAge:
-          parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60 * 1000,
-      });
-
-      return this.buildResponsePayload(user, access);
+      return {
+        user: user,
+        payload: {
+          type: 'bearer',
+          token: access,
+        },
+      };
     } catch (error) {
       throw new Error('Failed to generate tokens. Error: ' + error);
     }
@@ -75,8 +56,7 @@ export class AuthService {
   // Register a new user and return tokens
   async registerUser(
     createUserDto: CreateUserDto,
-    res: Response,
-  ): Promise<AuthenticationPayloadInterface> {
+  ): Promise<RefreshPayloadUserInterface> {
     // Check if user already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
@@ -87,15 +67,18 @@ export class AuthService {
     if (!user) {
       throw new Error('Failed to register user');
     }
-
-    return this.composeGenerateTokens(user, res);
+    const payloadUser = await this.accessResponse(user);
+    const refresh = await this.token.generateRefreshToken(user);
+    return {
+      payload: payloadUser,
+      refreshToken: refresh,
+    };
   }
 
   // Login
   async loginUser(
     loginUserDto: LoginUserDto,
-    res: Response,
-  ): Promise<AuthenticationPayloadInterface> {
+  ): Promise<RefreshPayloadUserInterface> {
     const user = await this.user.getUserByEmail(loginUserDto.email);
     if (!user) {
       throw new UnauthorizedException('login not found');
@@ -104,12 +87,41 @@ export class AuthService {
     if (!isValid) {
       throw new UnauthorizedException('Wrong password');
     }
+    //get refresh from db
+    const expTokenRange: number =
+      Date.now() +
+      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
 
-    return this.composeGenerateTokens(user, res);
+    const payloadUser = await this.accessResponse(user);
+    const tokenInDatabase = await this.token.getRefreshByUserId(user.id);
+    const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
+
+    if (!tokenInDatabase) {
+      const refresh = await this.token.generateRefreshToken(user);
+      //return both tokens if not exist
+      return {
+        payload: payloadUser,
+        refreshToken: refresh,
+      };
+      //if token exist and expiration date is leas then 3 days remaining let's generate both tokens
+    } else if (tokenInDatabase && expirationDbRefresh < expTokenRange) {
+      const refresh = await this.token.generateRefreshToken(user);
+      return {
+        payload: payloadUser,
+        refreshToken: refresh,
+      };
+    } else {
+      //return access token only
+      return {
+        payload: payloadUser,
+      };
+    }
   }
 
   //refresh token
-  async refreshValidate(refreshToken: string, res: Response): Promise<any> {
+  async refreshValidate(
+    refreshToken: string,
+  ): Promise<RefreshPayloadUserInterface> {
     const decodedToken = this.token.decodeRefreshToken(refreshToken);
 
     if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
@@ -117,10 +129,9 @@ export class AuthService {
     }
     const user = await this.user.getUserById(decodedToken.userId);
     if (!user) {
-      await this.token.deleteRefreshToken(user.id);
       throw new UnauthorizedException('User in refresh token not found');
     }
-
+    //check token in db
     const databaseToken = await this.token.getDBToken(refreshToken);
     if (!databaseToken) {
       await this.token.deleteRefreshToken(user.id);
@@ -142,12 +153,19 @@ export class AuthService {
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
 
+    const accessPayload: PayloadUserInterface = await this.accessResponse(user);
+
     //If expiration date leas then 3 days remaining let's generate both tokens, else gen access token only
     if (decodedTokenExpiration < expTokenRange) {
-      return this.composeGenerateTokens(user, res);
+      const refresh = await this.token.generateRefreshToken(user);
+      return {
+        payload: accessPayload,
+        refreshToken: refresh,
+      };
     } else {
-      const access: string = await this.token.generateAccessToken(user);
-      return this.buildResponsePayload(user, access);
+      return {
+        payload: accessPayload,
+      };
     }
   }
 }

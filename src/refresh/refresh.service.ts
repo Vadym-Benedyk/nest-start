@@ -31,6 +31,7 @@ export class RefreshService {
   async generateRefreshToken(user: UserInterfaces): Promise<string> {
     const expirationTime =
       parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60;
+
     const token: string = this.jwtweb.sign(
       { userId: user.id },
       process.env.JWT_REFRESH_SECRET,
@@ -88,11 +89,22 @@ export class RefreshService {
       throw new Error('Failed to delete refresh token. Error: ' + error);
     }
   }
-  // Get refresh token from DB
+  // Get refresh token by token from DB
   async getDBToken(token: string): Promise<RefreshTokenInterface> {
     try {
       return await this.refreshModel.findOne({
         where: { refreshToken: token },
+      });
+    } catch (error) {
+      throw new Error('Failed to read refresh token from DB. Error: ' + error);
+    }
+  }
+
+  //Get db token from refresh_token by user.id
+  async getRefreshByUserId(userId: string): Promise<RefreshTokenInterface> {
+    try {
+      return await this.refreshModel.findOne({
+        where: { userId: userId },
       });
     } catch (error) {
       throw new Error('Failed to read refresh token from DB. Error: ' + error);

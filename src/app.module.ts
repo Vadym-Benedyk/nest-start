@@ -11,22 +11,34 @@ import { AuthModule } from './auth/auth.module';
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
-
 // const config = databaseConfig.development;
+
 
 @Module({
   imports: [
     SequelizeModule.forRoot({
       models: [__dirname + '/models/*.model.js'],
-      dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT || '5432', 10),
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
+      dialect: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      database: 'usersdb',
       synchronize: false,
       autoLoadModels: true,
     }),
+  // imports: [
+  //   SequelizeModule.forRoot({
+  //     models: [__dirname + '/models/*.model.js'],
+  //     dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
+  //     host: process.env.DATABASE_HOST,
+  //     port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+  //     username: process.env.DATABASE_USERNAME,
+  //     password: process.env.DATABASE_PASSWORD,
+  //     database: process.env.DATABASE_NAME,
+  //     synchronize: false,
+  //     autoLoadModels: true,
+  //   }),
     UserModule,
     AuthModule,
     RefreshModule,
