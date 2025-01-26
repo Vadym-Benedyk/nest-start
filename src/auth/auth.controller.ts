@@ -6,6 +6,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Response } from 'express';
 import { cookiesGenerator } from './utility/cookiesGenerator';
+import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,13 +22,20 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
   ) {
-    const { payload, refreshToken } =
-      await this.authService.registerUser(createUserDto);
-    cookiesGenerator(res, refreshToken);
-    return {
-      status: 'success',
-      data: payload,
-    };
+    try {
+      const { payload, refreshToken } =
+        await this.authService.registerUser(createUserDto);
+      cookiesGenerator(res, refreshToken);
+      return res.status(201).json({
+        status: 'success',
+        data: payload,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        status: 'error',
+        error: error,
+      });
+    }
   }
 
   @ApiOperation({
@@ -37,31 +45,43 @@ export class AuthController {
   @ApiResponse({ type: CreateUserDto })
   @Post('login')
   public async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
-    const { payload, refreshToken } =
-      await this.authService.loginUser(loginUserDto);
-    cookiesGenerator(res, refreshToken);
-    return {
-      status: 'success',
-      data: payload,
-    };
+    try {
+      const { payload, refreshToken } =
+        await this.authService.loginUser(loginUserDto);
+      cookiesGenerator(res, refreshToken);
+      return res.status(200).json({
+        status: 'success',
+        data: payload,
+      });
+    } catch (error) {
+      return res.status(401).json({
+        status: 'error',
+        error: error,
+      });
+    }
   }
 
   @ApiOperation({
     summary: 'Refresh token',
     description: 'Refresh token',
   })
+  @ApiResponse({ type: AuthResponseDto })
   @Post('/refresh')
-  public async refresh(
-    @Body() body: RefreshTokenDto,
-    @Res() res: Response,
-  ): Promise<any> {
-    const { payload, refreshToken } = await this.authService.refreshValidate(
-      body.refreshToken,
-    );
-    cookiesGenerator(res, refreshToken);
-    return {
-      status: 'success',
-      data: payload,
-    };
+  public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response) {
+    try {
+      const { payload, refreshToken } = await this.authService.refreshValidate(
+        body.refreshToken,
+      );
+      cookiesGenerator(res, refreshToken);
+      return res.status(200).json({
+        status: 'success',
+        data: payload,
+      });
+    } catch (error) {
+      return res.status(401).json({
+        status: 'error',
+        error: error,
+      });
+    }
   }
 }
