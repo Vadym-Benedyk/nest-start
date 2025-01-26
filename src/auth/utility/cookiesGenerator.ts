@@ -9,5 +9,4 @@ export const cookiesGenerator = (res: Response, refreshToken: string) => {
   });
 };
 
-
 // Simple func for accept refresh token and set cookie
