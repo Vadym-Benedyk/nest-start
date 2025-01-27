@@ -175,6 +175,7 @@ export class AuthService {
     } else {
       return {
         payload: accessPayload,
+        refreshToken: databaseToken.refreshToken,
       };
     }
   }
