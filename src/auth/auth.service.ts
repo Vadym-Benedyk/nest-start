@@ -81,41 +81,51 @@ export class AuthService {
   ): Promise<RefreshPayloadUserInterface> {
     const user = await this.user.getUserByEmail(loginUserDto.email);
     if (!user) {
-      throw new UnauthorizedException('login not found');
+      throw new UnauthorizedException('Login not found');
     }
+
     const isValid = await bcrypt.compare(loginUserDto.password, user.password);
     if (!isValid) {
       throw new UnauthorizedException('Wrong password');
     }
-    //get refresh from db
+
     const expTokenRange: number =
       Date.now() +
-      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
+      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
+        24 *
+        60 *
+        60 *
+        1000;
 
     const payloadUser = await this.accessResponse(user);
+
     const tokenInDatabase = await this.token.getRefreshByUserId(user.id);
-    const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
 
     if (!tokenInDatabase) {
-      const refresh = await this.token.generateRefreshToken(user);
-      //return both tokens if not exist
-      return {
-        payload: payloadUser,
-        refreshToken: refresh,
-      };
-      //if token exist and expiration date is leas then 3 days remaining let's generate both tokens
-    } else if (tokenInDatabase && expirationDbRefresh < expTokenRange) {
+      // Gen a new refresh if not found
       const refresh = await this.token.generateRefreshToken(user);
       return {
         payload: payloadUser,
         refreshToken: refresh,
-      };
-    } else {
-      //return access token only
-      return {
-        payload: payloadUser,
       };
     }
+
+    const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
+
+    if (expirationDbRefresh < expTokenRange) {
+      // Gen new refresh if almost expired
+      const refresh = await this.token.generateRefreshToken(user);
+      return {
+        payload: payloadUser,
+        refreshToken: refresh,
+      };
+    }
+
+    // Back refresh if valid
+    return {
+      payload: payloadUser,
+      refreshToken: tokenInDatabase.refreshToken
+    };
   }
 
   //refresh token

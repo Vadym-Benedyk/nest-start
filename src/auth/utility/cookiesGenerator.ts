@@ -1,6 +1,7 @@
 import { Response } from 'express';
 
 export const cookiesGenerator = (res: Response, refreshToken: string) => {
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: false,
