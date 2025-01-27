@@ -11,22 +11,26 @@ import { AuthModule } from './auth/auth.module';
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
-
+import { ConfigModule } from '@nestjs/config';
 // const config = databaseConfig.development;
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     SequelizeModule.forRoot({
       models: [__dirname + '/models/*.model.js'],
-      dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
+      dialect: process.env.DATABASE_DIALECT as Dialect,
       host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT || '5432', 10),
-      username: process.env.DATABASE_USERNAME || 'postgres',
-      password: process.env.DATABASE_PASSWORD || 'postgres',
+      port: +process.env.DATABASE_PORT,
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       synchronize: false,
       autoLoadModels: true,
     }),
+
     UserModule,
     AuthModule,
     RefreshModule,

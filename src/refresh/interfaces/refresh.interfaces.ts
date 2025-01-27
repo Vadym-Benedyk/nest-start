@@ -1,12 +1,16 @@
 import { UserInterfaces } from '../../user/interfaces/user.interfaces';
 
-export interface AuthenticationPayloadInterface {
+export interface PayloadUserInterface {
   user: UserInterfaces;
   payload: {
     type: string;
     token: string;
-    refreshToken?: string;
   };
+}
+
+export interface RefreshPayloadUserInterface {
+  payload: PayloadUserInterface;
+  refreshToken?: string;
 }
 
 export interface RefreshTokenInterface {
