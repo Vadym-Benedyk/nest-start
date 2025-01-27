@@ -36,12 +36,12 @@ export class UserDto {
   password: string;
 
   @ApiProperty({
-    example: UserRole.GUEST,
+    example: UserRole.USER,
     description: 'The role of the user.',
     enum: UserRole,
-    default: UserRole.GUEST,
+    default: UserRole.USER,
   })
   @IsEnum(UserRole)
   @IsOptional()
-  role?: UserRole = UserRole.GUEST;
+  role?: UserRole = UserRole.USER;
 }

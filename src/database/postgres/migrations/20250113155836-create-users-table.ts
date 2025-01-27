@@ -35,7 +35,7 @@ export default {
       role: {
         type: DataTypes.ENUM(...Object.values(UserRole)),
         allowNull: true,
-        defaultValue: UserRole.GUEST,
+        defaultValue: UserRole.USER,
       },
       createdAt: {
         type: DataTypes.DATE,

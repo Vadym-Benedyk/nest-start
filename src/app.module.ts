@@ -12,6 +12,8 @@ import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
 import { ConfigModule } from '@nestjs/config';
+import { PasswordService } from './password/password.service';
+import { PasswordModule } from './password/password.module';
 // const config = databaseConfig.development;
 
 @Module({
@@ -34,8 +36,9 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     AuthModule,
     RefreshModule,
+    PasswordModule,
   ],
   controllers: [AppController, UserController, AuthController],
-  providers: [AppService, UserService, RefreshService],
+  providers: [AppService, UserService, RefreshService, PasswordService],
 })
 export class AppModule {}

@@ -9,19 +9,37 @@ import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User) private userModel: typeof User) {}
+  constructor(
+    @InjectModel(User) private userModel: typeof User,
+    private readonly password: PasswordService,
+  ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
-    return this.userModel.create({
-      firstName,
-      lastName,
-      email,
-      password,
-    });
+
+    try {
+      const saveUser = await this.userModel.create({
+        firstName,
+        lastName,
+        email,
+      });
+      const savePassword = await this.password.createPassword({
+        password,
+        userId: saveUser.id,
+      });
+
+      if (!saveUser || !savePassword) {
+        return null;
+      }
+
+      return saveUser;
+    } catch (error) {
+      throw new Error('Failed to create user: ' + error);
+    }
   }
 
   async getUserById(id: string): Promise<UserInterfaces> {

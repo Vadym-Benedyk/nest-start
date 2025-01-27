@@ -1,7 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import * as bcrypt from 'bcryptjs';
-import { UserDto } from '../user/dto/user.dto';
 import { UserInterfaces } from '../user/interfaces/user.interfaces';
 import {
   PayloadUserInterface,
@@ -11,31 +9,15 @@ import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'node:process';
+import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
+    private readonly passwd: PasswordService,
   ) {}
-
-  // Hash the password
-  public hashPassword(password: string): string {
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    if (!hashedPassword) {
-      throw new Error('Failed to hash password');
-    }
-    return hashedPassword;
-  }
-
-  //change password
-  async updateUserPassword(userDto: UserDto): Promise<UserInterfaces> {
-    const hashedPassword = this.hashPassword(userDto.password);
-    return await this.user.createUser({
-      ...userDto,
-      password: hashedPassword,
-    });
-  }
 
   async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
     try {
@@ -63,7 +45,7 @@ export class AuthService {
       throw new UnauthorizedException('User already exists');
     }
     // Create user and hash password in database
-    const user = await this.updateUserPassword(createUserDto);
+    const user = await this.user.createUser(createUserDto);
     if (!user) {
       throw new Error('Failed to register user');
     }
@@ -84,9 +66,13 @@ export class AuthService {
       throw new UnauthorizedException('Login not found');
     }
 
-    const isValid = await bcrypt.compare(loginUserDto.password, user.password);
-    if (!isValid) {
-      throw new UnauthorizedException('Wrong password');
+    const passwordMatch = await this.passwd.validatePassword(
+      user.id,
+      loginUserDto.password,
+    );
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Password is incorrect');
     }
 
     const expTokenRange: number =
@@ -120,7 +106,6 @@ export class AuthService {
         refreshToken: refresh,
       };
     }
-
     // Back refresh if valid
     return {
       payload: payloadUser,
@@ -175,6 +160,7 @@ export class AuthService {
     } else {
       return {
         payload: accessPayload,
+        refreshToken: databaseToken.refreshToken,
       };
     }
   }

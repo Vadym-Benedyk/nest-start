@@ -32,7 +32,7 @@ export default {
         table: 'users',
         field: 'id',
       },
-      onDelete: 'NO ACTION', // Немає дії при видаленні user
+      onDelete: 'NO ACTION',
       onUpdate: 'CASCADE',
     });
   },
