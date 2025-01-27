@@ -124,7 +124,7 @@ export class AuthService {
     // Back refresh if valid
     return {
       payload: payloadUser,
-      refreshToken: tokenInDatabase.refreshToken
+      refreshToken: tokenInDatabase.refreshToken,
     };
   }
 
