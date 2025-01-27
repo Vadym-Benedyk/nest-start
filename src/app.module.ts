@@ -14,20 +14,7 @@ import { Dialect } from 'sequelize';
 // const config = databaseConfig.development;
 import { ConfigModule } from '@nestjs/config';
 
-
 @Module({
-  // imports: [
-  //   SequelizeModule.forRoot({
-  //     models: [__dirname + '/models/*.model.js'],
-  //     dialect: 'postgres',
-  //     host: 'localhost',
-  //     port: 5432,
-  //     username: 'postgres',
-  //     password: 'postgres',
-  //     database: 'usersdb',
-  //     synchronize: false,
-  //     autoLoadModels: true,
-  //   }),
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
