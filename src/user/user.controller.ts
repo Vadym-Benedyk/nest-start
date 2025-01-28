@@ -7,7 +7,8 @@ import {
   Patch,
   HttpStatus,
   Query,
-  UseGuards, UnauthorizedException,
+  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/request/user.dto';
@@ -72,7 +73,9 @@ export class UserController {
   })
   @ApiResponse({ type: UserDto })
   @Patch('update')
-  async updateUser(@Body() updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
+  async updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UpdateUserInterface> {
     return await this.userService.updateUser(updateUserDto);
   }
 
@@ -84,7 +87,9 @@ export class UserController {
   @ApiBody({ description: 'New role data', type: UserRoleDto })
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch('update/role')
-  async updateRole(@Body() userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
+  async updateRole(
+    @Body() userRoleDto: UserRoleDto,
+  ): Promise<UpdateUserInterface> {
     try {
       return await this.userService.updateRole(userRoleDto);
     } catch (error) {
