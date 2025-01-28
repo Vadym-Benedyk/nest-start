@@ -7,6 +7,7 @@ import {
   Patch,
   HttpStatus,
   Query,
+  UseGuards, UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/request/user.dto';
@@ -15,6 +16,9 @@ import { GetUsersDto } from './dto/request/get-users.dto';
 import { UpdateUserInterface } from './interfaces/user.interfaces';
 import { UserRoleDto } from './dto/request/user-role.dto';
 import { ResponseUpdateUserDto } from './dto/response/response-update-user-role.dto';
+import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
+import { AdminGuard } from '../auth/guards/AdminGuard';
+import { UpdateUserDto } from './dto/request/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -68,8 +72,8 @@ export class UserController {
   })
   @ApiResponse({ type: UserDto })
   @Patch('update')
-  async updateUser(@Body() userDto: UserDto): Promise<UpdateUserInterface> {
-    return await this.userService.updateUser(userDto);
+  async updateUser(@Body() updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
+    return await this.userService.updateUser(updateUserDto);
   }
 
   @ApiOperation({
@@ -78,8 +82,15 @@ export class UserController {
   })
   @ApiResponse({ type: ResponseUpdateUserDto })
   @ApiBody({ description: 'New role data', type: UserRoleDto })
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch('update/role')
-  async updateRole(@Body() userRoleDto: UserRoleDto ): Promise<UpdateUserInterface> {
-    return await this.userService.updateRole(userRoleDto);
+  async updateRole(@Body() userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
+    try {
+      return await this.userService.updateRole(userRoleDto);
+    } catch (error) {
+      throw new UnauthorizedException(
+        'Error by editing. User not found' + error,
+      );
+    }
   }
 }

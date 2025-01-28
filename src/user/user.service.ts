@@ -11,12 +11,12 @@ import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { PasswordService } from '../password/password.service';
 import { UserRoleDto } from './dto/request/user-role.dto';
-import { UserDto } from './dto/request/user.dto';
+import { UpdateUserDto } from './dto/request/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User) private userModel: typeof User,
+    @InjectModel(User) private readonly userModel: typeof User,
     private readonly password: PasswordService,
   ) {}
 
@@ -86,13 +86,13 @@ export class UserService {
     }
   }
 
-  async updateUser(userDto: UserDto): Promise<UpdateUserInterface> {
-    const isUser = await this.userModel.findByPk(userDto.id);
+  async updateUser(updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
+    const isUser = await this.userModel.findByPk(updateUserDto.id);
     if (!isUser) {
       throw new NotFoundException('Error by editing. User not found');
     }
 
-    const { id, ...user } = userDto;
+    const { id, ...user } = updateUserDto;
     const [affectedRows] = await this.userModel.update(user, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
 

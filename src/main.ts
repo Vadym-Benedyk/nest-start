@@ -9,7 +9,12 @@ async function bootstrap() {
   // await checkAndCreateDatabase();
   // await syncTables()
   const app = await NestFactory.create(AppModule, { abortOnError: false });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   const options = new DocumentBuilder()
     .setTitle('Template - API')
     .setDescription('Platform API')
