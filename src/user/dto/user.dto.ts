@@ -3,10 +3,8 @@ import {
   IsNotEmpty,
   IsString,
   IsEmail,
-  IsEnum,
   IsOptional,
 } from 'class-validator';
-import { UserRole } from '../interfaces/role.enum';
 
 export class UserDto {
   @ApiProperty({ example: 'id', description: 'UUIDV4' })
@@ -34,14 +32,4 @@ export class UserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
-
-  @ApiProperty({
-    example: UserRole.USER,
-    description: 'The role of the user.',
-    enum: UserRole,
-    default: UserRole.USER,
-  })
-  @IsEnum(UserRole)
-  @IsOptional()
-  role?: UserRole = UserRole.USER;
 }

@@ -10,6 +10,7 @@ import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PasswordService } from '../password/password.service';
+import { UserRole } from './interfaces/role.enum';
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,27 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
     await user.destroy();
+  }
+
+  async updateRole(id: string, role: UserRole): Promise<any> {
+    try {
+      const isUser = await this.userModel.findByPk(id);
+      if (!isUser) {
+        throw new NotFoundException('Error by editing. User not found');
+      }
+      const [affectedRows] = await this.userModel.update(
+        { role },
+        { where: { id } },
+      );
+      const updatedUser = await this.userModel.findByPk(id);
+
+      return {
+        updates: affectedRows,
+        user: updatedUser,
+      };
+    } catch (error) {
+      throw new Error('Failed to update role. Error: ' + error);
+    }
   }
 
   async updateUser(updateUserDto: UpdateUserDto): Promise<any> {
