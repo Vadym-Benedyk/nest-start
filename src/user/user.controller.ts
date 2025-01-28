@@ -67,6 +67,8 @@ export class UserController {
     summary: 'Delete user by id',
     description: 'Delete user by id',
   })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     return await this.userService.deleteUser(id);
