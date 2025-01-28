@@ -12,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/request/user.dto';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { GetUsersDto } from './dto/request/get-users.dto';
 import { UpdateUserInterface } from './interfaces/user.interfaces';
 import { UserRoleDto } from './dto/request/user-role.dto';
@@ -86,6 +91,7 @@ export class UserController {
   @ApiResponse({ type: ResponseUpdateUserDto })
   @ApiBody({ description: 'New role data', type: UserRoleDto })
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth()
   @Patch('update/role')
   async updateRole(
     @Body() userRoleDto: UserRoleDto,
