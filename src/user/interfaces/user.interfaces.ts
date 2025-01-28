@@ -19,3 +19,8 @@ export interface UserListInterfaces {
     itemsOnPage?: number;
   };
 }
+
+export interface UpdateUserInterface {
+  updates: number;
+  user: UserInterfaces;
+}

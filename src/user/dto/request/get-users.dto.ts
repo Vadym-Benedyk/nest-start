@@ -1,7 +1,7 @@
 import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { DirectionEnum } from '../interfaces/direction.enum';
-import { SortByEnum } from '../interfaces/sortBy.enum';
-import { SearchFieldEnum } from '../interfaces/searchField.enum';
+import { DirectionEnum } from '../../interfaces/direction.enum';
+import { SortByEnum } from '../../interfaces/sortBy.enum';
+import { SearchFieldEnum } from '../../interfaces/searchField.enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 

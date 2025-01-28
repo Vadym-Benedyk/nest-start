@@ -2,15 +2,16 @@ import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import {
+  UpdateUserInterface,
   UserInterfaces,
   UserListInterfaces,
 } from './interfaces/user.interfaces';
-import { GetUsersDto } from './dto/get-users.dto';
+import { GetUsersDto } from './dto/request/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PasswordService } from '../password/password.service';
-import { UserRole } from './interfaces/role.enum';
+import { UserRoleDto } from './dto/request/user-role.dto';
+import { UserDto } from './dto/request/user.dto';
 
 @Injectable()
 export class UserService {
@@ -63,17 +64,18 @@ export class UserService {
     await user.destroy();
   }
 
-  async updateRole(id: string, role: UserRole): Promise<any> {
+  async updateRole(userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
+    const { UserId, role } = userRoleDto;
     try {
-      const isUser = await this.userModel.findByPk(id);
+      const isUser = await this.userModel.findByPk(UserId);
       if (!isUser) {
         throw new NotFoundException('Error by editing. User not found');
       }
       const [affectedRows] = await this.userModel.update(
         { role },
-        { where: { id } },
+        { where: { id: UserId } },
       );
-      const updatedUser = await this.userModel.findByPk(id);
+      const updatedUser = await this.userModel.findByPk(UserId);
 
       return {
         updates: affectedRows,
@@ -84,12 +86,13 @@ export class UserService {
     }
   }
 
-  async updateUser(updateUserDto: UpdateUserDto): Promise<any> {
-    const isUser = await this.userModel.findByPk(updateUserDto.id);
+  async updateUser(userDto: UserDto): Promise<UpdateUserInterface> {
+    const isUser = await this.userModel.findByPk(userDto.id);
     if (!isUser) {
       throw new NotFoundException('Error by editing. User not found');
     }
-    const { id, ...user } = updateUserDto;
+
+    const { id, ...user } = userDto;
     const [affectedRows] = await this.userModel.update(user, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
 

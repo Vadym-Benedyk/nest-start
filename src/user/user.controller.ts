@@ -7,14 +7,14 @@ import {
   Patch,
   HttpStatus,
   Query,
-  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDto } from './dto/user.dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { GetUsersDto } from './dto/get-users.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ChangeUserRoleDto } from './dto/change-user-role.dto';
+import { UserDto } from './dto/request/user.dto';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { GetUsersDto } from './dto/request/get-users.dto';
+import { UpdateUserInterface } from './interfaces/user.interfaces';
+import { UserRoleDto } from './dto/request/user-role.dto';
+import { ResponseUpdateUserDto } from './dto/response/response-update-user-role.dto';
 
 @Controller('users')
 export class UserController {
@@ -68,22 +68,18 @@ export class UserController {
   })
   @ApiResponse({ type: UserDto })
   @Patch('update')
-  async updateUser(@Body() updateUserDto: UpdateUserDto) {
-    return await this.userService.updateUser(updateUserDto);
+  async updateUser(@Body() userDto: UserDto): Promise<UpdateUserInterface> {
+    return await this.userService.updateUser(userDto);
   }
 
   @ApiOperation({
     summary: 'Update User Role',
     description: 'Change the role of a user by ID.',
   })
-  @ApiParam({ name: 'id', description: 'User ID', type: String })
-  @ApiBody({ description: 'New role data', type: ChangeUserRoleDto })
-  @Put('update/role/:id')
-  async updateRole(
-    @Param('id') id: string,
-    @Body() changeUserRoleDto: ChangeUserRoleDto,
-  ): Promise<{ success: boolean }> {
-    await this.userService.updateRole(id, changeUserRoleDto.role);
-    return { success: true };
+  @ApiResponse({ type: ResponseUpdateUserDto })
+  @ApiBody({ description: 'New role data', type: UserRoleDto })
+  @Patch('update/role')
+  async updateRole(@Body() userRoleDto: UserRoleDto ): Promise<UpdateUserInterface> {
+    return await this.userService.updateRole(userRoleDto);
   }
 }
