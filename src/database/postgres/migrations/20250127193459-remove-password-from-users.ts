@@ -1,13 +1,13 @@
-import { QueryInterface } from 'sequelize';
+import { QueryInterface, DataTypes } from 'sequelize';
 
 export default {
   up: async (queryInterface: QueryInterface) => {
     await queryInterface.removeColumn('users', 'password');
   },
 
-  down: async (queryInterface: QueryInterface, Sequelize) => {
+  down: async (queryInterface: QueryInterface) => {
     await queryInterface.addColumn('users', 'password', {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     });
   },

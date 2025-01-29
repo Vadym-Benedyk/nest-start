@@ -8,13 +8,11 @@ import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 // import { databaseConfig } from './database/postgres/dbConfig';
+// const config = databaseConfig.development;
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
 import { ConfigModule } from '@nestjs/config';
-import { PasswordService } from './password/password.service';
-import { PasswordModule } from './password/password.module';
-// const config = databaseConfig.development;
 
 @Module({
   imports: [
@@ -32,13 +30,11 @@ import { PasswordModule } from './password/password.module';
       synchronize: false,
       autoLoadModels: true,
     }),
-
     UserModule,
     AuthModule,
     RefreshModule,
-    PasswordModule,
   ],
   controllers: [AppController, UserController, AuthController],
-  providers: [AppService, UserService, RefreshService, PasswordService],
+  providers: [AppService, UserService, RefreshService],
 })
 export class AppModule {}

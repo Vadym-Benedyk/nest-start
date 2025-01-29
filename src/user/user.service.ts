@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, Query } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import {
@@ -9,38 +14,37 @@ import {
 import { GetUsersDto } from './dto/request/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { PasswordService } from '../password/password.service';
 import { UserRoleDto } from './dto/request/user-role.dto';
 import { UpdateUserDto } from './dto/request/update-user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel(User) private readonly userModel: typeof User,
-    private readonly password: PasswordService,
-  ) {}
+  constructor(@InjectModel(User) private readonly userModel: typeof User) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
 
     try {
-      const saveUser = await this.userModel.create({
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      return await this.userModel.create({
         firstName,
         lastName,
         email,
+        password: hashedPassword,
       });
-      const savePassword = await this.password.createPassword({
-        password,
-        userId: saveUser.id,
-      });
-
-      if (!saveUser || !savePassword) {
-        return null;
-      }
-
-      return saveUser;
     } catch (error) {
       throw new Error('Failed to create user: ' + error);
+    }
+  }
+
+  async validatePassword(userId: string, password: string): Promise<boolean> {
+    try {
+      const user = await this.getUserById(userId);
+      return bcrypt.compareSync(password, user.password);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid password', error);
     }
   }
 

@@ -9,14 +9,12 @@ import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'node:process';
-import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
-    private readonly passwd: PasswordService,
   ) {}
 
   async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
@@ -66,13 +64,13 @@ export class AuthService {
       throw new UnauthorizedException('Login not found');
     }
 
-    const passwordMatch = await this.passwd.validatePassword(
+    const passwordMatch = await this.user.validatePassword(
       user.id,
       loginUserDto.password,
     );
 
     if (!passwordMatch) {
-      throw new UnauthorizedException('Password is incorrect');
+      throw new UnauthorizedException('Incorrect password');
     }
 
     const expTokenRange: number =
