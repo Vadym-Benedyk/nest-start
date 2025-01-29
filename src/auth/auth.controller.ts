@@ -8,6 +8,8 @@ import { Response } from 'express';
 import { cookiesGenerator } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
 
+
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

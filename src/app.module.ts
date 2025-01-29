@@ -8,11 +8,11 @@ import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 // import { databaseConfig } from './database/postgres/dbConfig';
+// const config = databaseConfig.development;
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
 import { ConfigModule } from '@nestjs/config';
-// const config = databaseConfig.development;
 
 @Module({
   imports: [
@@ -30,7 +30,6 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: false,
       autoLoadModels: true,
     }),
-
     UserModule,
     AuthModule,
     RefreshModule,

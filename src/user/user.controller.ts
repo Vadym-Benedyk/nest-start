@@ -7,12 +7,24 @@ import {
   Patch,
   HttpStatus,
   Query,
+  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDto } from './dto/user.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { GetUsersDto } from './dto/get-users.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserDto } from './dto/request/user.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { GetUsersDto } from './dto/request/get-users.dto';
+import { UpdateUserInterface } from './interfaces/user.interfaces';
+import { UserRoleDto } from './dto/request/user-role.dto';
+import { ResponseUpdateUserDto } from './dto/response/response-update-user-role.dto';
+import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
+import { AdminGuard } from '../auth/guards/AdminGuard';
+import { UpdateUserDto } from './dto/request/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -55,6 +67,8 @@ export class UserController {
     summary: 'Delete user by id',
     description: 'Delete user by id',
   })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     return await this.userService.deleteUser(id);
@@ -66,7 +80,30 @@ export class UserController {
   })
   @ApiResponse({ type: UserDto })
   @Patch('update')
-  async updateUser(@Body() updateUserDto: UpdateUserDto) {
+  async updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UpdateUserInterface> {
     return await this.userService.updateUser(updateUserDto);
+  }
+
+  @ApiOperation({
+    summary: 'Update User Role',
+    description: 'Change the role of a user by ID.',
+  })
+  @ApiResponse({ type: ResponseUpdateUserDto })
+  @ApiBody({ description: 'New role data', type: UserRoleDto })
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth()
+  @Patch('update/role')
+  async updateRole(
+    @Body() userRoleDto: UserRoleDto,
+  ): Promise<UpdateUserInterface> {
+    try {
+      return await this.userService.updateRole(userRoleDto);
+    } catch (error) {
+      throw new UnauthorizedException(
+        'Error by editing. User not found' + error,
+      );
+    }
   }
 }

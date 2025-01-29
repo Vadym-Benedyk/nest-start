@@ -1,27 +1,51 @@
-import { Injectable, NotFoundException, Query } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import {
+  UpdateUserInterface,
   UserInterfaces,
   UserListInterfaces,
 } from './interfaces/user.interfaces';
-import { GetUsersDto } from './dto/get-users.dto';
+import { GetUsersDto } from './dto/request/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRoleDto } from './dto/request/user-role.dto';
+import { UpdateUserDto } from './dto/request/update-user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User) private userModel: typeof User) {}
+  constructor(@InjectModel(User) private readonly userModel: typeof User) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
-    return this.userModel.create({
-      firstName,
-      lastName,
-      email,
-      password,
-    });
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      return await this.userModel.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+      });
+    } catch (error) {
+      throw new Error('Failed to create user: ' + error);
+    }
+  }
+
+  async validatePassword(userId: string, password: string): Promise<boolean> {
+    try {
+      const user = await this.getUserById(userId);
+      return bcrypt.compareSync(password, user.password);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid password', error);
+    }
   }
 
   async getUserById(id: string): Promise<UserInterfaces> {
@@ -44,11 +68,34 @@ export class UserService {
     await user.destroy();
   }
 
-  async updateUser(updateUserDto: UpdateUserDto): Promise<any> {
+  async updateRole(userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
+    const { UserId, role } = userRoleDto;
+    try {
+      const isUser = await this.userModel.findByPk(UserId);
+      if (!isUser) {
+        throw new NotFoundException('Error by editing. User not found');
+      }
+      const [affectedRows] = await this.userModel.update(
+        { role },
+        { where: { id: UserId } },
+      );
+      const updatedUser = await this.userModel.findByPk(UserId);
+
+      return {
+        updates: affectedRows,
+        user: updatedUser,
+      };
+    } catch (error) {
+      throw new Error('Failed to update role. Error: ' + error);
+    }
+  }
+
+  async updateUser(updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
     const isUser = await this.userModel.findByPk(updateUserDto.id);
     if (!isUser) {
       throw new NotFoundException('Error by editing. User not found');
     }
+
     const { id, ...user } = updateUserDto;
     const [affectedRows] = await this.userModel.update(user, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
