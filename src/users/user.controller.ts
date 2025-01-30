@@ -46,7 +46,7 @@ export class UserController {
     return await this.userService.getUsers(queryParams);
   }
 
-  @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
+  @ApiOperation({ summary: 'Get users by id', description: 'Get users by id' })
   @ApiResponse({ type: UserDto })
   @Get(':id')
   async getUserById(@Param('id') id: string) {
@@ -54,8 +54,8 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: 'Get user by email',
-    description: 'Get user by email',
+    summary: 'Get users by email',
+    description: 'Get users by email',
   })
   @ApiResponse({ type: UserDto })
   @Get('email/:email')
@@ -64,8 +64,8 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: 'Delete user by id',
-    description: 'Delete user by id',
+    summary: 'Delete users by id',
+    description: 'Delete users by id',
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -75,8 +75,8 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: 'Update user by id',
-    description: 'Update user by id',
+    summary: 'Update users by id',
+    description: 'Update users by id',
   })
   @ApiResponse({ type: UserDto })
   @Patch('update')
@@ -88,7 +88,7 @@ export class UserController {
 
   @ApiOperation({
     summary: 'Update User Role',
-    description: 'Change the role of a user by ID.',
+    description: 'Change the role of a users by ID.',
   })
   @ApiResponse({ type: ResponseUpdateUserDto })
   @ApiBody({ description: 'New role data', type: UserRoleDto })

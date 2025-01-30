@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { UserInterfaces } from '../user/interfaces/user.interfaces';
+import { UserService } from '@/src/users/user.service';
+import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 import {
   PayloadUserInterface,
   RefreshPayloadUserInterface,
@@ -33,19 +33,20 @@ export class AuthService {
     }
   }
 
-  // Register a new user and return tokens
+  // Register a new users and return tokens
   async registerUser(
     createUserDto: CreateUserDto,
   ): Promise<RefreshPayloadUserInterface> {
-    // Check if user already exists
+    // Check if users already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
+      console.log(createUserDto);
       throw new UnauthorizedException('User already exists');
     }
-    // Create user and hash password in database
+    // Create users and hash password in database
     const user = await this.user.createUser(createUserDto);
     if (!user) {
-      throw new Error('Failed to register user');
+      throw new Error('Failed to register users');
     }
     const payloadUser = await this.accessResponse(user);
     const refresh = await this.token.generateRefreshToken(user);

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as process from 'node:process';
 import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
-import { UserInterfaces } from '../user/interfaces/user.interfaces';
+import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 import { InjectModel } from '@nestjs/sequelize';
 import { RefreshToken } from './models/refresh.model';
 import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
@@ -100,7 +100,7 @@ export class RefreshService {
     }
   }
 
-  //Get db token from refresh_token by user.id
+  //Get db token from refresh_token by users.id
   async getRefreshByUserId(userId: string): Promise<RefreshTokenInterface> {
     try {
       return await this.refreshModel.findOne({

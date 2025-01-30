@@ -15,8 +15,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({
-    summary: 'Create new user',
-    description: 'Registration new user',
+    summary: 'Create new users',
+    description: 'Registration new users',
   })
   @ApiResponse({ type: CreateUserDto })
   @Post('register')
@@ -24,6 +24,7 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
   ) {
+    console.log(createUserDto);
     try {
       const { payload, refreshToken } =
         await this.authService.registerUser(createUserDto);
@@ -42,7 +43,7 @@ export class AuthController {
 
   @ApiOperation({
     summary: 'Authentication',
-    description: 'Login user by email & password',
+    description: 'Login users by email & password',
   })
   @ApiResponse({ type: CreateUserDto })
   @Post('login')

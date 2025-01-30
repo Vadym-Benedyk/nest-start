@@ -1,4 +1,4 @@
-import { UserInterfaces } from '../../user/interfaces/user.interfaces';
+import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 
 export interface PayloadUserInterface {
   user: UserInterfaces;

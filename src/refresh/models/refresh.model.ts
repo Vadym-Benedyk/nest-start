@@ -1,7 +1,6 @@
 import { Table, Model, Column, DataType } from 'sequelize-typescript';
 import { RefreshInterfaces } from '../../database/postgres/interfaces/refresh.interfaces';
 
-
 @Table({
   tableName: 'refresh_tokens',
   timestamps: true,
