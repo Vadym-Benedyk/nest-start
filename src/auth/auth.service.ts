@@ -40,7 +40,6 @@ export class AuthService {
     // Check if users already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
-      console.log(createUserDto);
       throw new UnauthorizedException('User already exists');
     }
     // Create users and hash password in database

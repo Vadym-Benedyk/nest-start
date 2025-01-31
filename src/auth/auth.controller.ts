@@ -24,7 +24,7 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
   ) {
-    console.log(createUserDto);
+
     try {
       const { payload, refreshToken } =
         await this.authService.registerUser(createUserDto);

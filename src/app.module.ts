@@ -7,15 +7,17 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-// import { databaseConfig } from './database/postgres/dbConfig';
-// const config = databaseConfig.development;
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { PersonalInfoController } from './personal-info/personal-info.controller';
 import { PersonalInfo } from './personal-info/personal-info';
-import { PersonalInfoModule } from './personal-info/personal-info.module';
+import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
+
+// import { databaseConfig } from './database/postgres/dbConfig';
+// const config = databaseConfig.development;
+
 
 @Module({
   imports: [
@@ -38,7 +40,12 @@ import { PersonalInfoModule } from './personal-info/personal-info.module';
     RefreshModule,
     PersonalInfoModule,
   ],
-  controllers: [AppController, UserController, AuthController, PersonalInfoController],
+  controllers: [
+    AppController,
+    UserController,
+    AuthController,
+    PersonalInfoController,
+  ],
   providers: [AppService, UserService, RefreshService, PersonalInfo],
 })
 export class AppModule {}

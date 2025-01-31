@@ -10,9 +10,10 @@ import { StatusEnum } from '@/src/personal-info/interfaces/personal-info.interfa
 
 @Table({
   tableName: 'personal_info',
-  timestamps: true,
+  modelName: 'PersonalInfo',
+  timestamps: false,
 })
-export class PersonalInfo extends Model<PersonalInfo> {
+export class PersonalInfoModel extends Model<PersonalInfoModel> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
