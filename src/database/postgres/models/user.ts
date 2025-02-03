@@ -1,4 +1,4 @@
-import { UserRole } from '../../../user/interfaces/role.enum';
+import { UserRole } from '@/src/users/interfaces/role.enum';
 import { DataType, Model } from 'sequelize-typescript';
 
 module.exports = (sequelize: any) => {
@@ -17,11 +17,15 @@ module.exports = (sequelize: any) => {
       email: DataType.STRING,
       password: DataType.STRING,
       age: DataType.INTEGER,
-      role: DataType.ENUM(...Object.values(UserRole)),
+      role: {
+        type: DataType.ENUM(...Object.values(UserRole)),
+        defaultValue: UserRole.USER,
+      },
     },
     {
       sequelize,
       modelName: 'User',
+      tableName: 'users',
     },
   );
   return User;

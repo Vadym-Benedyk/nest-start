@@ -21,6 +21,8 @@ export default {
           model: 'users',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       expires: {
         type: DataTypes.DATE,

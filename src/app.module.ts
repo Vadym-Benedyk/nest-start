@@ -1,18 +1,23 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UserController } from './user/user.controller';
-import { UserModule } from './user/user.module';
-import { UserService } from './user/user.service';
+import { UserController } from '@/src/users/user.controller';
+import { UserModule } from '@/src/users/user.module';
+import { UserService } from '@/src/users/user.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-// import { databaseConfig } from './database/postgres/dbConfig';
-// const config = databaseConfig.development;
 import { RefreshService } from './refresh/refresh.service';
 import { RefreshModule } from './refresh/refresh.module';
 import { Dialect } from 'sequelize';
 import { ConfigModule } from '@nestjs/config';
+import { PersonalInfoController } from './personal-info/personal-info.controller';
+import { PersonalInfo } from './personal-info/personal-info';
+import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
+
+// import { databaseConfig } from './database/postgres/dbConfig';
+// const config = databaseConfig.development;
+
 
 @Module({
   imports: [
@@ -21,7 +26,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     SequelizeModule.forRoot({
       models: [__dirname + '/models/*.model.js'],
-      dialect: process.env.DATABASE_DIALECT as Dialect,
+      dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
       host: process.env.DATABASE_HOST,
       port: +process.env.DATABASE_PORT,
       username: process.env.DATABASE_USERNAME,
@@ -33,8 +38,14 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     AuthModule,
     RefreshModule,
+    PersonalInfoModule,
   ],
-  controllers: [AppController, UserController, AuthController],
-  providers: [AppService, UserService, RefreshService],
+  controllers: [
+    AppController,
+    UserController,
+    AuthController,
+    PersonalInfoController,
+  ],
+  providers: [AppService, UserService, RefreshService, PersonalInfo],
 })
 export class AppModule {}

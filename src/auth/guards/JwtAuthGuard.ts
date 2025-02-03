@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../../user/user.service';
+import { UserService } from '@/src/users/user.service';
 import {
   CanActivate,
   ExecutionContext,

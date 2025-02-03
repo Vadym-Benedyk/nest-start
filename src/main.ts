@@ -8,7 +8,11 @@ dotenv.config();
 async function bootstrap() {
   // await checkAndCreateDatabase();
   // await syncTables()
-  const app = await NestFactory.create(AppModule, { abortOnError: false });
+  const app = await NestFactory.create(AppModule, {
+    abortOnError: false,
+    logger: ['log', 'error', 'warn', 'debug', 'verbose']
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

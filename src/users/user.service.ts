@@ -35,7 +35,7 @@ export class UserService {
         password: hashedPassword,
       });
     } catch (error) {
-      throw new Error('Failed to create user: ' + error);
+      throw new Error('Failed to create users: ' + error);
     }
   }
 

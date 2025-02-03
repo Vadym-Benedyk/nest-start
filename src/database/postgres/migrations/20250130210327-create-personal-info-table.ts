@@ -2,17 +2,13 @@ import { DataTypes, QueryInterface } from 'sequelize';
 
 export default {
   up: async (queryInterface: QueryInterface) => {
-    await queryInterface.createTable('users_password', {
+    await queryInterface.createTable('personal_info', {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
         primaryKey: true,
-        allowNull: false,
         unique: true,
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
       },
       userId: {
         type: DataTypes.UUID,
@@ -23,10 +19,13 @@ export default {
         },
         onDelete: 'CASCADE',
       },
+      age: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     });
   },
-
   down: async (queryInterface: QueryInterface) => {
-    await queryInterface.dropTable('users_password');
+    await queryInterface.dropTable('personal_info');
   },
 };

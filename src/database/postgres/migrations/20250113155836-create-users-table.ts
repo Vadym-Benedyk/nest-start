@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { UserRole } from '../../../user/interfaces/role.enum';
+import { UserRole } from '@/src/users/interfaces/role.enum';
 
 export default {
   up: async (queryInterface: QueryInterface) => {
@@ -26,11 +26,7 @@ export default {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: true,
-      },
-      age: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
       role: {
         type: DataTypes.ENUM(...Object.values(UserRole)),
@@ -39,11 +35,11 @@ export default {
       },
       createdAt: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       updatedAt: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
       },
     });
   },

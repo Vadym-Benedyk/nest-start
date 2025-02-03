@@ -3,7 +3,7 @@ import { UserRole } from '../../interfaces/role.enum';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class UserRoleDto {
-  @ApiProperty({ example: 'UUID', description: 'Id of user must be changed' })
+  @ApiProperty({ example: 'UUID', description: 'Id of users must be changed' })
   @IsString()
   @IsNotEmpty()
   UserId: string;
