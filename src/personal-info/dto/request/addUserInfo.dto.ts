@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsInt,
@@ -17,12 +17,12 @@ export class AddUserInfoDto {
   @IsNotEmpty()
   userId: string;
 
-  @ApiProperty({ example: 'user age', description: 'user age' })
+  @ApiPropertyOptional({ example: 'user age', description: 'user age' })
   @IsInt()
   @IsOptional()
   age?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'married | divorced | single | widowed | separated | other...',
     description: 'civic status',
   })
@@ -30,7 +30,7 @@ export class AddUserInfoDto {
   @IsOptional()
   status?: StatusEnum;
 
-  @ApiProperty({ example: 'URL', description: 'photo url' })
+  @ApiPropertyOptional({ example: 'URL', description: 'photo url' })
   @IsString()
   @IsOptional()
   photo?: string;
