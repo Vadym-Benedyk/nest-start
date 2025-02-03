@@ -6,10 +6,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { AddUserInfoDto } from '@/src/personal-info/dto/request/addUserInfo.dto';
 import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.model';
-import {
-  PersonalInfoInterface,
-  UpdateInfoResponseInterface,
-} from '@/src/personal-info/interfaces/personal-info.interface';
+import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/response/userInfo.dto';
 
 @Injectable()
@@ -23,6 +20,10 @@ export class PersonalInfoService {
     addUserInfoDto: AddUserInfoDto,
   ): Promise<PersonalInfoInterface> {
     try {
+      const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
+      if (isInfo) {
+        throw new ForbiddenException('User info already exists');
+      }
       return await this.personalInfoModel.create({
         userId: addUserInfoDto.userId,
         age: addUserInfoDto.age,

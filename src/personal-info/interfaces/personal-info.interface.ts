@@ -11,6 +11,7 @@ export interface UpdateInfoResponseInterface {
   userInfo: PersonalInfoInterface;
 }
 
+
 export enum StatusEnum {
   SINGLE = 'single',
   MARRIED = 'married',

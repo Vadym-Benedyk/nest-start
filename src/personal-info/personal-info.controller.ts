@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
 import { AddUserInfoDto } from '@/src/personal-info/dto/request/addUserInfo.dto';
@@ -9,9 +17,6 @@ import {
 import { UserInfoDto } from '@/src/personal-info/dto/response/userInfo.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { SelfGuard } from '@/src/auth/guards/SelfGuard';
-
-
-
 
 @ApiTags('User additional information')
 @UseGuards(JwtAuthGuard)
@@ -31,7 +36,6 @@ export class PersonalInfoController {
     return await this.personalInfoService.addUserInfo(addUserInfoDto);
   }
 
-
   @ApiOperation({
     summary: 'Get one user info',
     description: 'Get user info by id (age, status and photo)',
@@ -44,7 +48,6 @@ export class PersonalInfoController {
     return await this.personalInfoService.getUserInfo(id);
   }
 
-
   @ApiOperation({
     summary: 'Get all users info',
     description: 'Get all users info',
@@ -54,7 +57,6 @@ export class PersonalInfoController {
   async getAllUsersInfo(): Promise<PersonalInfoInterface[]> {
     return await this.personalInfoService.getAllUsersInfo();
   }
-
 
   @UseGuards(SelfGuard)
   @ApiOperation({
