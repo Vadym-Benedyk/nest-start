@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
 import { AddUserInfoDto } from '@/src/personal-info/dto/request/addUserInfo.dto';
 import {
@@ -20,6 +20,7 @@ import { SelfGuard } from '@/src/auth/guards/SelfGuard';
 
 @ApiTags('User additional information')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @Controller('user_info')
 export class PersonalInfoController {
   constructor(private readonly personalInfoService: PersonalInfoService) {}

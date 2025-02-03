@@ -16,6 +16,8 @@ import { PersonalInfo } from './personal-info/personal-info';
 import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
 
 // import { databaseConfig } from './database/postgres/dbConfig';
+import { ResetPasswordService } from './reset-password/reset-password.service';
+import { ResetPasswordModule } from './reset-password/reset-password.module';
 // const config = databaseConfig.development;
 
 
@@ -39,6 +41,7 @@ import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
     AuthModule,
     RefreshModule,
     PersonalInfoModule,
+    ResetPasswordModule,
   ],
   controllers: [
     AppController,
@@ -46,6 +49,6 @@ import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
     AuthController,
     PersonalInfoController,
   ],
-  providers: [AppService, UserService, RefreshService, PersonalInfo],
+  providers: [AppService, UserService, RefreshService, PersonalInfo, ResetPasswordService],
 })
 export class AppModule {}
