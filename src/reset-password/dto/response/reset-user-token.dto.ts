@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsString, IsDate, IsInt } from 'class-validator';
+import { IsUUID, IsString, IsDate, IsInt, IsOptional } from 'class-validator';
 
 export class ResetUserTokenDto {
   @ApiProperty({
@@ -50,4 +50,8 @@ export class ResetUserTokenDto {
   })
   @IsInt()
   resetRequestCount: number;
+
+  @IsOptional()
+  @IsString()
+  error?: string;
 }

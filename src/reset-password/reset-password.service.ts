@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ResetTokenModel } from '@/src/reset-password/models/reset-token.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
@@ -6,6 +6,12 @@ import { generateToken } from '@/src/reset-password/utils/generateToken';
 import * as process from 'node:process';
 import { ResetUserTokenDto } from '@/src/reset-password/dto/response/reset-user-token.dto';
 import { ChangePasswordDto } from '@/src/reset-password/dto/request/change-password.dto';
+import { ConfigService } from '@nestjs/config';
+import { MailService } from '@/src/mail/mail.service';
+import { SendEmailResponseDto } from '@/src/reset-password/dto/response/send-email-response.dto';
+import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/request/confirm-new-password.dto';
+// import * as fs from 'fs';
+// import * as path from 'path';
 
 @Injectable()
 export class ResetPasswordService {
@@ -14,61 +20,102 @@ export class ResetPasswordService {
     @InjectModel(ResetTokenModel)
     private resetTokenModel: typeof ResetTokenModel,
     private userService: UserService,
+    private readonly configService: ConfigService,
+    private readonly emailService: MailService,
   ) {}
 
-  async generateResetToken(
-    changePasswordDto: ChangePasswordDto,
-  ): Promise<ResetUserTokenDto> {
+  async generateResetToken(changePasswordDto: ChangePasswordDto): Promise<any> {
     const { email } = changePasswordDto;
-    try {
-      const user = await this.userService.getUserByEmail(email);
-      if (!user) {
-        this.logger.error(`User with email ${email} not found`);
-        return;
-      }
 
-      const resetToken = await this.resetTokenModel.findOne({
-        where: { userId: user.id },
-      });
-      if (resetToken) {
-        this.logger.log(`Reset token for user ${email} already exists`);
-        await this.askBlocker(resetToken);
-      } else {
-        const token = await generateToken();
-        const expiresAt = new Date(
-          Date.now() +
-            parseInt(process.env.CRYPTO_TOKEN_EXPIRATION) * 60 * 60 * 1000,
-        );
-        await this.resetTokenModel.create({
-          userId: user.id,
-          token,
-          expiresAt,
-        });
-      }
-    } catch (error) {
-      this.logger.error(
-        `Error during generation recover password token of ${email}`,
-      );
-      throw new Error('Error during generation recover password token', error);
+    const user = await this.userService.getUserByEmail(email);
+    if (!user) {
+      this.logger.error(`User with email ${email} not found`);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    let resetToken = await this.resetTokenModel.findOne({
+      where: { userId: user.id },
+    });
+
+    if (resetToken) {
+      this.checkResetRequestLimit(resetToken);
+    } else {
+      resetToken = this.resetTokenModel.build({
+        userId: user.id,
+        resetRequestCount: 0,
+      });
+    }
+
+    const savedTokenObject = await this.saveOrUpdateResetToken(resetToken);
+
+    await this.sendPasswordResetEmail(
+      email,
+      savedTokenObject.token,
+    );
   }
 
-  private async askBlocker(token): Promise<any> {
+  private checkResetRequestLimit(resetToken: ResetTokenModel): void {
     const timeDiff =
-      (Date.now() - new Date(token.updatedAt).getTime()) / (1000 * 60 * 60);
+      (Date.now() - new Date(resetToken.updatedAt).getTime()) /
+      (1000 * 60 * 60);
 
     if (
-      token.resetRequestCount >=
-      +process.env.CRYPTO_TOKEN_EXPIRATION_DAILY_RANGE &&
+      resetToken.resetRequestCount >=
+        +process.env.CRYPTO_TOKEN_EXPIRATION_DAILY_RANGE &&
       timeDiff < 24
     ) {
-      this.logger.warn(`Too many reset requests. Try again later`);
-      throw new Error('Too many reset requests. Try again after 24 hours');
+      this.logger.warn('Too many reset requests. Try again later');
+      throw new HttpException(
+        'Too many reset requests. Try again after 24 hours',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
-
-    token.resetRequestCount += 1;
-    token.updatedAt = new Date();
-    token.token = generateToken();
-    return await token.save();
   }
+
+  private async saveOrUpdateResetToken(
+    resetToken: ResetTokenModel,
+  ): Promise<ResetUserTokenDto> {
+    resetToken.token = await generateToken();
+    resetToken.expiresAt = new Date(
+      Date.now() +
+        parseInt(process.env.CRYPTO_TOKEN_EXPIRATION) * 60 * 60 * 1000,
+    );
+    resetToken.resetRequestCount += 1;
+    resetToken.updatedAt = new Date();
+
+    return await resetToken.save();
+  }
+
+  private async sendPasswordResetEmail(to: string, token: string): Promise<SendEmailResponseDto> {
+    const resetUrl = `${this.configService.get<string>('HOST')}?token=${token}`;
+    const htmlContent = `
+    <p>You requested a <b>password reset</b>. Click the link below:</p>
+    <a href="${resetUrl}">${resetUrl}</a>
+    <p>If you did not request this, please ignore this email.</p>
+  `;
+
+    // const templatePath = path.join(__dirname, '..', 'static', 'mail', 'templates', 'reset-password-template.html');
+    // let htmlContent = fs.readFileSync(templatePath, 'utf8');
+
+    return this.emailService.sendEmail(
+      to,
+      'Password Reset from Poster.fiveDev.com',
+      htmlContent,
+    );
+  }
+
+  // async confirmNewPassword(
+  //   confirmNewPasswordDto: ConfirmNewPasswordDto,
+  // ): Promise<any> {
+  //   const { password, resetToken } = confirmNewPasswordDto;
+  //   const { token, expiresAt, userId } = await this.resetTokenModel.findOne({ where: { token: resetToken } })
+  //   if (!token) {
+  //     this.logger.error('Invalid token');
+  //     throw new HttpException(
+  //       'There is not request token in database',
+  //       HttpStatus.BAD_REQUEST,
+  //     )
+  //   }
+  //
+  // }
 }

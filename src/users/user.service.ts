@@ -1,5 +1,8 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
   Query,
   UnauthorizedException,
@@ -20,12 +23,21 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(@InjectModel(User) private readonly userModel: typeof User) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
 
     try {
+      const isUser = await this.userModel.count({ where: { email: email } });
+      if (isUser) {
+        this.logger.warn(`User with ${email} is already register`);
+        throw new HttpException(
+          'This email is already register, please SignIn or use any else',
+          HttpStatus.NOT_ACCEPTABLE,
+        );
+      }
       const hashedPassword = await bcrypt.hash(password, 10);
 
       return await this.userModel.create({

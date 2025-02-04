@@ -14,17 +14,23 @@ import { ConfigModule } from '@nestjs/config';
 import { PersonalInfoController } from './personal-info/personal-info.controller';
 import { PersonalInfo } from './personal-info/personal-info';
 import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
-
-// import { databaseConfig } from './database/postgres/dbConfig';
+import { join } from 'path';
 import { ResetPasswordService } from './reset-password/reset-password.service';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
 import { ResetPasswordController } from '@/src/reset-password/reset-password.controller';
+import { MailService } from './mail/mail.service';
+import { MailModule } from '@/src/mail/mail.module';
+import configuration from '@/src/mail/configuration/configuration';
+import { ServeStaticModule } from '@nestjs/serve-static';
+// import { databaseConfig } from './database/postgres/dbConfig';
 // const config = databaseConfig.development;
 
+console.log('Resolved path:', join(__dirname, 'static'));
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      load: [configuration],
       isGlobal: true,
     }),
     SequelizeModule.forRoot({
@@ -38,11 +44,16 @@ import { ResetPasswordController } from '@/src/reset-password/reset-password.con
       synchronize: false,
       autoLoadModels: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, 'static/mail/templates'),
+      serveRoot: '/templates', // Files should be available at http://localhost:3000/templates
+    }),
     UserModule,
     AuthModule,
     RefreshModule,
     PersonalInfoModule,
     ResetPasswordModule,
+    MailModule,
   ],
   controllers: [
     AppController,
@@ -57,6 +68,7 @@ import { ResetPasswordController } from '@/src/reset-password/reset-password.con
     RefreshService,
     PersonalInfo,
     ResetPasswordService,
+    MailService,
   ],
 })
 export class AppModule {}
