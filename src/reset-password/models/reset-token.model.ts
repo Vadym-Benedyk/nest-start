@@ -4,7 +4,7 @@ import { User } from '@/src/users/models/user.model';
 
 @Table({
   tableName: 'reset_token',
-  modelName: 'ResetToken',
+  modelName: 'ResetTokenModel',
   timestamps: true,
 })
 export class ResetTokenModel extends Model<ResetTokenModel> {

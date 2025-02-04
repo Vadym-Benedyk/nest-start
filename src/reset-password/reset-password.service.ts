@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ResetTokenModel } from '@/src/reset-password/models/reset-token';
+import { ResetTokenModel } from '@/src/reset-password/models/reset-token.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
 import { generateToken } from '@/src/reset-password/utils/generateToken';
