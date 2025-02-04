@@ -9,6 +9,6 @@ import { ResetPasswordService } from '@/src/reset-password/reset-password.servic
   imports: [SequelizeModule.forFeature([ResetTokenModel]), UserModule],
   providers: [ResetPasswordService],
   controllers: [ResetPasswordController],
-  exports: [ResetPasswordService],
+  exports: [SequelizeModule, ResetPasswordService],
 })
 export class ResetPasswordModule {}

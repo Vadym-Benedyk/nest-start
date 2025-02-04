@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ResetTokenModel } from '@/src/reset-password/models/reset-token.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
@@ -24,51 +24,44 @@ export class ResetPasswordService {
       const user = await this.userService.getUserByEmail(email);
       if (!user) {
         this.logger.error(`User with email ${email} not found`);
-        return;
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       const resetToken = await this.resetTokenModel.findOne({
         where: { userId: user.id },
       });
       if (resetToken) {
-        this.logger.log(`Reset token for user ${email} already exists`);
-        await this.askBlocker(resetToken);
+        this.logger.log(`Found reset token for user ${email} `);
+        return await this.askBlocker(resetToken);
       } else {
         const token = await generateToken();
+
         const expiresAt = new Date(
           Date.now() +
-            parseInt(process.env.CRYPTO_TOKEN_EXPIRATION) * 60 * 60 * 1000,
+          parseInt(process.env.CRYPTO_TOKEN_EXPIRATION) * 60 * 60 * 1000,
         );
-        await this.resetTokenModel.create({
+        return await this.resetTokenModel.create({
           userId: user.id,
           token,
           expiresAt,
         });
       }
     } catch (error) {
-      this.logger.error(
-        `Error during generation recover password token of ${email}`,
-      );
-      throw new Error('Error during generation recover password token', error);
+      throw error;
     }
   }
 
-  private async askBlocker(token): Promise<any> {
-    const timeDiff =
-      (Date.now() - new Date(token.updatedAt).getTime()) / (1000 * 60 * 60);
+  private async askBlocker(resetToken: ResetTokenModel): Promise<any> {
+    const timeDiff = (Date.now() - new Date(resetToken.updatedAt).getTime()) / (1000 * 60 * 60);
 
-    if (
-      token.resetRequestCount >=
-      +process.env.CRYPTO_TOKEN_EXPIRATION_DAILY_RANGE &&
-      timeDiff < 24
-    ) {
-      this.logger.warn(`Too many reset requests. Try again later`);
-      throw new Error('Too many reset requests. Try again after 24 hours');
+    if ( resetToken.resetRequestCount >= +process.env.CRYPTO_TOKEN_EXPIRATION_DAILY_RANGE && timeDiff < 24 ) {
+      this.logger.warn('Too many reset requests. Try again later');
+      throw new HttpException('Too many reset requests. Try again after 24 hours', HttpStatus.TOO_MANY_REQUESTS);
     }
 
-    token.resetRequestCount += 1;
-    token.updatedAt = new Date();
-    token.token = generateToken();
-    return await token.save();
+    resetToken.resetRequestCount += 1;
+    resetToken.updatedAt = new Date();
+    resetToken.token = await generateToken();
+    return await resetToken.save();
   }
 }
