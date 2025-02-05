@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { MailService } from '@/src/mail/mail.service';
 import { SendEmailResponseDto } from '@/src/reset-password/dto/response/send-email-response.dto';
 import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/request/confirm-new-password.dto';
+import { hashPassword } from '@/src/auth/utility/hashPassword';
+import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
 // import * as fs from 'fs';
 // import * as path from 'path';
 
@@ -48,10 +50,7 @@ export class ResetPasswordService {
 
     const savedTokenObject = await this.saveOrUpdateResetToken(resetToken);
 
-    await this.sendPasswordResetEmail(
-      email,
-      savedTokenObject.token,
-    );
+    await this.sendPasswordResetEmail(email, savedTokenObject.token);
   }
 
   private checkResetRequestLimit(resetToken: ResetTokenModel): void {
@@ -76,17 +75,20 @@ export class ResetPasswordService {
     resetToken: ResetTokenModel,
   ): Promise<ResetUserTokenDto> {
     resetToken.token = await generateToken();
+    resetToken.updatedAt = new Date();
     resetToken.expiresAt = new Date(
       Date.now() +
         parseInt(process.env.CRYPTO_TOKEN_EXPIRATION) * 60 * 60 * 1000,
     );
     resetToken.resetRequestCount += 1;
-    resetToken.updatedAt = new Date();
 
     return await resetToken.save();
   }
 
-  private async sendPasswordResetEmail(to: string, token: string): Promise<SendEmailResponseDto> {
+  private async sendPasswordResetEmail(
+    to: string,
+    token: string,
+  ): Promise<SendEmailResponseDto> {
     const resetUrl = `${this.configService.get<string>('HOST')}?token=${token}`;
     const htmlContent = `
     <p>You requested a <b>password reset</b>. Click the link below:</p>
@@ -104,18 +106,39 @@ export class ResetPasswordService {
     );
   }
 
-  // async confirmNewPassword(
-  //   confirmNewPasswordDto: ConfirmNewPasswordDto,
-  // ): Promise<any> {
-  //   const { password, resetToken } = confirmNewPasswordDto;
-  //   const { token, expiresAt, userId } = await this.resetTokenModel.findOne({ where: { token: resetToken } })
-  //   if (!token) {
-  //     this.logger.error('Invalid token');
-  //     throw new HttpException(
-  //       'There is not request token in database',
-  //       HttpStatus.BAD_REQUEST,
-  //     )
-  //   }
-  //
-  // }
+  async confirmNewPassword(
+    confirmNewPasswordDto: ConfirmNewPasswordDto,
+  ): Promise<UpdateUserInterface> {
+    const { password, resetToken } = confirmNewPasswordDto;
+    const hashedPassword = await hashPassword(password);
+    this.logger.log('hashed received password');
+    const findToken = await this.resetTokenModel.findOne({
+      where: { token: resetToken },
+    });
+    // this.logger.log('Token info executed', tokenInfo);
+
+    if (!findToken) {
+      this.logger.error('Invalid token');
+      throw new HttpException(
+        'There is not request token in database',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const { expiresAt, userId } = findToken;
+    this.logger.log('Valid token executed');
+
+    if (expiresAt && expiresAt < new Date(Date.now())) {
+      this.logger.error('Reset token expired');
+      throw new HttpException(
+        'Reset password token is expired',
+        HttpStatus.GATEWAY_TIMEOUT,
+      );
+    }
+
+    return this.userService.updateUser({
+      id: userId,
+      password: hashedPassword,
+    });
+  }
 }

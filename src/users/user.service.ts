@@ -20,6 +20,7 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UserRoleDto } from './dto/request/user-role.dto';
 import { UpdateUserDto } from './dto/request/update-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { hashPassword } from '@/src/auth/utility/hashPassword';
 
 @Injectable()
 export class UserService {
@@ -28,17 +29,17 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
+    const hashedPassword = await hashPassword(password);
 
     try {
       const isUser = await this.userModel.count({ where: { email: email } });
-      if (isUser) {
+      if (isUser > 0) {
         this.logger.warn(`User with ${email} is already register`);
         throw new HttpException(
           'This email is already register, please SignIn or use any else',
           HttpStatus.NOT_ACCEPTABLE,
         );
       }
-      const hashedPassword = await bcrypt.hash(password, 10);
 
       return await this.userModel.create({
         firstName,
@@ -47,7 +48,12 @@ export class UserService {
         password: hashedPassword,
       });
     } catch (error) {
-      throw new Error('Failed to create users: ' + error);
+      this.logger.error(`Failed to create user: ${error}`);
+      if (error instanceof HttpException) throw error;
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -111,6 +117,7 @@ export class UserService {
     const { id, ...user } = updateUserDto;
     const [affectedRows] = await this.userModel.update(user, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
+    this.logger.log('User updated successfully');
 
     return {
       updates: affectedRows,

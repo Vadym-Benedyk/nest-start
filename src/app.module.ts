@@ -25,7 +25,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 // import { databaseConfig } from './database/postgres/dbConfig';
 // const config = databaseConfig.development;
 
-console.log('Resolved path:', join(__dirname, 'static'));
+
 
 @Module({
   imports: [
@@ -46,7 +46,7 @@ console.log('Resolved path:', join(__dirname, 'static'));
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'static/mail/templates'),
-      serveRoot: '/templates', // Files should be available at http://localhost:3000/templates
+      serveRoot: '/templates',
     }),
     UserModule,
     AuthModule,
