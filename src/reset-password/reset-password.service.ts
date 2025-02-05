@@ -12,8 +12,8 @@ import { SendEmailResponseDto } from '@/src/reset-password/dto/response/send-ema
 import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/request/confirm-new-password.dto';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
 import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
-// import * as fs from 'fs';
-// import * as path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ResetPasswordService {
@@ -90,14 +90,17 @@ export class ResetPasswordService {
     token: string,
   ): Promise<SendEmailResponseDto> {
     const resetUrl = `${this.configService.get<string>('HOST')}?token=${token}`;
-    const htmlContent = `
-    <p>You requested a <b>password reset</b>. Click the link below:</p>
-    <a href="${resetUrl}">${resetUrl}</a>
-    <p>If you did not request this, please ignore this email.</p>
-  `;
 
-    // const templatePath = path.join(__dirname, '..', 'static', 'mail', 'templates', 'reset-password-template.html');
-    // let htmlContent = fs.readFileSync(templatePath, 'utf8');
+    const templatePath = path.join(
+      __dirname,
+      '..',
+      'static',
+      'mail',
+      'templates',
+      'reset-password-template.html',
+    );
+    let htmlContent = fs.readFileSync(templatePath, 'utf8');
+    htmlContent = htmlContent.replace(/{{RESET_URL}}/g, resetUrl);
 
     return this.emailService.sendEmail(
       to,
@@ -115,7 +118,6 @@ export class ResetPasswordService {
     const findToken = await this.resetTokenModel.findOne({
       where: { token: resetToken },
     });
-    // this.logger.log('Token info executed', tokenInfo);
 
     if (!findToken) {
       this.logger.error('Invalid token');

@@ -5,6 +5,7 @@ import { ResetPasswordService } from '@/src/reset-password/reset-password.servic
 import { SendEmailResponseDto } from '@/src/reset-password/dto/response/send-email-response.dto';
 import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/request/confirm-new-password.dto';
 import { ResponseUpdateUserDto } from '@/src/users/dto/response/response-update-user-role.dto';
+import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
 
 @ApiTags('Recover Password')
 @Controller('password-change')
@@ -31,7 +32,7 @@ export class ResetPasswordController {
   @Post('confirm')
   public async confirmNewPassword(
     @Body() confirmNewPasswordDto: ConfirmNewPasswordDto,
-  ): Promise<any> {
+  ): Promise<UpdateUserInterface> {
     return await this.resetPassService.confirmNewPassword(
       confirmNewPasswordDto,
     );
