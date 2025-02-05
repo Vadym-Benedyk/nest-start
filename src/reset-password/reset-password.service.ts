@@ -115,7 +115,7 @@ export class ResetPasswordService {
     const findToken = await this.resetTokenModel.findOne({
       where: { token: resetToken },
     });
-    // this.logger.log('Token info executed', tokenInfo);
+
 
     if (!findToken) {
       this.logger.error('Invalid token');
