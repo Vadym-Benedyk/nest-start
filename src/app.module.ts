@@ -23,6 +23,10 @@ import { MailModule } from '@/src/mail/mail.module';
 import configuration from '@/src/mail/configuration/configuration';
 import { ServeStaticModule } from '@nestjs/serve-static';
 // import { databaseConfig } from './database/postgres/dbConfig';
+import { PostService } from './post/post.service';
+import { Post } from './post/post';
+import { PostController } from './post/post.controller';
+import { PostModule } from './post/post.module';
 // const config = databaseConfig.development;
 
 
@@ -54,6 +58,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     PersonalInfoModule,
     ResetPasswordModule,
     MailModule,
+    PostModule,
   ],
   controllers: [
     AppController,
@@ -61,6 +66,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     AuthController,
     PersonalInfoController,
     ResetPasswordController,
+    PostController,
   ],
   providers: [
     AppService,
@@ -69,6 +75,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     PersonalInfo,
     ResetPasswordService,
     MailService,
+    PostService,
+    Post,
   ],
 })
 export class AppModule {}

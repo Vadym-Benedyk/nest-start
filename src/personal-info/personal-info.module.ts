@@ -8,10 +8,7 @@ import { UserModule } from '@/src/users/user.module';
 
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([PersonalInfoModel]),
-    UserModule,
-  ],
+  imports: [SequelizeModule.forFeature([PersonalInfoModel]), UserModule],
   providers: [PersonalInfoService],
   controllers: [PersonalInfoController],
   exports: [PersonalInfoService],
