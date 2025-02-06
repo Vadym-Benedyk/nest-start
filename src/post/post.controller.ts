@@ -7,8 +7,9 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostDto } from '@/src/post/dto/post.dto';
 import { PostService } from '@/src/post/post.service';
 import { CreatePostDto } from '@/src/post/dto/create-post.dto';
@@ -17,6 +18,11 @@ import {
   PostInterface,
 } from '@/src/post/interfaces/post.interface';
 import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { SelfGuard } from '@/src/auth/guards/SelfGuard';
+
+
+
 
 @Controller('posts')
 export class PostController {
@@ -40,6 +46,8 @@ export class PostController {
     summary: 'Create a post',
     description: 'Create a post',
   })
+  @UseGuards(JwtAuthGuard, SelfGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The post has been successfully created.',
@@ -70,6 +78,8 @@ export class PostController {
     summary: 'Update post',
     description: 'Update post',
   })
+  @UseGuards(JwtAuthGuard, SelfGuard)
+  @ApiBearerAuth()
   @Patch('/update')
   async updatePost(
     @Body() updatePostDto: UpdatePostDto,
@@ -81,6 +91,8 @@ export class PostController {
     summary: 'Delete post',
     description: 'Delete post',
   })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Post deleted successfully',
