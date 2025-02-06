@@ -9,12 +9,12 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
-import { AddUserInfoDto } from '@/src/personal-info/dto/request/addUserInfo.dto';
+import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import {
   PersonalInfoInterface,
   UpdateInfoResponseInterface,
 } from '@/src/personal-info/interfaces/personal-info.interface';
-import { UserInfoDto } from '@/src/personal-info/dto/response/userInfo.dto';
+import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { SelfGuard } from '@/src/auth/guards/SelfGuard';
 

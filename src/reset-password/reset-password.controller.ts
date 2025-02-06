@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ChangePasswordDto } from '@/src/reset-password/dto/request/change-password.dto';
+import { ChangePasswordDto } from '@/src/reset-password/dto/change-password.dto';
 import { ResetPasswordService } from '@/src/reset-password/reset-password.service';
-import { SendEmailResponseDto } from '@/src/reset-password/dto/response/send-email-response.dto';
-import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/request/confirm-new-password.dto';
-import { ResponseUpdateUserDto } from '@/src/users/dto/response/response-update-user-role.dto';
+import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/confirm-new-password.dto';
+import { ResponseUpdateUserDto } from '@/src/users/dto/response-update-user-role.dto';
 import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
+import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
 
 @ApiTags('Recover Password')
 @Controller('password-change')
@@ -16,11 +16,10 @@ export class ResetPasswordController {
     summary: 'Change password',
     description: 'Change user password',
   })
-  @ApiResponse({ type: SendEmailResponseDto })
   @Post('request')
   public async changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
-  ): Promise<any> {
+  ): Promise<EmailResponseInterface> {
     return await this.resetPassService.generateResetToken(changePasswordDto);
   }
 
@@ -34,7 +33,7 @@ export class ResetPasswordController {
     @Body() confirmNewPasswordDto: ConfirmNewPasswordDto,
   ): Promise<UpdateUserInterface> {
     return await this.resetPassService.confirmNewPassword(
-      confirmNewPasswordDto,
+      confirmNewPasswordDto
     );
   }
 }

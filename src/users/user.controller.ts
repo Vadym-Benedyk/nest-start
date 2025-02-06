@@ -11,20 +11,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDto } from './dto/request/user.dto';
+import { UserDto } from './dto/user.dto';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { GetUsersDto } from './dto/request/get-users.dto';
+import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserInterface } from './interfaces/user.interfaces';
-import { UserRoleDto } from './dto/request/user-role.dto';
-import { ResponseUpdateUserDto } from './dto/response/response-update-user-role.dto';
+import { UserRoleDto } from './dto/user-role.dto';
+import { ResponseUpdateUserDto } from './dto/response-update-user-role.dto';
 import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
 import { AdminGuard } from '../auth/guards/AdminGuard';
-import { UpdateUserDto } from './dto/request/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+
+
 
 @Controller('users')
 export class UserController {
@@ -70,7 +72,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
+  async deleteUser(@Param('id') id: string): Promise<void> {
     return await this.userService.deleteUser(id);
   }
 
