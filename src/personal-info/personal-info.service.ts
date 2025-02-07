@@ -4,10 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AddUserInfoDto } from '@/src/personal-info/dto/request/addUserInfo.dto';
+import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.model';
 import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
-import { UserInfoDto } from '@/src/personal-info/dto/response/userInfo.dto';
+import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 
 @Injectable()
 export class PersonalInfoService {

@@ -4,16 +4,16 @@ import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
 import { generateToken } from '@/src/reset-password/utils/generateToken';
 import * as process from 'node:process';
-import { ResetUserTokenDto } from '@/src/reset-password/dto/response/reset-user-token.dto';
-import { ChangePasswordDto } from '@/src/reset-password/dto/request/change-password.dto';
+import { ResetUserTokenDto } from '@/src/reset-password/dto/reset-user-token.dto';
+import { ChangePasswordDto } from '@/src/reset-password/dto/change-password.dto';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '@/src/mail/mail.service';
-import { SendEmailResponseDto } from '@/src/reset-password/dto/response/send-email-response.dto';
-import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/request/confirm-new-password.dto';
+import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/confirm-new-password.dto';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
 import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
-// import * as fs from 'fs';
-// import * as path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
+import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
 
 @Injectable()
 export class ResetPasswordService {
@@ -26,7 +26,9 @@ export class ResetPasswordService {
     private readonly emailService: MailService,
   ) {}
 
-  async generateResetToken(changePasswordDto: ChangePasswordDto): Promise<any> {
+  async generateResetToken(
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<EmailResponseInterface> {
     const { email } = changePasswordDto;
 
     const user = await this.userService.getUserByEmail(email);
@@ -50,7 +52,7 @@ export class ResetPasswordService {
 
     const savedTokenObject = await this.saveOrUpdateResetToken(resetToken);
 
-    await this.sendPasswordResetEmail(email, savedTokenObject.token);
+    return await this.sendPasswordResetEmail(email, savedTokenObject.token);
   }
 
   private checkResetRequestLimit(resetToken: ResetTokenModel): void {
@@ -88,16 +90,19 @@ export class ResetPasswordService {
   private async sendPasswordResetEmail(
     to: string,
     token: string,
-  ): Promise<SendEmailResponseDto> {
+  ): Promise<EmailResponseInterface> {
     const resetUrl = `${this.configService.get<string>('HOST')}?token=${token}`;
-    const htmlContent = `
-    <p>You requested a <b>password reset</b>. Click the link below:</p>
-    <a href="${resetUrl}">${resetUrl}</a>
-    <p>If you did not request this, please ignore this email.</p>
-  `;
 
-    // const templatePath = path.join(__dirname, '..', 'static', 'mail', 'templates', 'reset-password-template.html');
-    // let htmlContent = fs.readFileSync(templatePath, 'utf8');
+    const templatePath = path.join(
+      __dirname,
+      '..',
+      'static',
+      'mail',
+      'templates',
+      'reset-password-template.html',
+    );
+    let htmlContent = fs.readFileSync(templatePath, 'utf8');
+    htmlContent = htmlContent.replace(/{{RESET_URL}}/g, resetUrl);
 
     return this.emailService.sendEmail(
       to,
@@ -115,7 +120,6 @@ export class ResetPasswordService {
     const findToken = await this.resetTokenModel.findOne({
       where: { token: resetToken },
     });
-
 
     if (!findToken) {
       this.logger.error('Invalid token');

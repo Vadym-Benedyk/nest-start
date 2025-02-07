@@ -16,7 +16,7 @@ module.exports = (sequelize: any) => {
       lastName: DataType.STRING,
       email: DataType.STRING,
       password: DataType.STRING,
-      age: DataType.INTEGER,
+      birthday: DataType.DATE,
       role: {
         type: DataType.ENUM(...Object.values(UserRole)),
         defaultValue: UserRole.USER,
