@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-LABEL authors="otto"
+LABEL authors="vadym.benedyk"
 
 ENTRYPOINT ["top", "-b"]
 
@@ -8,14 +8,12 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-RUN npm install
+RUN npm ci --omit=dev
 
 COPY . .
 
-RUN npm run build
-
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "start"]

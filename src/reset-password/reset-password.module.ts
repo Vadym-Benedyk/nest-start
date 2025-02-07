@@ -11,7 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.mailer',
+      envFilePath: '.env',
       isGlobal: false,
     }),
     SequelizeModule.forFeature([ResetTokenModel]),
