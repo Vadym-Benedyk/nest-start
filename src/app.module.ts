@@ -14,14 +14,23 @@ import { ConfigModule } from '@nestjs/config';
 import { PersonalInfoController } from './personal-info/personal-info.controller';
 import { PersonalInfo } from './personal-info/personal-info';
 import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
-
+import { join } from 'path';
+import { ResetPasswordService } from './reset-password/reset-password.service';
+import { ResetPasswordModule } from './reset-password/reset-password.module';
+import { ResetPasswordController } from '@/src/reset-password/reset-password.controller';
+import { MailService } from './mail/mail.service';
+import { MailModule } from '@/src/mail/mail.module';
+import configuration from '@/src/mail/configuration/configuration';
+import { ServeStaticModule } from '@nestjs/serve-static';
 // import { databaseConfig } from './database/postgres/dbConfig';
 // const config = databaseConfig.development;
+
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      load: [configuration],
       isGlobal: true,
     }),
     SequelizeModule.forRoot({
@@ -35,17 +44,31 @@ import { PersonalInfoModule } from '@/src/personal-info/personal-info.module';
       synchronize: false,
       autoLoadModels: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, 'static/mail/templates'),
+      serveRoot: '/templates',
+    }),
     UserModule,
     AuthModule,
     RefreshModule,
     PersonalInfoModule,
+    ResetPasswordModule,
+    MailModule,
   ],
   controllers: [
     AppController,
     UserController,
     AuthController,
     PersonalInfoController,
+    ResetPasswordController,
   ],
-  providers: [AppService, UserService, RefreshService, PersonalInfo],
+  providers: [
+    AppService,
+    UserService,
+    RefreshService,
+    PersonalInfo,
+    ResetPasswordService,
+    MailService,
+  ],
 })
 export class AppModule {}

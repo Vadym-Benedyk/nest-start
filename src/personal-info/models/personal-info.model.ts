@@ -10,7 +10,7 @@ import { StatusEnum } from '@/src/personal-info/interfaces/personal-info.interfa
 
 @Table({
   tableName: 'personal_info',
-  modelName: 'PersonalInfo',
+  modelName: 'PersonalInfoModel',
   timestamps: false,
 })
 export class PersonalInfoModel extends Model<PersonalInfoModel> {

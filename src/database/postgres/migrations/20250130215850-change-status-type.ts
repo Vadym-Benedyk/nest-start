@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { StatusEnum } from '../../../personal-info/interfaces/personal-info.interface';
+import { StatusEnum } from '@/src/personal-info/interfaces/personal-info.interface';
 
 export default {
   up: async (queryInterface: QueryInterface) => {
