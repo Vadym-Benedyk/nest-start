@@ -12,6 +12,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run lint
-        run: npm lint
-      - name: Rub build
+        run: npm run lint
+      - name: Run build
         run: npm build
