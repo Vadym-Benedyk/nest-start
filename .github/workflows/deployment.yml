@@ -75,13 +75,10 @@ jobs:
       - name: Get repository code
         uses: actions/checkout@v4.2.2
 
-      - name: Install Fly CLI
+      - name: Install Flyctl
         run: |
           curl -L https://fly.io/install.sh | sh
-          export PATH=$HOME/.fly/bin:$PATH
-          flyctl version
+          echo "$HOME/.fly/bin" >> $GITHUB_PATH
 
-      - name: Deploy to Fly.io
-        run: |
-          flyctl auth token
-          flyctl deploy --remote-only
+      - name: Authenticate with Fly.io
+        run: flyctl auth token
