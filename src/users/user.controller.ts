@@ -25,6 +25,7 @@ import { ResponseUpdateUserDto } from './dto/response-update-user-role.dto';
 import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
 import { AdminGuard } from '../auth/guards/AdminGuard';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { SelfGuard } from '@/src/auth/guards/SelfGuard';
 
 
 
@@ -69,7 +70,7 @@ export class UserController {
     summary: 'Delete users by id',
     description: 'Delete users by id',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SelfGuard)
   @ApiBearerAuth()
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {

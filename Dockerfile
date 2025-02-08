@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-LABEL authors="vadym.benedyk"
+LABEL authors="otto marcus"
 
 ENTRYPOINT ["top", "-b"]
 

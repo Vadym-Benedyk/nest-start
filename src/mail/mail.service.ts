@@ -1,15 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import chalk from 'chalk';
 import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  linkChalk = chalk.underline.magenta;
-  subjectChalk = chalk.bgGreen;
-
   private transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService) {
@@ -35,7 +31,7 @@ export class MailService {
 
     try {
       const { ehlo, ...filteredResponse } = await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Email sent to ${this.linkChalk(to)} with a subject: ${this.subjectChalk(subject)}`);
+      this.logger.log(`Email sent to ${to} with a subject: ${subject}`);
       return filteredResponse;
     } catch (error) {
       this.logger.error(`Error sending email to ${to}: ${error}`);

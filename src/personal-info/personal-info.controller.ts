@@ -30,6 +30,7 @@ export class PersonalInfoController {
     description: 'Create user information and save to db',
   })
   @ApiResponse({ type: AddUserInfoDto })
+  @UseGuards(SelfGuard)
   @Post()
   public async addUserInfo(
     @Body() addUserInfoDto: AddUserInfoDto,
