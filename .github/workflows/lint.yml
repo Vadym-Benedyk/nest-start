@@ -4,7 +4,7 @@ on:
     branches:
       - dev
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Get repository code
@@ -13,3 +13,5 @@ jobs:
         run: npm ci
       - name: Run lint
         run: npm lint
+      - name: Rub build
+        run: npm build
