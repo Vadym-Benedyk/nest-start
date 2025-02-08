@@ -1,0 +1,12 @@
+name: Demo workflow
+on: workflow_dispatch
+jobs:
+  print:
+    runs-on: ubumtu-latest
+    steps:
+      - name: Print to console
+        run: echo Hello word!
+      -  name: Print a few lines
+          run: |
+            echo First Line
+            echo Second Line
