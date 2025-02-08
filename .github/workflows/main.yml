@@ -1,12 +1,14 @@
 name: Demo workflow
 on: workflow_dispatch
+
 jobs:
   print:
-    runs-on: ubumtu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Print to console
-        run: echo Hello word!
-      -  name: Print a few lines
-          run: |
-            echo First Line
-            echo Second Line
+        run: echo "Hello world!"
+
+      - name: Print a few lines
+        run: |
+          echo "First Line"
+          echo "Second Line"
