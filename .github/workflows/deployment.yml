@@ -71,23 +71,25 @@ jobs:
       SMTP_USER: posterfivedev@gmail.com
       SMTP_PASS: ${{ secrets.SMTP_PASS }}
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v4
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4.2.2
 
-  - name: Install Flyctl
-    run: curl -L https://fly.io/install.sh | sh
+      - name: Install Flyctl
+        run: |
+          curl -L https://fly.io/install.sh | sh
+          echo "$HOME/.fly/bin" >> $GITHUB_PATH
 
-  - name: Authenticate Fly.io
-    run: |
-      export FLYCTL_INSTALL="/home/runner/.fly"
-      export PATH="$FLYCTL_INSTALL/bin:$PATH"
-      flyctl auth token
-    env:
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Authenticate Fly.io
+        run: |
+          export FLYCTL_INSTALL="/home/runner/.fly"
+          export PATH="$FLYCTL_INSTALL/bin:$PATH"
+          flyctl auth token
+          env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-  - name: Deploy to Fly.io
-    run: |
-      export FLYCTL_INSTALL="/home/runner/.fly"
-      export PATH="$FLYCTL_INSTALL/bin:$PATH"
-      flyctl deploy
+      - name: Deploy to Fly.io
+        run: |
+          export FLYCTL_INSTALL="/home/runner/.fly"
+          export PATH="$FLYCTL_INSTALL/bin:$PATH"
+          flyctl deploy
