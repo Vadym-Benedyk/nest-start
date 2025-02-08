@@ -14,4 +14,6 @@ jobs:
       - name: Run lint
         run: npm run lint
       - name: Run build
-        run: npm build
+        run: npm run build
+      - name: Deploy
+        run: echo Deploy running ...
