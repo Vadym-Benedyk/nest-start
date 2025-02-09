@@ -94,22 +94,20 @@ jobs:
             flyctl apps create nest-start
           fi
 
-#      - name: Set up Docker BuildKit cache
-#        uses: actions/cache@v4.2.0
-#        with:
-#          path: /tmp/.buildx-cache
-#          key: ${{ runner.os }}-buildx-${{ github.sha }}
-#          restore-keys: |
-#            ${{ runner.os }}-buildx-
+      - name: Set up Docker BuildKit cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Build and push Docker image
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
           docker buildx create --use --driver docker-container
-          docker buildx build --tag registry.fly.io/nest-start:latest . \
-                            --cache-to=type=registry,ref=registry.fly.io/nest-start/cache \
-                            --push
+          docker buildx build --tag registry.fly.io/nest-start:latest . --push
 
       - name: Deploy to Fly.io
         env:
