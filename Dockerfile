@@ -4,7 +4,7 @@ LABEL authors="otto marcus"
 ENTRYPOINT ["top", "-b"]
 
 # Dockerfile
-FROM node:18-alpine
+FROM node:slim
 
 WORKDIR /app
 
@@ -17,3 +17,4 @@ COPY . .
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]
+#CMD ["node", "dist/main.js"]
