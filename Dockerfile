@@ -12,9 +12,9 @@ COPY package.json package-lock.json ./
 
 RUN npm ci --omit=dev
 
-RUN npm run build
-
 COPY . .
+
+RUN npm run build
 
 EXPOSE 3000
 
