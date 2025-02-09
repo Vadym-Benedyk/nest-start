@@ -75,23 +75,47 @@ jobs:
       - name: Get repository code
         uses: actions/checkout@v4.2.2
 
-      - name: Install Flyctl
+      - name: Install Fly.io CLI
         run: |
           curl -L https://fly.io/install.sh | sh
           echo "$HOME/.fly/bin" >> $GITHUB_PATH
 
-      - name: Authenticate Fly.io
+      - name: Authenticate with Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          export FLYCTL_INSTALL="/home/runner/.fly"
-          export PATH="$FLYCTL_INSTALL/bin:$PATH"
-          flyctl auth login --access-token "$FLY_API_TOKEN"
-          env:
-            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          flyctl auth docker
+
+      - name: Ensure app exists in Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if ! flyctl apps list | grep -q "nest-start"; then
+            flyctl apps create nest-start
+          fi
+
+      - name: Set up Docker BuildKit cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push Docker image
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          docker buildx create --use --driver docker-container
+          docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
+                              --cache-to=type=local,dest=/tmp/.buildx-cache \
+                              --tag registry.fly.io/nest-start:latest . \
+                              --push
 
       - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          export FLYCTL_INSTALL="/home/runner/.fly"
-          export PATH="$FLYCTL_INSTALL/bin:$PATH"
-          flyctl deploy
+          flyctl deploy --image registry.fly.io/nest-start:latest
 
 #          FlyV1 fm2_lJPECAAAAAAACDXExBA/d3ychod/yJhgqroOe1duwrVodHRwczovL2FwaS5mbHkuaW8vdjGUAJLOAA6c0h8Lk7lodHRwczovL2FwaS5mbHkuaW8vYWFhL3YxxDyQQPbSbzb+QcM+CtH6349vuJCD8jVOG5XgJwc73WZZ2t6QgjX5q/DpAKe5e5R++Hjmlz2MhNtxcLxEXV/ETh4YdOEMix/ydqJi1pVjIZzSQGidk/72mzSmcJ2wYvGoTFudbMqH6lpA4tIsWNNdh2hXhll47h3aPpI+3MqWYbh0QXOERuV8BfAAvtoP5sQg2gitrVljJBQN3cLpV4TrZlXRqrRY4XpxSOVrFe6WbYM=,fm2_lJPETh4YdOEMix/ydqJi1pVjIZzSQGidk/72mzSmcJ2wYvGoTFudbMqH6lpA4tIsWNNdh2hXhll47h3aPpI+3MqWYbh0QXOERuV8BfAAvtoP5sQQfgl5zAAxPDR9ZnWB8S/FvcO5aHR0cHM6Ly9hcGkuZmx5LmlvL2FhYS92MZgEks5np9hlzwAAAAEjn/aDF84ADhKaCpHOAA4SmgzEEG59cd2URNOSvrCk4dsmeNPEIPBLh8g8gpSKDTecpzLaLwmybVGvJcgWZ3SmyrHthl4T
