@@ -22,13 +22,20 @@ import { MailService } from './mail/mail.service';
 import { MailModule } from '@/src/mail/mail.module';
 import configuration from '@/src/mail/configuration/configuration';
 import { ServeStaticModule } from '@nestjs/serve-static';
-// import { databaseConfig } from './database/postgres/dbConfig';
 import { PostService } from './post/post.service';
 import { Post } from './post/post';
 import { PostController } from './post/post.controller';
 import { PostModule } from './post/post.module';
-// const config = databaseConfig.development;
-
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { dbConfig } from '@/src/database/postgres/type-orm/typeOrmConfig';
+import { ChapterController } from './chapter/chapter.controller';
+import { ChapterService } from './chapter/chapter.service';
+import { Chapter } from './chapter/chapter';
+import { ChapterModule } from './chapter/chapter.module';
+import { TopicController } from './topic/topic.controller';
+import { Topic } from './topic/topic';
+import { TopicModule } from './topic/topic.module';
+import * as process from 'node:process';
 
 
 @Module({
@@ -38,7 +45,7 @@ import { PostModule } from './post/post.module';
       isGlobal: true,
     }),
     SequelizeModule.forRoot({
-      models: [__dirname + '/models/*.model.js'],
+      models: [__dirname + '/entities/*.model.js'],
       dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
       host: process.env.DATABASE_HOST,
       port: +process.env.DATABASE_PORT,
@@ -48,6 +55,7 @@ import { PostModule } from './post/post.module';
       synchronize: false,
       autoLoadModels: true,
     }),
+    TypeOrmModule.forRoot(dbConfig),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'static/mail/templates'),
       serveRoot: '/templates',
@@ -59,6 +67,8 @@ import { PostModule } from './post/post.module';
     ResetPasswordModule,
     MailModule,
     PostModule,
+    ChapterModule,
+    TopicModule,
   ],
   controllers: [
     AppController,
@@ -67,6 +77,8 @@ import { PostModule } from './post/post.module';
     PersonalInfoController,
     ResetPasswordController,
     PostController,
+    ChapterController,
+    TopicController,
   ],
   providers: [
     AppService,
@@ -77,6 +89,9 @@ import { PostModule } from './post/post.module';
     MailService,
     PostService,
     Post,
+    ChapterService,
+    Chapter,
+    Topic,
   ],
 })
 export class AppModule {}

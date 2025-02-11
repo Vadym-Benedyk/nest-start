@@ -4,13 +4,15 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import * as process from 'node:process';
+import 'reflect-metadata';
 dotenv.config();
+
 
 async function bootstrap() {
   // await checkAndCreateDatabase();
   // await syncTables()
 
-  const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create(AppModule, {
     abortOnError: false,
     logger: ['log', 'error', 'warn', 'debug', 'verbose']
   });
