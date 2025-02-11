@@ -9,6 +9,6 @@ import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository
   imports: [TypeOrmModule.forFeature([ChapterEntity])],
   controllers: [ChapterController],
   providers: [ChapterService, ChapterRepository],
-  exports: [ChapterService, ChapterRepository]
+  exports: [TypeOrmModule, ChapterRepository]
 })
 export class ChapterModule {}

@@ -10,4 +10,5 @@ export const ormDbConfig: TypeOrmModuleOptions = {
   database: process.env.DATABASE_NAME,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: true, // У продакшені має бути false!
+  autoLoadEntities: true,
 };

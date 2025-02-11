@@ -9,8 +9,7 @@ export class ChapterService {
 
   async getChapters(): Promise<any> {
     const chapters = await this.chapterRepository.getAllChapters()
-    console.log(chapters);
-    return chapters
+    return chapters.map(chapter => chapter.chapterName)
   }
 
   async createChapter(addChapterDto: AddChapterDto): Promise<any> {
