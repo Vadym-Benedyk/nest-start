@@ -27,7 +27,7 @@ import { Post } from './post/post';
 import { PostController } from './post/post.controller';
 import { PostModule } from './post/post.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dbConfig } from '@/src/database/postgres/type-orm/typeOrmConfig';
+
 import { ChapterController } from './chapter/chapter.controller';
 import { ChapterService } from './chapter/chapter.service';
 import { Chapter } from './chapter/chapter';
@@ -36,6 +36,7 @@ import { TopicController } from './topic/topic.controller';
 import { Topic } from './topic/topic';
 import { TopicModule } from './topic/topic.module';
 import * as process from 'node:process';
+import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
 
 
 @Module({
@@ -55,7 +56,7 @@ import * as process from 'node:process';
       synchronize: false,
       autoLoadModels: true,
     }),
-    TypeOrmModule.forRoot(dbConfig),
+    TypeOrmModule.forRoot(ormDbConfig),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'static/mail/templates'),
       serveRoot: '/templates',

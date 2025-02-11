@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 
@@ -16,6 +15,7 @@ export class ChapterService {
 
   async createChapter(addChapterDto: AddChapterDto): Promise<any> {
     const isChapterExist = await this.chapterRepository.findByChapterName(addChapterDto.chapterName)
+
     if (isChapterExist) {
       throw new HttpException('Chapter already exists', HttpStatus.BAD_REQUEST)
     }

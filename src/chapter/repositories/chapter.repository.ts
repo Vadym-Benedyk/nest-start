@@ -25,7 +25,7 @@ export class ChapterRepository {
 
   async findByChapterName(chapterName: string): Promise<any> {
     try {
-      return this.chapterRepository.findOneBy({ chapterName })
+      return  await this.chapterRepository.findOneBy({ chapterName })
     } catch (error) {
       throw new HttpException(
         'Internal server error by getting chapter',

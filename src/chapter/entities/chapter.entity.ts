@@ -2,7 +2,7 @@ import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TopicEntity } from '@/src/topic/entities/topic.entity';
 
 
-@Entity()
+@Entity({ name: 'chapter' })
 export class ChapterEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string
