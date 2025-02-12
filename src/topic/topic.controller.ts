@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TopicService } from '@/src/topic/topic.service';
 import { TopicDto } from '@/src/topic/dto/topic.dto';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
+import { DeleteTopicDto } from '@/src/topic/dto/delete-topic.dto';
 
 @Controller('topic')
 export class TopicController {
@@ -66,5 +67,19 @@ export class TopicController {
   @Patch('/update')
   async updateTopic(@Body() updateTopicNameDto: UpdateTopicNameDto, ): Promise<TopicDto> {
     return await this.topicService.updateTopic(updateTopicNameDto)
+  }
+
+
+  @ApiOperation({
+    summary: "Delete topic",
+    description: "Delete topic"
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Removed topic"
+  })
+  @Delete('/delete')
+  async deleteTopic(@Query() deleteTopicDto: DeleteTopicDto): Promise<void> {
+    return await this.topicService.deleteTopic(deleteTopicDto);
   }
 }

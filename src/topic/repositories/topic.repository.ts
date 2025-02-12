@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
 
+
 @Injectable()
 export class TopicRepository {
   private readonly logger = new Logger(TopicRepository.name)
@@ -75,4 +76,14 @@ export class TopicRepository {
     }
   }
 
+
+  async deleteTopic(id: string): Promise<any> {
+
+      const result = await this.topicRepository.delete(id)
+      if (result.affected === 0) {
+        this.logger.error('Error deleting topic by Id')
+        throw new HttpException("Error by deleting topic", HttpStatus.INTERNAL_SERVER_ERROR)
+      }
+      return {statusCode: HttpStatus.OK, message: 'Topic was successfully removed'}
+  }
 }

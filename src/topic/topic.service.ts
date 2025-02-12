@@ -3,6 +3,7 @@ import { TopicRepository } from '@/src/topic/repositories/topic.repository';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
+import { DeleteTopicDto } from '@/src/topic/dto/delete-topic.dto';
 
 @Injectable()
 export class TopicService {
@@ -69,6 +70,14 @@ export class TopicService {
     }
 
     return await this.topicRepository.updateTopic(updateTopicNameDto)
+  }
 
+  async deleteTopic(deleteTopicDto: DeleteTopicDto): Promise<any> {
+    this.logger.log('Init delete topic')
+    const isTopic = await this.topicRepository.findTopicByName(deleteTopicDto.topicName)
+    if (!isTopic) {
+      throw new HttpException( "Topic name not found", HttpStatus.NOT_FOUND)
+    }
+    return await this.topicRepository.deleteTopic(isTopic.id)
   }
 }
