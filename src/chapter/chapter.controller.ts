@@ -16,6 +16,7 @@ import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { AdminGuard } from '@/src/auth/guards/AdminGuard';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
+import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
 
 
 
@@ -48,7 +49,7 @@ export class ChapterController {
     description: 'id: 888f2acd-5581-48d4-a8ca-74dfa412f873, chapterName: Tourism'
   })
   @Get(':id')
-  async getChapter(@Param('id', new ParseUUIDPipe()) id: string): Promise<ChapterDto> {
+  async getChapter(@Param('id', new ParseUUIDPipe()) id: string): Promise<ChapterInterface> {
     return await this.chapterService.getChapterById(id);
   }
 
@@ -64,7 +65,7 @@ export class ChapterController {
     description: 'chapter added'
   })
   @Post()
-  async addChapter(@Body() addChapterDto: AddChapterDto): Promise<ChapterDto> {
+  async addChapter(@Body() addChapterDto: AddChapterDto): Promise<ChapterInterface> {
     return await this.chapterService.createChapter(addChapterDto);
   }
 
@@ -96,7 +97,7 @@ export class ChapterController {
     description: 'chapter updated'
   })
   @Patch('/update')
-  async updateChapter(@Body() chapterDto: ChapterDto): Promise<ChapterDto> {
+  async updateChapter(@Body() chapterDto: ChapterDto): Promise<ChapterInterface> {
     return await this.chapterService.updateChapter(chapterDto);
   }
 }

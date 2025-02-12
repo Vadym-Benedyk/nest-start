@@ -4,6 +4,7 @@ import { TopicEntity } from '@/src/topic/entities/topic.entity';
 import { Repository } from 'typeorm';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
+import { StatusMessageInterface } from '@/src/topic/interfaces/topic.interface';
 
 
 @Injectable()
@@ -56,7 +57,7 @@ export class TopicRepository {
   }
 
 
-  async updateTopic(updateTopicNameDto: UpdateTopicNameDto): Promise<any> {
+  async updateTopic(updateTopicNameDto: UpdateTopicNameDto): Promise<StatusMessageInterface> {
     const { topicName, newTopicName } = updateTopicNameDto;
 
     try {
@@ -77,7 +78,7 @@ export class TopicRepository {
   }
 
 
-  async deleteTopic(id: string): Promise<any> {
+  async deleteTopic(id: string): Promise<StatusMessageInterface> {
 
       const result = await this.topicRepository.delete(id)
       if (result.affected === 0) {

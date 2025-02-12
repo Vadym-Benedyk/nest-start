@@ -1,10 +1,15 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TopicService } from '@/src/topic/topic.service';
-import { TopicDto } from '@/src/topic/dto/topic.dto';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
 import { DeleteTopicDto } from '@/src/topic/dto/delete-topic.dto';
+import {
+  AllTopicsInterface,
+  IdInterface,
+  IdTopicInterface,
+  StatusMessageInterface,
+} from '@/src/topic/interfaces/topic.interface';
 
 @Controller('topic')
 export class TopicController {
@@ -20,10 +25,9 @@ export class TopicController {
     description: 'Success',
   })
   @Get()
-  async getAllTopics() {
+  async getAllTopics(): Promise<AllTopicsInterface[]>  {
     return await this.topicService.getAllTopics();
   }
-
 
 
   @ApiOperation({
@@ -35,10 +39,9 @@ export class TopicController {
     description: "Topic description"
   })
   @Get(':id')
-  async getTopicById(@Param('id', new ParseUUIDPipe) id: string): Promise<any> {
+  async getTopicById(@Param('id', new ParseUUIDPipe) id: string): Promise<IdTopicInterface> {
     return await this.topicService.getTopicById(id);
   }
-
 
 
   @ApiOperation({
@@ -50,7 +53,7 @@ export class TopicController {
     description: "Topic ID"
   })
   @Post()
-  async createTopic(@Body() addTopicDto: AddTopicDto): Promise<any> {
+  async createTopic(@Body() addTopicDto: AddTopicDto): Promise<IdInterface> {
     return await this.topicService.createTopic(addTopicDto);
   }
 
@@ -65,7 +68,7 @@ export class TopicController {
     description: "Updated status"
   })
   @Patch('/update')
-  async updateTopic(@Body() updateTopicNameDto: UpdateTopicNameDto, ): Promise<TopicDto> {
+  async updateTopic(@Body() updateTopicNameDto: UpdateTopicNameDto, ): Promise<StatusMessageInterface> {
     return await this.topicService.updateTopic(updateTopicNameDto)
   }
 
@@ -79,7 +82,7 @@ export class TopicController {
     description: "Removed topic"
   })
   @Delete('/delete')
-  async deleteTopic(@Query() deleteTopicDto: DeleteTopicDto): Promise<void> {
+  async deleteTopic(@Query() deleteTopicDto: DeleteTopicDto): Promise<StatusMessageInterface> {
     return await this.topicService.deleteTopic(deleteTopicDto);
   }
 }

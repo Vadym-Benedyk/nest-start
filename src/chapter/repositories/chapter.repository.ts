@@ -1,9 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Res } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChapterEntity } from '@/src/chapter/entities/chapter.entity';
 import { Repository } from 'typeorm';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
+import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
 
 @Injectable()
 export class ChapterRepository {
@@ -24,7 +25,7 @@ export class ChapterRepository {
   }
 
 
-  async findChapterById(id: string): Promise<any> {
+  async findChapterById(id: string): Promise<ChapterInterface> {
     const chapter = await this.chapterRepository.findOneBy({ id })
     if (!chapter) {
       throw new HttpException('Chapter not found', HttpStatus.NOT_FOUND);
@@ -33,7 +34,7 @@ export class ChapterRepository {
   }
 
 
-  async findByChapterName(chapterName: string): Promise<any> {
+  async findByChapterName(chapterName: string): Promise<ChapterInterface> {
     try {
       return  await this.chapterRepository.findOneBy({ chapterName })
     } catch (error) {
@@ -45,14 +46,14 @@ export class ChapterRepository {
   }
 
 
-  async createChapter(addChapterDto: AddChapterDto): Promise<any> {
+  async createChapter(addChapterDto: AddChapterDto): Promise<ChapterInterface> {
     try {
       const newChapter = this.chapterRepository.create(addChapterDto);
       return await this.chapterRepository.save(newChapter);
     } catch (error) {
       throw new HttpException(
         'Internal server error by creating chapter',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.NOT_ACCEPTABLE
       )
     }
   }
@@ -65,18 +66,18 @@ export class ChapterRepository {
     } catch (error) {
       throw new HttpException(
         'Internal server error by deleting chapter',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.FORBIDDEN
       );
     }
   }
 
 
-  async updateChapter(chapterDto: ChapterDto): Promise<any> {
+  async updateChapter(chapterDto: ChapterDto): Promise<ChapterInterface> {
     const result = await this.chapterRepository.update(chapterDto.id, chapterDto);
-
     if (result.affected === 0) {
       throw new HttpException(`Chapter with id:${chapterDto.id} not found`, HttpStatus.NOT_FOUND);
     }
+
     return chapterDto;
   }
 }

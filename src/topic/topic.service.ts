@@ -4,6 +4,12 @@ import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
 import { DeleteTopicDto } from '@/src/topic/dto/delete-topic.dto';
+import {
+  AllTopicsInterface,
+  IdInterface,
+  IdTopicInterface,
+  StatusMessageInterface,
+} from '@/src/topic/interfaces/topic.interface';
 
 @Injectable()
 export class TopicService {
@@ -14,11 +20,11 @@ export class TopicService {
     private readonly chapterRepository: ChapterRepository
   ) {}
 
-  async getAllTopics(): Promise<any> {
+  async getAllTopics(): Promise<AllTopicsInterface[]> {
     return this.topicRepository.getAllTopics()
   }
 
-  async getTopicById(id: string): Promise<any> {
+  async getTopicById(id: string): Promise<IdTopicInterface> {
     const topic = await this.topicRepository.findTopicById(id);
     if (!topic || topic.length === 0) {
       throw new HttpException(
@@ -29,7 +35,7 @@ export class TopicService {
     return topic
   }
 
-  async createTopic(addTopicDto: AddTopicDto): Promise<any> {
+  async createTopic(addTopicDto: AddTopicDto): Promise<IdInterface> {
     const isTopicInDb = await this.topicRepository.findTopicByName(addTopicDto.topicName)
 
     if (isTopicInDb && isTopicInDb.length !== 0) {
@@ -50,7 +56,8 @@ export class TopicService {
     return result.identifiers[0]?.id;
   }
 
-  async updateTopic(updateTopicNameDto: UpdateTopicNameDto): Promise<any> {
+  async updateTopic(updateTopicNameDto: UpdateTopicNameDto): Promise<StatusMessageInterface
+  > {
     this.logger.log('start updating topic')
 
     const isTopic = await this.topicRepository.findTopicByName(updateTopicNameDto.topicName);
@@ -72,7 +79,7 @@ export class TopicService {
     return await this.topicRepository.updateTopic(updateTopicNameDto)
   }
 
-  async deleteTopic(deleteTopicDto: DeleteTopicDto): Promise<any> {
+  async deleteTopic(deleteTopicDto: DeleteTopicDto): Promise<StatusMessageInterface> {
     this.logger.log('Init delete topic')
     const isTopic = await this.topicRepository.findTopicByName(deleteTopicDto.topicName)
     if (!isTopic) {
