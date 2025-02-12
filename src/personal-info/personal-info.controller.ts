@@ -33,7 +33,7 @@ export class PersonalInfoController {
   @UseGuards(SelfGuard)
   @Post()
   public async addUserInfo(
-    @Body() addUserInfoDto: AddUserInfoDto,
+    @Body() addUserInfoDto: AddUserInfoDto
   ): Promise<PersonalInfoInterface> {
     return await this.personalInfoService.addUserInfo(addUserInfoDto);
   }

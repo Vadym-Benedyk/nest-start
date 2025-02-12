@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChapterEntity } from '@/src/chapter/entities/chapter.entity';
 import { Repository } from 'typeorm';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
+import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
 
 @Injectable()
 export class ChapterRepository {
@@ -11,7 +12,7 @@ export class ChapterRepository {
     private readonly chapterRepository: Repository<ChapterEntity>
   ) {}
 
-  async getAllChapters(): Promise<any> {
+  async getAllChapters(): Promise<ChapterDto[]> {
     try {
       return this.chapterRepository.find({ select: ['chapterName']})
     } catch (error) {
@@ -20,8 +21,17 @@ export class ChapterRepository {
         HttpStatus.INTERNAL_SERVER_ERROR
       )
     }
-
   }
+
+
+  async findChapterById(id: string): Promise<any> {
+    const chapter = await this.chapterRepository.findOneBy({ id })
+    if (!chapter) {
+      throw new HttpException('Chapter not found', HttpStatus.NOT_FOUND);
+    }
+    return chapter
+  }
+
 
   async findByChapterName(chapterName: string): Promise<any> {
     try {
@@ -34,6 +44,7 @@ export class ChapterRepository {
     }
   }
 
+
   async createChapter(addChapterDto: AddChapterDto): Promise<any> {
     try {
       const newChapter = this.chapterRepository.create(addChapterDto);
@@ -44,5 +55,28 @@ export class ChapterRepository {
         HttpStatus.INTERNAL_SERVER_ERROR
       )
     }
+  }
+
+
+  async deleteChapter(id: string): Promise<void> {
+      await this.findChapterById( id )
+    try {
+      await this.chapterRepository.delete(id);
+    } catch (error) {
+      throw new HttpException(
+        'Internal server error by deleting chapter',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+
+  async updateChapter(chapterDto: ChapterDto): Promise<any> {
+    const result = await this.chapterRepository.update(chapterDto.id, chapterDto);
+
+    if (result.affected === 0) {
+      throw new HttpException(`Chapter with id:${chapterDto.id} not found`, HttpStatus.NOT_FOUND);
+    }
+    return chapterDto;
   }
 }
