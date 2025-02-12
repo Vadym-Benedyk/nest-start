@@ -1,10 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { TopicRepository } from '@/src/topic/repositories/topic.repository';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository';
+import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
 
 @Injectable()
 export class TopicService {
+  private readonly logger = new Logger(TopicService.name)
+
   constructor(
     private readonly topicRepository: TopicRepository,
     private readonly chapterRepository: ChapterRepository
@@ -44,5 +47,28 @@ export class TopicService {
 
     const result = await this.topicRepository.createTopic(addTopicDto, isChapterInDb.id)
     return result.identifiers[0]?.id;
+  }
+
+  async updateTopic(updateTopicNameDto: UpdateTopicNameDto): Promise<any> {
+    this.logger.log('start updating topic')
+
+    const isTopic = await this.topicRepository.findTopicByName(updateTopicNameDto.topicName);
+    if (!isTopic) {
+      throw new HttpException(
+        'We can\'t find topic with such name',
+        HttpStatus.NOT_ACCEPTABLE
+      )
+    }
+
+    const isChapter = await this.chapterRepository.findByChapterName(updateTopicNameDto.chapterName)
+    if (!isChapter) {
+      throw new HttpException(
+        'No chapter found with such name',
+        HttpStatus.NOT_FOUND
+      )
+    }
+
+    return await this.topicRepository.updateTopic(updateTopicNameDto)
+
   }
 }

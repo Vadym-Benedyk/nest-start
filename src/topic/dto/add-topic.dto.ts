@@ -17,5 +17,4 @@ export class AddTopicDto {
   @IsString()
   @IsNotEmpty()
   chapterName: string
-
 }
