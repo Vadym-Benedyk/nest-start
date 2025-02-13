@@ -12,7 +12,6 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostDto } from '@/src/post/dto/post.dto';
 import { PostService } from '@/src/post/post.service';
-import { CreatePostDto } from '@/src/post/dto/create-post.dto';
 import {
   CreatePostInterface,
   PostInterface,
@@ -20,7 +19,8 @@ import {
 import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { SelfGuard } from '@/src/auth/guards/SelfGuard';
-
+import { CurrentUser } from '@/src/auth/decorators/current-user.decorator';
+import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
 
 
 
@@ -55,9 +55,11 @@ export class PostController {
   })
   @Post()
   async createPost(
-    @Body() createPostDto: CreatePostDto,
+    @Body() acceptPostDto: AcceptPostDto,
+    @CurrentUser('id') userId: string,
   ): Promise<CreatePostInterface> {
-    return await this.postService.createPost(createPostDto);
+    acceptPostDto.userId = userId;
+    return await this.postService.createPost( acceptPostDto );
   }
 
   @ApiOperation({
@@ -93,10 +95,10 @@ export class PostController {
   })
   @UseGuards(JwtAuthGuard, SelfGuard)
   @ApiBearerAuth()
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'Post deleted successfully',
-  // })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Post deleted successfully',
+  })
   @Delete('/delete/:id')
   async deletePost(@Param('id') id: string): Promise<void> {
     return await this.postService.deletePost(id);

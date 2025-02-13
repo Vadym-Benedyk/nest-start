@@ -7,6 +7,9 @@ import {
   PostInterface,
 } from '@/src/post/interfaces/post.interface';
 import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { UserService } from '@/src/users/user.service';
+import { TopicService } from '@/src/topic/topic.service';
+import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
 
 
 @Injectable()
@@ -14,7 +17,10 @@ export class PostService {
   private readonly logger = new Logger(PostService.name);
   constructor(
     @InjectModel(PostModel) private readonly postModel: typeof PostModel,
+    private readonly userService: UserService,
+    private readonly topicService: TopicService
   ) {}
+
 
   async getPosts(): Promise<PostInterface[]> {
     try {
@@ -38,17 +44,37 @@ export class PostService {
     }
   }
 
-  async createPost(createPostDto: CreatePostDto): Promise<CreatePostInterface> {
+
+  async createPost(acceptPostDto: AcceptPostDto): Promise<CreatePostInterface> {
+    const isUser = await this.userService.checkUserById(acceptPostDto.userId);
+    if(!isUser) {
+      this.logger.warn('User not found in database')
+      throw new HttpException('userId has not corresponds in database', HttpStatus.BAD_REQUEST)
+    }
+
+    const topic = await this.topicService.getTopicByName(acceptPostDto.topicName)
+    if (!topic) {
+      this.logger.error('Topic not found in database', HttpStatus.NOT_ACCEPTABLE)
+    }
+
+    const createPostDto: CreatePostDto = {
+      ...acceptPostDto,
+      topicId: topic.id,
+    };
+
+    delete (createPostDto as any).topicName;
+
     try {
       return await this.postModel.create(createPostDto);
     } catch (error) {
       this.logger.error(`Failed to create post: ${error}`);
       throw new HttpException(
-        'Internal server error',
+        'Error while saving post',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
 
   async getPost(id: string): Promise<PostInterface> {
     try {
@@ -68,6 +94,7 @@ export class PostService {
       );
     }
   }
+
 
   async updatePost(updatePostDto: UpdatePostDto): Promise<PostInterface> {
     try {
@@ -89,18 +116,19 @@ export class PostService {
     }
   }
 
+
   async deletePost(id: string): Promise<void> {
+    const post = await this.postModel.findByPk(id);
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
     try {
-      const post = await this.postModel.findByPk(id);
-      if (!post) {
-        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-      }
       await post.destroy();
     } catch (error) {
       this.logger.error(`Failed to delete post: ${error}`);
       throw new HttpException(
         'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
