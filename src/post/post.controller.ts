@@ -93,10 +93,10 @@ export class PostController {
   })
   @UseGuards(JwtAuthGuard, SelfGuard)
   @ApiBearerAuth()
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'Post deleted successfully',
-  // })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Post deleted successfully',
+  })
   @Delete('/delete/:id')
   async deletePost(@Param('id') id: string): Promise<void> {
     return await this.postService.deletePost(id);
