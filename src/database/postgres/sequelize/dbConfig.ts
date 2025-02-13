@@ -1,7 +1,7 @@
 import {
   baseConfigInterface,
   DbConfigInterface,
-} from './interfaces/dbConfig.interface';
+} from '@/src/database/postgres/sequelize/interfaces/dbConfig.interface';
 import { Dialect } from 'sequelize';
 
 const baseConfig: baseConfigInterface = {

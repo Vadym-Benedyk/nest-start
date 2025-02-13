@@ -1,6 +1,6 @@
 import {
   ForbiddenException,
-  Injectable,
+  Injectable, InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -19,11 +19,11 @@ export class PersonalInfoService {
   async addUserInfo(
     addUserInfoDto: AddUserInfoDto,
   ): Promise<PersonalInfoInterface> {
+    const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
+    if (isInfo) {
+      throw new ForbiddenException('User info already exists');
+    }
     try {
-      const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
-      if (isInfo) {
-        throw new ForbiddenException('User info already exists');
-      }
       return await this.personalInfoModel.create({
         userId: addUserInfoDto.userId,
         age: addUserInfoDto.age,
@@ -31,7 +31,7 @@ export class PersonalInfoService {
         photo: addUserInfoDto.photo,
       });
     } catch (error) {
-      throw new Error('Failed to create user personal info', error);
+      throw new InternalServerErrorException(`Failed to create user personal info: ${error}`);
     }
   }
 
@@ -50,15 +50,17 @@ export class PersonalInfoService {
   async getAllUsersInfo(): Promise<PersonalInfoInterface[]> {
     try {
       const allInfo = await this.personalInfoModel.findAll();
-      if (!allInfo) {
-        throw new NotFoundException();
+      if (!allInfo.length) {
+        throw new NotFoundException('No user info found');
       }
       return allInfo;
-    } catch {
-      throw new ForbiddenException();
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error retrieving users info');
     }
   }
-
   async updateUserInfo(
     userInfoDto: UserInfoDto,
   ): Promise<UpdateInfoResponseInterface> {
