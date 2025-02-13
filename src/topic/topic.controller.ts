@@ -1,0 +1,88 @@
+import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { TopicService } from '@/src/topic/topic.service';
+import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
+import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
+import { DeleteTopicDto } from '@/src/topic/dto/delete-topic.dto';
+import {
+  AllTopicsInterface,
+  IdInterface,
+  IdTopicInterface,
+  StatusMessageInterface,
+} from '@/src/topic/interfaces/topic.interface';
+
+@Controller('topic')
+export class TopicController {
+  constructor(private readonly topicService: TopicService) {}
+
+
+  @ApiOperation({
+    summary: 'Get all topics',
+    description: 'Get all topics',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @Get()
+  async getAllTopics(): Promise<AllTopicsInterface[]>  {
+    return await this.topicService.getAllTopics();
+  }
+
+
+  @ApiOperation({
+    summary: "Get Topic by id",
+    description: "Get Topic by id"
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Topic description"
+  })
+  @Get(':id')
+  async getTopicById(@Param('id', new ParseUUIDPipe) id: string): Promise<IdTopicInterface> {
+    return await this.topicService.getTopicById(id);
+  }
+
+
+  @ApiOperation({
+    summary: "Create Topic",
+    description: "Create new Topic"
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: "Topic ID"
+  })
+  @Post()
+  async createTopic(@Body() addTopicDto: AddTopicDto): Promise<IdInterface> {
+    return await this.topicService.createTopic(addTopicDto);
+  }
+
+
+
+  @ApiOperation({
+    summary: "Update topic name. Accept topicName and newTopicName",
+    description: "Change topic name"
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Updated status"
+  })
+  @Patch('/update')
+  async updateTopic(@Body() updateTopicNameDto: UpdateTopicNameDto, ): Promise<StatusMessageInterface> {
+    return await this.topicService.updateTopic(updateTopicNameDto)
+  }
+
+
+  @ApiOperation({
+    summary: "Delete topic",
+    description: "Delete topic"
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Removed topic"
+  })
+  @Delete('/delete')
+  async deleteTopic(@Query() deleteTopicDto: DeleteTopicDto): Promise<StatusMessageInterface> {
+    return await this.topicService.deleteTopic(deleteTopicDto);
+  }
+}

@@ -27,6 +27,12 @@ export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(@InjectModel(User) private readonly userModel: typeof User) {}
 
+
+  async checkUserById(userId: string): Promise<boolean> {
+    return await this.userModel.count({ where: { id: userId } }) > 0;
+  }
+
+
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
     const hashedPassword = await hashPassword(password);
@@ -57,6 +63,7 @@ export class UserService {
     }
   }
 
+
   async validatePassword(userId: string, password: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
@@ -66,6 +73,7 @@ export class UserService {
     }
   }
 
+
   async getUserById(id: string): Promise<UserInterfaces> {
     const user = await this.userModel.findByPk(id);
     if (!user) {
@@ -74,9 +82,11 @@ export class UserService {
     return user;
   }
 
+
   async getUserByEmail(email: string): Promise<UserInterfaces> {
     return await this.userModel.findOne({ where: { email } });
   }
+
 
   async deleteUser(id: string): Promise<void> {
     const user = await this.userModel.findByPk(id);
@@ -85,6 +95,7 @@ export class UserService {
     }
     await user.destroy();
   }
+
 
   async updateRole(userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
     const { UserId, role } = userRoleDto;
@@ -108,6 +119,7 @@ export class UserService {
     }
   }
 
+
   async updateUser(updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
     const isUser = await this.userModel.findByPk(updateUserDto.id);
     if (!isUser) {
@@ -124,6 +136,7 @@ export class UserService {
       user: updatedUser,
     };
   }
+
 
   async getUsers(
     @Query() queryParams: GetUsersDto,

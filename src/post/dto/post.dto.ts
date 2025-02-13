@@ -11,12 +11,14 @@ export class PostDto extends PartialType(CreatePostDto) {
   @IsNotEmpty()
   id: string;
 
+
   @ApiProperty({
     example: 'Date and time of the post',
     description: 'Date and time of the post',
   })
   @IsDate()
   createdAt: Date;
+
 
   @ApiProperty({
     example: 'Date and time of the post',

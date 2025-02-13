@@ -12,21 +12,20 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostDto } from '@/src/post/dto/post.dto';
 import { PostService } from '@/src/post/post.service';
-import { CreatePostDto } from '@/src/post/dto/create-post.dto';
-import {
-  CreatePostInterface,
-  PostInterface,
-} from '@/src/post/interfaces/post.interface';
-import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { CreatePostInterface, PostInterface } from '@/src/post/interfaces/post.interface';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { SelfGuard } from '@/src/auth/guards/SelfGuard';
-
+import { CurrentUser } from '@/src/auth/decorators/current-user.decorator';
+import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
+import { IdPostDto } from '@/src/post/dto/id-post.dto';
+import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
 
 
 
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
+
 
   @ApiOperation({
     summary: 'Get all posts',
@@ -42,6 +41,8 @@ export class PostController {
     return await this.postService.getPosts();
   }
 
+
+
   @ApiOperation({
     summary: 'Create a post',
     description: 'Create a post',
@@ -55,10 +56,14 @@ export class PostController {
   })
   @Post()
   async createPost(
-    @Body() createPostDto: CreatePostDto,
+    @Body() acceptPostDto: AcceptPostDto,
+    @CurrentUser('id') userId: string,
   ): Promise<CreatePostInterface> {
-    return await this.postService.createPost(createPostDto);
+    acceptPostDto.userId = userId;
+    return await this.postService.createPost( acceptPostDto );
   }
+
+
 
   @ApiOperation({
     summary: 'Get one post',
@@ -70,9 +75,11 @@ export class PostController {
     type: PostDto,
   })
   @Get(':id')
-  async getPost(id: string): Promise<PostInterface> {
-    return await this.postService.getPost(id);
+  async getPost(idPostDto: IdPostDto): Promise<PostInterface> {
+    return await this.postService.getPost(idPostDto);
   }
+
+
 
   @ApiOperation({
     summary: 'Update post',
@@ -87,18 +94,20 @@ export class PostController {
     return await this.postService.updatePost(updatePostDto);
   }
 
+
+
   @ApiOperation({
     summary: 'Delete post',
     description: 'Delete post',
   })
   @UseGuards(JwtAuthGuard, SelfGuard)
   @ApiBearerAuth()
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'Post deleted successfully',
-  // })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Post deleted successfully',
+  })
   @Delete('/delete/:id')
-  async deletePost(@Param('id') id: string): Promise<void> {
-    return await this.postService.deletePost(id);
+  async deletePost(@Param('id') idPostDto: IdPostDto): Promise<void> {
+    return await this.postService.deletePost(idPostDto);
   }
 }

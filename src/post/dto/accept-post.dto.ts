@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export class CreatePostDto {
+export class AcceptPostDto {
 
   @ApiProperty({
     example: 'Title of the post',
@@ -25,7 +25,7 @@ export class CreatePostDto {
   userId?: string;
 
 
-  @ApiProperty({ example: 'UUID', description: 'Topic id' })
+  @ApiProperty({ example: 'Topic name', description: 'Topic name' })
   @IsString()
-  topicId: string;
+  topicName: string;
 }
