@@ -37,6 +37,10 @@ import { Topic } from './topic/topic';
 import { TopicModule } from './topic/topic.module';
 import * as process from 'node:process';
 import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
+import { RoleController } from './role/role.controller';
+import { RoleService } from './role/role.service';
+import { Role } from './role/role';
+import { RoleModule } from './role/role.module';
 
 
 @Module({
@@ -70,6 +74,7 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
     PostModule,
     ChapterModule,
     TopicModule,
+    RoleModule,
   ],
   controllers: [
     AppController,
@@ -80,6 +85,7 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
     PostController,
     ChapterController,
     TopicController,
+    RoleController,
   ],
   providers: [
     AppService,
@@ -93,6 +99,8 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
     ChapterService,
     Chapter,
     Topic,
+    RoleService,
+    Role,
   ],
 })
 export class AppModule {}

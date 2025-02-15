@@ -1,6 +1,5 @@
 import { BelongsTo, Column, DataType, Model, ForeignKey, Table } from 'sequelize-typescript';
 import { User } from '@/src/users/models/user.model';
-import { TopicEntity } from '@/src/topic/entities/topic.entity';
 
 
 @Table({

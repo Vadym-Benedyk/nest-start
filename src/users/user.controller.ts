@@ -49,7 +49,7 @@ export class UserController {
     return await this.userService.getUsers(queryParams);
   }
 
-  @ApiOperation({ summary: 'Get users by id', description: 'Get users by id' })
+  @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
   @ApiResponse({ type: UserDto })
   @Get(':id')
   async getUserById(@Param('id') id: string) {

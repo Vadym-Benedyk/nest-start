@@ -1,6 +1,6 @@
 import {
   ForbiddenException,
-  Injectable,
+  Injectable, InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -50,12 +50,18 @@ export class PersonalInfoService {
   async getAllUsersInfo(): Promise<PersonalInfoInterface[]> {
     try {
       const allInfo = await this.personalInfoModel.findAll();
-      if (!allInfo) {
-        throw new NotFoundException();
+
+      if (allInfo.length === 0) {
+        throw new NotFoundException('No users found');
       }
+
       return allInfo;
-    } catch {
-      throw new ForbiddenException();
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Database query failed');
     }
   }
 
