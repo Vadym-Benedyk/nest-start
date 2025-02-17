@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { UserRole } from '@/src/users/interfaces/role.enum';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 
 export default {
   up: async (queryInterface: QueryInterface) => {

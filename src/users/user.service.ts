@@ -17,7 +17,7 @@ import {
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { UserRoleDto } from './dto/user-role.dto';
+import { UserRoleDto } from '../role/dto/user-role.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
@@ -97,29 +97,29 @@ export class UserService {
   }
 
 
-  async updateRole(userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
-    const { UserId, role } = userRoleDto;
-    try {
-      const isUser = await this.userModel.findByPk(UserId);
-      if (!isUser) {
-        throw new NotFoundException('Error by editing. User not found');
-      }
-      const [affectedRows] = await this.userModel.update(
-        { role },
-        { where: { id: UserId } },
-      );
-      const updatedUser = await this.userModel.findByPk(UserId);
-
-      return {
-        updates: affectedRows,
-        user: updatedUser,
-      };
-    } catch (error) {
-      throw new Error('Failed to update role. Error: ' + error);
-    }
-  }
-
-
+  // async updateRole(userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
+  //   const { UserId, role } = userRoleDto;
+  //   try {
+  //     const isUser = await this.userModel.findByPk(UserId);
+  //     if (!isUser) {
+  //       throw new NotFoundException('Error by editing. User not found');
+  //     }
+  //     const [affectedRows] = await this.userModel.update(
+  //       { role },
+  //       { where: { id: UserId } },
+  //     );
+  //     const updatedUser = await this.userModel.findByPk(UserId);
+  //
+  //     return {
+  //       updates: affectedRows,
+  //       user: updatedUser,
+  //     };
+  //   } catch (error) {
+  //     throw new Error('Failed to update role. Error: ' + error);
+  //   }
+  // }
+  //
+  //
   async updateUser(updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
     const isUser = await this.userModel.findByPk(updateUserDto.id);
     if (!isUser) {

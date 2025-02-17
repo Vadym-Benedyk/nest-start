@@ -18,8 +18,7 @@ export class RefreshService {
 
   async generateAccessToken(user: UserInterfaces): Promise<string> {
     const payload = {
-      userId: user.id,
-      role: user.role,
+      userId: user.id
     };
     try {
       return await this.jwtService.signAsync(payload);

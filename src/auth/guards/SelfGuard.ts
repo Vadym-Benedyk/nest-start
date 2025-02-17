@@ -15,19 +15,19 @@ export class SelfGuard implements CanActivate {
     this.logger.log( `get user from access token User: ${util.inspect(userFromRequest.id, { depth: null })}` );
 
     const userFromDb = await this.userService.getUserById(userFromRequest.id);
-    this.logger.log( `User ID from User: ${util.inspect(userFromDb.id, { depth: null })} with Role: ${userFromDb.role}` );
+    // this.logger.log( `User ID from User: ${util.inspect(userFromDb.id, { depth: null })} with Role: ${userFromDb.role}` );
 
     if (userFromRequest.id !== userFromDb.id) {
       this.logger.warn('Request user is not in range of users database');
       return false;
     }
 
-    if (userFromDb !== bodyUserId && userFromDb.role !== 'admin') {
-      this.logger.warn('Access user has no permission to access this route');
-      throw new ForbiddenException(
-        'Access user has no permission to access this route',
-      );
-    }
+    // if (userFromDb !== bodyUserId && userFromDb.role !== 'admin') {
+    //   this.logger.warn('Access user has no permission to access this route');
+    //   throw new ForbiddenException(
+    //     'Access user has no permission to access this route',
+    //   );
+    // }
 
     return true;
   }

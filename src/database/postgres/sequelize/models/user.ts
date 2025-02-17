@@ -1,4 +1,4 @@
-import { UserRole } from '@/src/users/interfaces/role.enum';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 import { DataType, Model } from 'sequelize-typescript';
 
 module.exports = (sequelize: any) => {

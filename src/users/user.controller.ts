@@ -20,8 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserInterface } from './interfaces/user.interfaces';
-import { UserRoleDto } from './dto/user-role.dto';
-import { ResponseUpdateUserDto } from './dto/response-update-user-role.dto';
+import { UserRoleDto } from '../role/dto/user-role.dto';
+import { ResponseUpdateUserDto } from '../role/dto/response-update-user-role.dto';
 import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
 import { AdminGuard } from '../auth/guards/AdminGuard';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -70,8 +70,8 @@ export class UserController {
     summary: 'Delete users by id',
     description: 'Delete users by id',
   })
-  @UseGuards(JwtAuthGuard, SelfGuard)
-  @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard, SelfGuard)
+  // @ApiBearerAuth()
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {
     return await this.userService.deleteUser(id);
@@ -88,25 +88,25 @@ export class UserController {
   ): Promise<UpdateUserInterface> {
     return await this.userService.updateUser(updateUserDto);
   }
-
-  @ApiOperation({
-    summary: 'Update User Role',
-    description: 'Change the role of a users by ID.',
-  })
-  @ApiResponse({ type: ResponseUpdateUserDto })
-  @ApiBody({ description: 'New role data', type: UserRoleDto })
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @ApiBearerAuth()
-  @Patch('update/role')
-  async updateRole(
-    @Body() userRoleDto: UserRoleDto,
-  ): Promise<UpdateUserInterface> {
-    try {
-      return await this.userService.updateRole(userRoleDto);
-    } catch (error) {
-      throw new UnauthorizedException(
-        'Error by editing. User not found' + error,
-      );
-    }
-  }
+  //
+  // @ApiOperation({
+  //   summary: 'Update User Role',
+  //   description: 'Change the role of a users by ID.',
+  // })
+  // @ApiResponse({ type: ResponseUpdateUserDto })
+  // @ApiBody({ description: 'New role data', type: UserRoleDto })
+  // @UseGuards(JwtAuthGuard, AdminGuard)
+  // @ApiBearerAuth()
+  // @Patch('update/role')
+  // async updateRole(
+  //   @Body() userRoleDto: UserRoleDto,
+  // ): Promise<UpdateUserInterface> {
+  //   try {
+  //     return await this.userService.updateRole(userRoleDto);
+  //   } catch (error) {
+  //     throw new UnauthorizedException(
+  //       'Error by editing. User not found' + error,
+  //     );
+  //   }
+  // }
 }

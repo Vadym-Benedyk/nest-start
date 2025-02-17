@@ -50,7 +50,7 @@ import { RoleModule } from './role/role.module';
       isGlobal: true,
     }),
     SequelizeModule.forRoot({
-      models: [__dirname + '/entities/*.model.js'],
+      models: [__dirname + '/entities/*.models.js'],
       dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
       host: process.env.DATABASE_HOST,
       port: +process.env.DATABASE_PORT,

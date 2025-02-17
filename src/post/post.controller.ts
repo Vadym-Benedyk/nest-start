@@ -66,8 +66,8 @@ export class PostController {
 
 
   @ApiOperation({
-    summary: 'Get one post',
-    description: 'Get post',
+    summary: 'Get one post by Id',
+    description: 'Get a post',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -75,8 +75,10 @@ export class PostController {
     type: PostDto,
   })
   @Get(':id')
-  async getPost(idPostDto: IdPostDto): Promise<PostInterface> {
-    return await this.postService.getPost(idPostDto);
+  async getPost(
+    @Param('id') id: string,
+  ): Promise<PostInterface> {
+    return await this.postService.getPost(id);
   }
 
 

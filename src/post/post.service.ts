@@ -77,9 +77,11 @@ export class PostService {
   }
 
 
-  async getPost(idPostDto: IdPostDto): Promise<PostInterface> {
-    const post = await this.postModel.findByPk(idPostDto.id);
+  async getPost(id: string): Promise<PostInterface> {
+    this.logger.log('init fetch post by id');
+    const post = await this.postModel.findByPk(id);
     if (!post) {
+      this.logger.error('Trouble fetching post by uuid from db');
       throw new HttpException(
         "There isn't any post in database",
         HttpStatus.NOT_FOUND,
