@@ -41,6 +41,9 @@ import { RoleController } from './role/role.controller';
 import { RoleService } from './role/role.service';
 import { Role } from './role/role';
 import { RoleModule } from './role/role.module';
+import { UserRoleController } from './user-role/user-role.controller';
+import { UserRoleService } from './user-role/user-role.service';
+import { UserRoleModule } from './user-role/user-role.module';
 
 
 @Module({
@@ -75,6 +78,7 @@ import { RoleModule } from './role/role.module';
     ChapterModule,
     TopicModule,
     RoleModule,
+    UserRoleModule,
   ],
   controllers: [
     AppController,
@@ -86,6 +90,7 @@ import { RoleModule } from './role/role.module';
     ChapterController,
     TopicController,
     RoleController,
+    UserRoleController,
   ],
   providers: [
     AppService,
@@ -101,6 +106,7 @@ import { RoleModule } from './role/role.module';
     Topic,
     RoleService,
     Role,
+    UserRoleService,
   ],
 })
 export class AppModule {}

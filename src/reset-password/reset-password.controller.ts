@@ -3,7 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChangePasswordDto } from '@/src/reset-password/dto/change-password.dto';
 import { ResetPasswordService } from '@/src/reset-password/reset-password.service';
 import { ConfirmNewPasswordDto } from '@/src/reset-password/dto/confirm-new-password.dto';
-import { ResponseUpdateUserDto } from '@/src/role/dto/response-update-user-role.dto';
+import { ResponseUpdateUserDto } from '@/src/user-role/dto/response-update-user-role.dto';
 import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
 import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
 

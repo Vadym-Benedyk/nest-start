@@ -1,6 +1,6 @@
 import { BelongsToMany, Column, DataType, Model, Table } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
-import { UserRoleModel } from '@/src/role/models/user-role.model';
+import { UserRoleModel } from '@/src/user-role/models/user-role.model';
 import { User } from '@/src/users/models/user.model';
 import { UserRole } from '@/src/role/interfaces/role.enum';
 

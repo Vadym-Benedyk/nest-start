@@ -9,6 +9,7 @@ module.exports = {
     host: process.env.DATABASE_HOST,
     dialect: process.env.DATABASE_DIALECT || 'postgres',
     port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+
   },
   test: {
     username: process.env.DATABASE_USERNAME,
