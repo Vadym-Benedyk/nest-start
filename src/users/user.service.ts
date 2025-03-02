@@ -12,20 +12,29 @@ import { User } from './models/user.model';
 import {
   UpdateUserInterface,
   UserInterfaces,
-  UserListInterfaces,
+  UserListInterfaces, UserWithRolesInterface,
 } from './interfaces/user.interfaces';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { UserRoleDto } from '../role/dto/user-role.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
+import { RoleModel } from '@/src/role/models/role.model';
+import * as console from 'node:console';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(@InjectModel(User) private readonly userModel: typeof User) {}
+
+  async getAllUsers(): Promise<UserInterfaces[]> {
+    try {
+      return await this.userModel.findAll();
+    } catch (error) {
+      throw new HttpException('Problem with fetching all users from db', HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
 
 
   async checkUserById(userId: string): Promise<boolean> {
@@ -77,7 +86,7 @@ export class UserService {
   async getUserById(id: string): Promise<UserInterfaces> {
     const user = await this.userModel.findByPk(id);
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException(HttpStatus.NOT_FOUND);
     }
     return user;
   }
@@ -97,29 +106,22 @@ export class UserService {
   }
 
 
-  // async updateRole(userRoleDto: UserRoleDto): Promise<UpdateUserInterface> {
-  //   const { UserId, role } = userRoleDto;
-  //   try {
-  //     const isUser = await this.userModel.findByPk(UserId);
-  //     if (!isUser) {
-  //       throw new NotFoundException('Error by editing. User not found');
-  //     }
-  //     const [affectedRows] = await this.userModel.update(
-  //       { role },
-  //       { where: { id: UserId } },
-  //     );
-  //     const updatedUser = await this.userModel.findByPk(UserId);
-  //
-  //     return {
-  //       updates: affectedRows,
-  //       user: updatedUser,
-  //     };
-  //   } catch (error) {
-  //     throw new Error('Failed to update role. Error: ' + error);
-  //   }
-  // }
-  //
-  //
+  async getUserWithRoles(id: string): Promise<UserWithRolesInterface> {
+    const userWithRoles = await this.userModel.findOne({
+      where: { id },
+      include: { model: RoleModel, through: { attributes: [] } },
+    });
+
+    if (!userWithRoles) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      ...userWithRoles.dataValues,
+      roles: userWithRoles.roles.map(role => role.role)
+    }
+  }
+
   async updateUser(updateUserDto: UpdateUserDto): Promise<UpdateUserInterface> {
     const isUser = await this.userModel.findByPk(updateUserDto.id);
     if (!isUser) {

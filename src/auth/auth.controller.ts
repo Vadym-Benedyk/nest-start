@@ -15,8 +15,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({
-    summary: 'Create new users',
-    description: 'Registration new users',
+    summary: 'Create new user',
+    description: 'Registration new user',
   })
   @ApiResponse({ type: CreateUserDto })
   @Post('register')
@@ -26,9 +26,9 @@ export class AuthController {
   ) {
 
     try {
-      const { payload, refreshToken } =
-        await this.authService.registerUser(createUserDto);
+      const { payload, refreshToken } = await this.authService.registerUser(createUserDto);
       cookiesGenerator(res, refreshToken);
+
       return res.status(201).json({
         status: 'success',
         data: payload,

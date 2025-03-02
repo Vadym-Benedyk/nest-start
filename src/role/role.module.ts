@@ -4,9 +4,10 @@ import { RoleService } from '@/src/role/role.service';
 import { RoleModel } from '@/src/role/models/role.model';
 import { RoleController } from '@/src/role/role.controller';
 import { UserRoleModel } from '@/src/role/models/user-role.model';
+import { UserModule } from '@/src/users/user.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([RoleModel, UserRoleModel])],
+  imports: [SequelizeModule.forFeature([RoleModel, UserRoleModel]), UserModule],
   providers: [RoleService],
   controllers: [RoleController],
   exports: [SequelizeModule, RoleService]

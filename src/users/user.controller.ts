@@ -19,19 +19,27 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
-import { UpdateUserInterface } from './interfaces/user.interfaces';
-import { UserRoleDto } from '../role/dto/user-role.dto';
-import { ResponseUpdateUserDto } from '../role/dto/response-update-user-role.dto';
+import { UpdateUserInterface, UserInterfaces, UserWithRolesInterface } from './interfaces/user.interfaces';
+import { ResponseUpdateUserDto } from './dto/response-update-user-role.dto';
 import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
 import { AdminGuard } from '../auth/guards/AdminGuard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SelfGuard } from '@/src/auth/guards/SelfGuard';
+import { UserWithRolesDto } from '@/src/users/dto/user-with-roles.dto';
 
 
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
+  @ApiResponse({ type: [UserDto] })
+  @Get()
+  async getAllUsers(): Promise<UserInterfaces[]> {
+    return await this.userService.getAllUsers()
+  }
+
 
   @ApiOperation({
     summary: 'Get users with filters',
@@ -43,11 +51,10 @@ export class UserController {
     type: UserDto,
   })
   @Get('list')
-  @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
-  @ApiResponse({ type: [UserDto] })
   async getUsers(@Query() queryParams: GetUsersDto) {
     return await this.userService.getUsers(queryParams);
   }
+
 
   @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
   @ApiResponse({ type: UserDto })
@@ -55,6 +62,7 @@ export class UserController {
   async getUserById(@Param('id') id: string) {
     return await this.userService.getUserById(id);
   }
+
 
   @ApiOperation({
     summary: 'Get users by email',
@@ -65,6 +73,7 @@ export class UserController {
   async getUserByEmail(@Param('email') email: string) {
     return await this.userService.getUserByEmail(email);
   }
+
 
   @ApiOperation({
     summary: 'Delete users by id',
@@ -77,6 +86,7 @@ export class UserController {
     return await this.userService.deleteUser(id);
   }
 
+
   @ApiOperation({
     summary: 'Update users by id',
     description: 'Update users by id',
@@ -88,18 +98,27 @@ export class UserController {
   ): Promise<UpdateUserInterface> {
     return await this.userService.updateUser(updateUserDto);
   }
+
+
+  @ApiOperation({ summary: 'Get user with roles', description: 'Get user by id' })
+  @ApiResponse({ type: UserWithRolesDto })
+  @Get('role/:id')
+  async getUserWithRoles(@Param('id') id: string): Promise<UserWithRolesInterface> {
+    return await this.userService.getUserWithRoles(id);
+  }
+
   //
   // @ApiOperation({
   //   summary: 'Update User Role',
   //   description: 'Change the role of a users by ID.',
   // })
   // @ApiResponse({ type: ResponseUpdateUserDto })
-  // @ApiBody({ description: 'New role data', type: UserRoleDto })
+  // @ApiBody({ description: 'New role data', type: UpdateUserRoleDto })
   // @UseGuards(JwtAuthGuard, AdminGuard)
   // @ApiBearerAuth()
   // @Patch('update/role')
   // async updateRole(
-  //   @Body() userRoleDto: UserRoleDto,
+  //   @Body() userRoleDto: UpdateUserRoleDto,
   // ): Promise<UpdateUserInterface> {
   //   try {
   //     return await this.userService.updateRole(userRoleDto);

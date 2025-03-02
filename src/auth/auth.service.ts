@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
 import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 import {
@@ -9,12 +9,17 @@ import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'node:process';
+import { RoleService } from '@/src/role/role.service';
+
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
+    private readonly role: RoleService
   ) {}
 
   async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
@@ -49,6 +54,9 @@ export class AuthService {
     }
     const payloadUser = await this.accessResponse(user);
     const refresh = await this.token.generateRefreshToken(user);
+    // Add default role to user when register
+    await this.role.addDefaultRoleToUser(user.id)
+    this.logger.log('User registered successfully in DB');
     return {
       payload: payloadUser,
       refreshToken: refresh,

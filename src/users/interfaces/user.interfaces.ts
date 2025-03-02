@@ -1,4 +1,4 @@
-import { UserRole } from '../../role/interfaces/role.enum';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 
 export interface UserInterfaces {
   id: string;
@@ -23,4 +23,8 @@ export interface UserListInterfaces {
 export interface UpdateUserInterface {
   updates: number;
   user: UserInterfaces;
+}
+
+export interface UserWithRolesInterface extends UserInterfaces{
+  roles: UserRole[]
 }
