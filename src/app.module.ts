@@ -44,6 +44,8 @@ import { RoleModule } from './role/role.module';
 import { UserRoleController } from './user-role/user-role.controller';
 import { UserRoleService } from './user-role/user-role.service';
 import { UserRoleModule } from './user-role/user-role.module';
+import { Permission } from './permission/permission';
+import { PermissionModule } from './permission/permission.module';
 
 
 @Module({
@@ -79,6 +81,7 @@ import { UserRoleModule } from './user-role/user-role.module';
     TopicModule,
     RoleModule,
     UserRoleModule,
+    PermissionModule,
   ],
   controllers: [
     AppController,
@@ -107,6 +110,7 @@ import { UserRoleModule } from './user-role/user-role.module';
     RoleService,
     Role,
     UserRoleService,
+    Permission,
   ],
 })
 export class AppModule {}
