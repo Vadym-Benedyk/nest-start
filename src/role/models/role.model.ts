@@ -3,6 +3,8 @@ import { DataTypes } from 'sequelize';
 import { UserRoleModel } from '@/src/user-role/models/user-role.model';
 import { User } from '@/src/users/models/user.model';
 import { UserRole } from '@/src/role/interfaces/role.enum';
+import { PermissionModel } from '@/src/permission/models/permission.model';
+import { RolePermissionsModel } from '@/src/role-permissions/models/role-permissions.model';
 
 @Table({
   tableName: 'roles',
@@ -27,4 +29,6 @@ export class  RoleModel extends Model<RoleModel> {
   @BelongsToMany(() => User, () => UserRoleModel)
   users: User[];
 
+  @BelongsToMany(() => PermissionModel, () => RolePermissionsModel)
+  permissions: PermissionModel[];
 }

@@ -10,6 +10,7 @@ import { RoleModel } from '@/src/role/models/role.model';
 import { RoleInterface} from '@/src/role/interfaces/role.interfaces';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateRoleDto } from '@/src/role/dto/createRole.dto';
+import { PermissionModel } from '@/src/permission/models/permission.model';
 
 
 @Injectable()
@@ -52,7 +53,8 @@ export class RoleService {
 
   async getRoleByPK(id: string): Promise<RoleInterface> {
     try {
-      const role = await this.roleModel.findByPk(id);
+      const role = await this.roleModel.findByPk(id, { include: PermissionModel });
+    console.log('ROLE_PERMISSIONS', role?.permissions);
       if (role === null) {
         throw new NotFoundException('Role not found');
       }
@@ -72,7 +74,7 @@ export class RoleService {
     const isRole = await this.getRoleByName(createRoleDto);
     if (isRole) {
       throw new HttpException(
-        `${createRoleDto.role.toUpperCase()} is already present in database`,
+        `'${createRoleDto.role.toUpperCase()}' is already present in database`,
         HttpStatus.CONFLICT,
       );
     }

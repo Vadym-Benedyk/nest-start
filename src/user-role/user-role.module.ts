@@ -13,7 +13,7 @@ import { UserModule } from '@/src/users/user.module';
   imports: [
     SequelizeModule.forFeature([UserRoleModel, User]),
     forwardRef(() => RoleModule),
-    forwardRef(() => UserModule) // <-- Додано імпорт UserModule
+    forwardRef(() => UserModule)
   ],
   providers: [UserRoleService],
   controllers: [UserRoleController],

@@ -10,7 +10,6 @@ import { UserService } from '@/src/users/user.service';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
 
 
-
 @Injectable()
 export class UserRoleService {
   private readonly logger = new Logger(UserRoleService.name)
@@ -24,7 +23,7 @@ export class UserRoleService {
     private readonly user: UserService,
     @Inject(forwardRef(() => RoleService))
     private readonly role: RoleService
-  ) { }
+  ) {}
 
   async addDefaultRoleToUser(id: string): Promise<UserRoleInterface> {
     const createRole: CreateRoleDto = { role: 'user' };
