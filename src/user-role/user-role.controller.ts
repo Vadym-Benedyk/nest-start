@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserWithRolesDto } from '@/src/user-role/dto/user-with-roles.dto';
 import { UserRoleService } from '@/src/user-role/user-role.service';
 import { UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
+import { Response } from 'express';
 
 
 @ApiTags('User Roles')
@@ -26,8 +27,38 @@ export class UserRoleController {
     type: UserWithRolesDto
   })
   @Post()
-  async addRoleToUser( @Body() userRoleDto: UserRoleDto ): Promise<any> {
-    return await this.userRoleService.addNewRoleToUser(userRoleDto)
+  async addRoleToUser(
+    @Body() userRoleDto: UserRoleDto,
+    @Res() res: Response,
+  ): Promise<any> {
+    try {
+      const {firstName, lastName, roles} = await this.userRoleService.addNewRoleToUser(userRoleDto);
+
+      return res.status(201).json({
+        status: 'success',
+        message: `Roles ${roles} added to user ${firstName} ${lastName}`,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        status: 'error',
+        error: error,
+      });
+    }
+  }
+
+
+  @ApiOperation({ summary: 'Remove role from user', description: 'Remove role from user by userId and roleId' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Role removed from user',
+    type: UserWithRolesDto
+  })
+  @Delete(':userId/:roleId')
+  async removeRoleFromUser(
+    @Param('userId') userId: string,
+    @Param('roleId') roleId: string
+  ): Promise<UserWithRolesInterface> {
+    return this.userRoleService.removeRole(userId, roleId);
   }
 
   //------------------------ u s e r ------------------------

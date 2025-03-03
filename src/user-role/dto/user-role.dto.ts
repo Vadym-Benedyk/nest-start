@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UserRoleDto {
   @ApiProperty({
@@ -18,20 +18,4 @@ export class UserRoleDto {
   @IsString()
   @IsNotEmpty()
   userId: string;
-
-
-  // @ApiPropertyOptional({
-  //   example: '',
-  //   description: 'creation data',
-  // })
-  // @IsDate()
-  // createdAt?: Date;
-  //
-  //
-  // @ApiPropertyOptional({
-  //   example: '',
-  //   description: 'creation data',
-  // })
-  // @IsDate()
-  // updatedAt?: Date;
 }
