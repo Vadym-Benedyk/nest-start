@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { RolePermissionsService } from '@/src/role-permissions/role-permissions.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RolePermissionDto } from '@/src/role-permissions/dto/role-permission.dto';
@@ -26,5 +26,11 @@ export class RolePermissionsController {
     return await this.rolePermissionsService.addPermissionToRole(addPermissionToRoleDto);
   }
 
+  @ApiOperation({ summary: 'Remove permission from a role', description: 'Remove certain role permission '})
+  @ApiResponse({ type: RolePermissionDto, status: HttpStatus.OK, description: 'Permission  removed from role' })
+  @Delete(':roleId/:permissionId')
+  async removeRolePermission(@Param('roleId') roleId: string, @Param('permissionId') permissionId: string): Promise<any> {
+    return this.rolePermissionsService.deletePermissionFromRole(roleId, permissionId)
+  }
 
 }

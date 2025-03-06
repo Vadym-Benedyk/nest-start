@@ -9,6 +9,7 @@ import { PermissionModel } from '@/src/permission/models/permission.model';
 import { AddPermissionToRoleDto } from '@/src/role-permissions/dto/add-permission-to-role.dto';
 
 
+
 @Injectable()
 export class RolePermissionsService {
   private readonly logger = new Logger(RolePermissionsService.name);
@@ -90,7 +91,28 @@ export class RolePermissionsService {
   }
 
 
-  async deletePermissionFromRole(id: string): Promise<any> {
+  async deletePermissionFromRole(roleId: string, permissionId: string): Promise<any> {
+    const roleIdCheck = await this.rolePermissionsModel.findOne({ where: {roleId: roleId} })
+    if (!roleIdCheck) {
+      this.logger.error('Role not found when trying to delete permission');
+      throw new Error('Role not found when trying to delete permission');
+    }
 
+    const permissionIdCheck = await this.rolePermissionsModel.findOne({ where: {permissionId: permissionId} })
+    if (!permissionIdCheck) {
+      this.logger.error('Permission not found when trying to delete permission');
+      throw new Error('Permission not found when trying to delete permission');
+    }
+
+    try {
+      await this.rolePermissionsModel.destroy({
+        where: { roleId, permissionId },
+      });
+      this.logger.log('Permission removed from role successfully');
+      return { message: 'Permission removed from role successfully' };
+    } catch (error) {
+      this.logger.error('Error by removing permission from role', error);
+      throw error;
+    }
   }
 }
