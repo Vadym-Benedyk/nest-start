@@ -6,7 +6,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class GetUsersDto {
-  @ApiPropertyOptional({ example: 'John', description: 'search' })
+  @ApiPropertyOptional({ example: 'Giulio', description: 'search' })
   @IsOptional()
   @IsString()
   search?: string;

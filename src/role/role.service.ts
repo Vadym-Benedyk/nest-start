@@ -1,21 +1,20 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { RoleModel } from '@/src/role/models/role.model';
 import { RoleInterface} from '@/src/role/interfaces/role.interfaces';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateRoleDto } from '@/src/role/dto/createRole.dto';
-import { PermissionModel } from '@/src/permission/models/permission.model';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 
 
 @Injectable()
 export class RoleService {
-  private readonly logger = new Logger(RoleService.name);
 
   constructor(
     @InjectModel(RoleModel)
@@ -53,8 +52,8 @@ export class RoleService {
 
   async getRoleByPK(id: string): Promise<RoleInterface> {
     try {
-      const role = await this.roleModel.findByPk(id, { include: PermissionModel });
-    console.log('ROLE_PERMISSIONS', role?.permissions);
+      const role = await this.roleModel.findByPk(id);
+
       if (role === null) {
         throw new NotFoundException('Role not found');
       }
@@ -72,15 +71,20 @@ export class RoleService {
 
   async createRole(createRoleDto: CreateRoleDto): Promise<RoleInterface> {
     const isRole = await this.getRoleByName(createRoleDto);
+
     if (isRole) {
       throw new HttpException(
-        `'${createRoleDto.role.toUpperCase()}' is already present in database`,
+        `'${createRoleDto.role.toUpperCase()}' is already exist`,
         HttpStatus.CONFLICT,
       );
     }
 
     try {
-      return await this.roleModel.create(createRoleDto.role);
+      if (!Object.values(UserRole).includes(createRoleDto.role as UserRole)) {
+        throw new BadRequestException(`Invalid role: ${createRoleDto.role}`);
+      }
+
+      return await this.roleModel.create({ role: createRoleDto.role as UserRole });
     } catch (error) {
       throw new InternalServerErrorException('Database query failed');
     }

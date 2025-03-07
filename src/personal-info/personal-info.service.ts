@@ -1,6 +1,6 @@
 import {
   ForbiddenException,
-  Injectable, InternalServerErrorException,
+  Injectable, InternalServerErrorException, Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -11,6 +11,7 @@ import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 
 @Injectable()
 export class PersonalInfoService {
+  private readonly logger = new Logger(PersonalInfoService.name);
   constructor(
     @InjectModel(PersonalInfoModel)
     private readonly personalInfoModel: typeof PersonalInfoModel,
@@ -22,6 +23,7 @@ export class PersonalInfoService {
     try {
       const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
       if (isInfo) {
+        this.logger.error('Error by adding user info. User info already exists');
         throw new ForbiddenException('User info already exists');
       }
       return await this.personalInfoModel.create({
@@ -31,6 +33,7 @@ export class PersonalInfoService {
         photo: addUserInfoDto.photo,
       });
     } catch (error) {
+      this.logger.error('Failed to create user personal info');
       throw new Error('Failed to create user personal info', error);
     }
   }

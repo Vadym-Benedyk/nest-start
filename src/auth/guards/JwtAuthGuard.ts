@@ -3,17 +3,18 @@ import { UserService } from '@/src/users/user.service';
 import {
   CanActivate,
   ExecutionContext,
-  Injectable,
+  Injectable, Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-// import { UserRoleService } from '@/src/user-role/user-role.service';
+import { UserRoleService } from '@/src/user-role/user-role.service';
+
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly logger = new Logger(JwtAuthGuard.name);
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
-    // private readonly userRoleService: UserRoleService
+    private readonly userRoleService: UserRoleService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -21,22 +22,21 @@ export class JwtAuthGuard implements CanActivate {
     const token = request.headers.authorization?.split(' ')[1];
 
     if (!token) {
+      this.logger.warn('No token provided');
       throw new UnauthorizedException('No token provided');
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      const user: any = await this.userService.getUserById(payload.userId);
+      const userWithRoles: any = await this.userRoleService.getUserWithRoles(payload.userId);
 
-      if (!user) {
+      if (!userWithRoles) {
+        this.logger.warn('User not found');
         throw new UnauthorizedException('User not found');
       }
 
-      // Отримуємо всі ролі та дозволи користувача
-      // const userRoles = await this.userRoleService.getUserRoles(user.id);
-      // const userPermissions = await this.userRoleService.getUserPermissions(user.id);
-
-      request.user = user.dataValues;
+      request.user = userWithRoles.dataValues;
     } catch {
+      this.logger.error('Invalid token');
       throw new UnauthorizedException('Invalid token');
     }
     return true;

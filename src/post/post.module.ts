@@ -5,9 +5,10 @@ import { PostService } from '@/src/post/post.service';
 import { PostController } from '@/src/post/post.controller';
 import { UserModule } from '@/src/users/user.module';
 import { TopicModule } from '@/src/topic/topic.module';
+import { UserRoleModule } from '@/src/user-role/user-role.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([PostModel]), UserModule, TopicModule],
+  imports: [SequelizeModule.forFeature([PostModel]), UserModule, TopicModule, UserRoleModule],
   providers: [PostService],
   controllers: [PostController],
   exports: [SequelizeModule, PostService],

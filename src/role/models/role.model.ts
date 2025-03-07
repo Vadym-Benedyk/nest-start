@@ -22,7 +22,7 @@ export class  RoleModel extends Model<RoleModel> {
 
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
-    defaultValue: UserRole.GUEST,
+    defaultValue: UserRole.LEGIONARY,
   })
   role: UserRole;
 

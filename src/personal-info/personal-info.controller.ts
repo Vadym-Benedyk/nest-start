@@ -17,6 +17,8 @@ import {
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { SelfGuard } from '@/src/auth/guards/SelfGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
 
 @ApiTags('User additional information')
 @UseGuards(JwtAuthGuard)
@@ -30,7 +32,8 @@ export class PersonalInfoController {
     description: 'Create user information and save to db',
   })
   @ApiResponse({ type: AddUserInfoDto })
-  @UseGuards(SelfGuard)
+  // @UseGuards(RoleGuard)
+  // @Roles('admin')
   @Post()
   public async addUserInfo(
     @Body() addUserInfoDto: AddUserInfoDto

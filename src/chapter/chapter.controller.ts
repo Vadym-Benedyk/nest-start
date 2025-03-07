@@ -17,6 +17,8 @@ import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { AdminGuard } from '@/src/auth/guards/AdminGuard';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
 import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
 
 
 
@@ -54,7 +56,8 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('senator')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Add new Chapter',

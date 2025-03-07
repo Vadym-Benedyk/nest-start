@@ -27,6 +27,7 @@ export class RefreshService {
     }
   }
 
+
   async generateRefreshToken(user: UserInterfaces): Promise<string> {
     const expirationTime =
       parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60;
@@ -76,6 +77,7 @@ export class RefreshService {
       console.error('Failed to decode refresh token:', error);
     }
   }
+
   //delete refresh tokens.Return number of deleted tokens
   async deleteRefreshToken(userId: string) {
     try {
@@ -88,6 +90,7 @@ export class RefreshService {
       throw new Error('Failed to delete refresh token. Error: ' + error);
     }
   }
+
   // Get refresh token by token from DB
   async getDBToken(token: string): Promise<RefreshTokenInterface> {
     try {

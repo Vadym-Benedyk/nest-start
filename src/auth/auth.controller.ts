@@ -7,6 +7,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Response } from 'express';
 import { cookiesGenerator } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
 
 
 
@@ -20,10 +21,10 @@ export class AuthController {
   })
   @ApiResponse({ type: CreateUserDto })
   @Post('register')
-  public async register(
+  public async registerUser(
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
-  ) {
+  ): Promise<CreateUserDataInterface> {
 
     try {
       const { payload, refreshToken } = await this.authService.registerUser(createUserDto);
@@ -31,15 +32,15 @@ export class AuthController {
 
       return res.status(201).json({
         status: 'success',
-        data: payload,
+        data: payload
       });
     } catch (error) {
       return res.status(400).json({
-        status: 'error',
-        error: error,
+        status: error
       });
     }
   }
+
 
   @ApiOperation({
     summary: 'Authentication',
@@ -63,6 +64,7 @@ export class AuthController {
       });
     }
   }
+
 
   @ApiOperation({
     summary: 'Refresh token',

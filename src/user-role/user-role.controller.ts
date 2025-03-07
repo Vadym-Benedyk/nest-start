@@ -2,11 +2,12 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@ne
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserWithRolesDto } from '@/src/user-role/dto/user-with-roles.dto';
 import { UserRoleService } from '@/src/user-role/user-role.service';
-import { UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
+import { UsersInRoleInterface, UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
 import { Response } from 'express';
 import { RoleDto } from '@/src/role/dto/role.dto';
 import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
+import { UsersInRoleDto } from '@/src/user-role/dto/users-in-role.dto';
 
 
 @ApiTags('User Roles')
@@ -15,9 +16,9 @@ export class UserRoleController {
   constructor( private readonly userRoleService: UserRoleService ) {}
 
 
-  @ApiOperation({ summary: 'Get user roles by id', description: 'Get user roles by id' })
+  @ApiOperation({ summary: 'Get user roles by userId', description: 'Get user roles by userId' })
   @ApiResponse({ type: RoleDto, status: HttpStatus.OK, example: { id: 'UUID', role: 'admin' } })
-  @Get(':id')
+  @Get('roles/:id')
   async getUserRoles(@Param('id') id: string): Promise<RoleInterface[]> {
     return await this.userRoleService.getUserRoles(id)
   }
@@ -31,6 +32,15 @@ export class UserRoleController {
     return await this.userRoleService.getUserWithRoles(id)
   }
 
+
+  @ApiOperation({ summary: 'Get role with users by roleId', description: 'Find list of users by selected role'})
+  @ApiResponse({ type: UsersInRoleDto})
+  @Get('users/:id')
+  async getUsersWithRole(@Param('id') id: string): Promise<UsersInRoleInterface> {
+    return await this.userRoleService.getUsersWithRole(id)
+  }
+
+
   @ApiOperation({ summary: 'Add role to user', description: 'Add role to user by id' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -42,6 +52,7 @@ export class UserRoleController {
     @Body() userRoleDto: UserRoleDto,
     @Res() res: Response,
   ): Promise<any> {
+
     try {
       const {firstName, lastName, roles} = await this.userRoleService.addNewRoleToUser(userRoleDto);
 

@@ -5,7 +5,7 @@ import { User } from '@/src/users/models/user.model';
 import { UserRoleModel } from '@/src/user-role/models/user-role.model';
 import { RoleService } from '@/src/role/role.service';
 import { CreateRoleDto } from '@/src/role/dto/createRole.dto';
-import { UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
+import { UsersInRoleInterface, UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
 import { UserService } from '@/src/users/user.service';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
 import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
@@ -20,6 +20,8 @@ export class UserRoleService {
     private readonly userRoleModel: typeof UserRoleModel,
     @InjectModel(User)
     private readonly userModel: typeof User,
+    @InjectModel(RoleModel)
+    private readonly roleModel: typeof RoleModel,
     @Inject(forwardRef(() => UserService))
     private readonly user: UserService,
     @Inject(forwardRef(() => RoleService))
@@ -27,7 +29,7 @@ export class UserRoleService {
   ) {}
 
   async addDefaultRoleToUser(id: string): Promise<any> {
-    const createRole: CreateRoleDto = { role: 'user' };
+    const createRole: CreateRoleDto = { role: 'legionary' };
     const defaultRole = await this.role.getRoleByName( createRole );
     try {
         const userRoleInstance: UserRoleModel = await this.userRoleModel.create({
@@ -39,6 +41,24 @@ export class UserRoleService {
       this.logger.error('Error by adding default role to user', error)
     }
   }
+
+  async getUsersWithRole(id: string): Promise<UsersInRoleInterface> {
+    const isRole = await this.roleModel.findOne({
+      where: { id },
+      include: { model: User, through: { attributes: [] } }
+    })
+
+    if (!isRole) {
+      throw new NotFoundException(`Role with id ${id} not found`);
+    }
+
+    return {
+      roleId: isRole.id,
+      role: isRole.role,
+      users: isRole.users.map(user => ({ userId: user.id, email: user.email }))
+    }
+  }
+
 
   async getUserRoles(id: string): Promise<RoleInterface[]> {
     const userWithRoles = await this.userModel.findOne({
@@ -69,13 +89,27 @@ export class UserRoleService {
     }
   }
 
-  async addNewRoleToUser(userRoleDto: UserRoleDto): Promise<UserWithRolesInterface> {
+  async addNewRoleToUser(userRoleDto: UserRoleDto): Promise<any> {
     const user: boolean = await this.user.checkUserById(userRoleDto.userId);
-    const role: boolean = await this.role.checkRoleById(userRoleDto.roleId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const role: any = await this.role.checkRoleById(userRoleDto.roleId);
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
+
+    this.logger.log(`Adding role ${userRoleDto.roleId} to user ${userRoleDto.userId}`);
 
     const exists = await this.userRoleModel.findOne({
       where: { userId: userRoleDto.userId, roleId: userRoleDto.roleId },
     });
+
+    if (exists) {
+      this.logger.error('User already has this role');
+      throw new HttpException('User already has this role', HttpStatus.BAD_REQUEST);
+    }
 
     if (!exists && user && role) {
       await this.userRoleModel.create({
@@ -83,7 +117,7 @@ export class UserRoleService {
         roleId: userRoleDto.roleId,
       });
     } else {
-      this.logger.error('User or role not found');
+      this.logger.error('There is a problem by saving user role to db');
       throw new NotFoundException('User or role not found');
     }
 

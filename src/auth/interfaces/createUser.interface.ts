@@ -7,3 +7,8 @@ export interface CreateUserInterface {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface CreateUserDataInterface {
+  status: object;
+  data?: CreateUserInterface;
+}

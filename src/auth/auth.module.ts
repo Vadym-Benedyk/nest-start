@@ -8,7 +8,7 @@ import { UserRoleModule } from '@/src/user-role/user-role.module';
 
 
 @Module({
-  imports: [UserModule, RefreshModule, UserRoleModule],
+  imports: [ RefreshModule, UserRoleModule],
   providers: [AuthService, UserService],
   controllers: [AuthController],
   exports: [AuthService],

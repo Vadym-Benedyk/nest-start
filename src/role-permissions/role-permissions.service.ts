@@ -1,12 +1,12 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { RolePermissionsModel } from '@/src/role-permissions/models/role-permissions.model';
 import { RoleModel } from '@/src/role/models/role.model';
 import { RoleService } from '@/src/role/role.service';
 import { PermissionService } from '@/src/permission/permission.service';
-import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
 import { PermissionModel } from '@/src/permission/models/permission.model';
 import { AddPermissionToRoleDto } from '@/src/role-permissions/dto/add-permission-to-role.dto';
+import { RolePermissionInterface, RolesWithPermissionInterface } from '@/src/role-permissions/interfaces/role-permission.interfaces';
 
 
 
@@ -27,7 +27,7 @@ export class RolePermissionsService {
     private readonly permission: PermissionService
   ) {}
 
-  async getRolesWithPermissionId(permissionId: string): Promise<RoleInterface[]> {
+  async getRolesWithPermissionId(permissionId: string): Promise<RolesWithPermissionInterface[]> {
     try {
       return await this.roleModel.findAll({
       include: {
@@ -43,7 +43,7 @@ export class RolePermissionsService {
   }
 
 
-  async addPermissionToRole(addPermissionToRoleDto: AddPermissionToRoleDto): Promise<any> {
+  async addPermissionToRole(addPermissionToRoleDto: AddPermissionToRoleDto): Promise<RolePermissionInterface> {
       const role = await this.role.checkRoleById(addPermissionToRoleDto.roleId);
 
       if (!role) {
@@ -70,7 +70,7 @@ export class RolePermissionsService {
         }
 
         this.logger.log('Permission added to role successfully');
-        return { message: 'Permission added to role successfully' };
+        return rolePermission
 
       } catch (error) {
         this.logger.error('Error by saving permission to role', error);
@@ -88,6 +88,24 @@ export class RolePermissionsService {
       },
     });
     return !!rolePermission;
+  }
+
+
+  async getRolePermissions(roleId: string): Promise<RolesWithPermissionInterface> {
+    const role = await this.roleModel.findOne({
+      where: { id: roleId },
+      include: [
+        {
+          model: PermissionModel,
+          through: { attributes: [] },
+        },
+      ]
+    });
+
+    if (!role) {
+      throw NotFoundException;
+    }
+    return role
   }
 
 

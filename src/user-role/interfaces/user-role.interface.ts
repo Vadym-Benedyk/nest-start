@@ -11,3 +11,12 @@ export interface UserRoleInterface {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface UsersInRoleInterface {
+  roleId: string;
+  role: string;
+  users: {
+      userId: string;
+      email: string;
+  }[]
+}

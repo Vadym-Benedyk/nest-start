@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 
 export class CreateRoleDto {
   @ApiProperty({
-    example: 'user / admin / guest ...',
+    example:  UserRole.LEGIONARY,
     description: 'user role'
   })
   @IsString()

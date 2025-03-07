@@ -9,10 +9,10 @@ export class UpdateUserRoleDto {
   userId: string;
 
   @ApiProperty({
-    example: UserRole.USER,
+    example: UserRole.LEGIONARY,
     description: `New role for user. Available roles: ${UserRole}`,
     enum: UserRole,
   })
   @IsEnum(UserRole)
-  role: UserRole = UserRole.USER;
+  role: UserRole = UserRole.LEGIONARY;
 }

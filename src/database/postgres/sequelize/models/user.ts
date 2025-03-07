@@ -19,7 +19,7 @@ module.exports = (sequelize: any) => {
       birthday: DataType.DATE,
       role: {
         type: DataType.ENUM(...Object.values(UserRole)),
-        defaultValue: UserRole.USER,
+        defaultValue: UserRole.LEGIONARY,
       },
     },
     {
