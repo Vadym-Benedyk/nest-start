@@ -6,12 +6,14 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+// import { UserRoleService } from '@/src/user-role/user-role.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    // private readonly userRoleService: UserRoleService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,6 +26,15 @@ export class JwtAuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token);
       const user: any = await this.userService.getUserById(payload.userId);
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Отримуємо всі ролі та дозволи користувача
+      // const userRoles = await this.userRoleService.getUserRoles(user.id);
+      // const userPermissions = await this.userRoleService.getUserPermissions(user.id);
+
       request.user = user.dataValues;
     } catch {
       throw new UnauthorizedException('Invalid token');

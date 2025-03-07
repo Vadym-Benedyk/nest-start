@@ -5,9 +5,10 @@ import { User } from '@/src/users/models/user.model';
 import { UserRoleModel } from '@/src/user-role/models/user-role.model';
 import { RoleService } from '@/src/role/role.service';
 import { CreateRoleDto } from '@/src/role/dto/createRole.dto';
-import { UserRoleInterface, UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
+import { UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
 import { UserService } from '@/src/users/user.service';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
+import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
 
 
 @Injectable()
@@ -25,7 +26,7 @@ export class UserRoleService {
     private readonly role: RoleService
   ) {}
 
-  async addDefaultRoleToUser(id: string): Promise<UserRoleInterface> {
+  async addDefaultRoleToUser(id: string): Promise<any> {
     const createRole: CreateRoleDto = { role: 'user' };
     const defaultRole = await this.role.getRoleByName( createRole );
     try {
@@ -37,6 +38,19 @@ export class UserRoleService {
     } catch (error) {
       this.logger.error('Error by adding default role to user', error)
     }
+  }
+
+  async getUserRoles(id: string): Promise<RoleInterface[]> {
+    const userWithRoles = await this.userModel.findOne({
+      where: { id },
+      include: { model: RoleModel, through: { attributes: [] } },
+    });
+
+    if (!userWithRoles) {
+      throw new NotFoundException('User not found');
+    }
+
+    return userWithRoles.roles.map(role => role.dataValues);
   }
 
   async getUserWithRoles(id: string): Promise<UserWithRolesInterface> {

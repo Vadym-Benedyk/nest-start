@@ -5,12 +5,23 @@ import { UserRoleService } from '@/src/user-role/user-role.service';
 import { UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
 import { Response } from 'express';
+import { RoleDto } from '@/src/role/dto/role.dto';
+import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
 
 
 @ApiTags('User Roles')
 @Controller('user-role')
 export class UserRoleController {
   constructor( private readonly userRoleService: UserRoleService ) {}
+
+
+  @ApiOperation({ summary: 'Get user roles by id', description: 'Get user roles by id' })
+  @ApiResponse({ type: RoleDto, status: HttpStatus.OK, example: { id: 'UUID', role: 'admin' } })
+  @Get(':id')
+  async getUserRoles(@Param('id') id: string): Promise<RoleInterface[]> {
+    return await this.userRoleService.getUserRoles(id)
+  }
+
 
 
   @ApiOperation({ summary: 'Get user with roles', description: 'Get user by id' })
@@ -36,7 +47,7 @@ export class UserRoleController {
 
       return res.status(201).json({
         status: 'success',
-        message: `Roles ${roles} added to user ${firstName} ${lastName}`,
+        message: `Role ${roles} added to user ${firstName} ${lastName}`,
       });
     } catch (error) {
       return res.status(400).json({
