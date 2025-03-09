@@ -81,7 +81,8 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('senator')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Chapter',
@@ -97,7 +98,8 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('senator', 'emperor')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update Chapter',

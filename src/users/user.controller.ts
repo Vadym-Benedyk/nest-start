@@ -19,7 +19,6 @@ import { UpdateUserInterface, UserInterfaces } from './interfaces/user.interface
 import { UpdateUserDto } from './dto/update-user.dto';
 
 
-
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {
@@ -71,7 +70,7 @@ export class UserController {
     summary: 'Delete users by id',
     description: 'Delete users by id',
   })
-  // @UseGuards(JwtAuthGuard, SelfGuard)
+  // @UseGuards(JwtAuthGuard)
   // @ApiBearerAuth()
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {

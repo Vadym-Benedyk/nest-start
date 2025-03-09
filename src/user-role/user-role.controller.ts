@@ -83,44 +83,4 @@ export class UserRoleController {
     return this.userRoleService.removeRole(userId, roleId);
   }
 
-  //------------------------ u s e r ------------------------
-// @ApiBody({ description: 'New role data', type: UpdateUserRoleDto })
-// @UseGuards(JwtAuthGuard, AdminGuard)
-// @ApiBearerAuth()
-// @Patch('update/role')
-
-  // @ApiOperation({
-  //   summary: 'Update user role',
-  //   description: 'Update user role'
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'New role applied to user'
-  // })
-  // @Patch('user')
-  // async updateUserRole( @Body() updateUserRoleDto: UpdateUserRoleDto ): Promise<UserWithRolesInterface> {
-  //   return await this.roleService.updateUserRole(updateUserRoleDto);
-  // }
-
-  //
-  // @ApiOperation({
-  //   summary: 'Update User Role',
-  //   description: 'Change the role of a users by ID.',
-  // })
-  // @ApiResponse({ type: ResponseUpdateUserDto })
-  // @ApiBody({ description: 'New role data', type: UpdateUserRoleDto })
-  // @UseGuards(JwtAuthGuard, AdminGuard)
-  // @ApiBearerAuth()
-  // @Patch('update/role')
-  // async updateRole(
-  //   @Body() userRoleDto: UpdateUserRoleDto,
-  // ): Promise<UpdateUserInterface> {
-  //   try {
-  //     return await this.userService.updateRole(userRoleDto);
-  //   } catch (error) {
-  //     throw new UnauthorizedException(
-  //       'Error by editing. User not found' + error,
-  //     );
-  //   }
-  // }
 }

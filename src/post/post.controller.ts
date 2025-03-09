@@ -14,7 +14,6 @@ import { PostDto } from '@/src/post/dto/post.dto';
 import { PostService } from '@/src/post/post.service';
 import { CreatePostInterface, PostInterface } from '@/src/post/interfaces/post.interface';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-
 import { CurrentUser } from '@/src/auth/decorators/current-user.decorator';
 import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
 import { IdPostDto } from '@/src/post/dto/id-post.dto';
