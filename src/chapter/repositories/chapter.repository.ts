@@ -24,6 +24,11 @@ export class ChapterRepository {
     }
   }
 
+  async getChapterList(): Promise<ChapterDto[]> {
+    const chapters = await this.chapterRepository.find();
+    return chapters.sort((a, b) => a.chapterName.localeCompare(b.chapterName))
+  }
+
 
   async findChapterById(id: string): Promise<ChapterInterface> {
     const chapter = await this.chapterRepository.findOneBy({ id })

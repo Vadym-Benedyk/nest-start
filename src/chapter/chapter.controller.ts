@@ -14,7 +14,6 @@ import { ChapterService } from '@/src/chapter/chapter.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { AdminGuard } from '@/src/auth/guards/AdminGuard';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
 import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
 import { RoleGuard } from '@/src/auth/guards/RoleGuard';
@@ -28,7 +27,7 @@ export class ChapterController {
 
 
   @ApiOperation({
-    summary: 'list of all Chapters',
+    summary: 'Array of Chapter list',
     description: 'Getting array of chapter list'
   })
   @ApiResponse({
@@ -40,6 +39,15 @@ export class ChapterController {
     return await this.chapterService.getChapters();
   }
 
+  @ApiOperation({
+    summary: 'Chapters list',
+    description: 'list of chapters and chapterId'
+  })
+  @ApiResponse({ type:  ChapterDto })
+  @Get()
+  async getChapterList(): Promise<ChapterDto[]> {
+    return await this.chapterService.getChapterList()
+  }
 
 
   @ApiOperation({
@@ -73,7 +81,7 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Chapter',
@@ -89,7 +97,7 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update Chapter',

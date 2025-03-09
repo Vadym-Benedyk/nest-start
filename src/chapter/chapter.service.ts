@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
@@ -11,6 +11,14 @@ export class ChapterService {
   async getChapters(): Promise<string[]> {
     const chapters = await this.chapterRepository.getAllChapters()
     return chapters.map(chapter => chapter.chapterName)
+  }
+
+  async getChapterList(): Promise<ChapterDto[]> {
+    try {
+      return await this.chapterRepository.getChapterList()
+    } catch (error) {
+      throw new HttpException('Problem with fetching chapter list', HttpStatus.BAD_REQUEST)
+    }
   }
 
   async getChapterById(id: string): Promise<ChapterInterface> {

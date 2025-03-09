@@ -6,26 +6,17 @@ import {
   Delete,
   Patch,
   HttpStatus,
-  Query,
-  UseGuards,
-  UnauthorizedException,
+  Query
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
 import {
-  ApiBearerAuth,
-  ApiBody,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserInterface, UserInterfaces } from './interfaces/user.interfaces';
-import { ResponseUpdateUserDto } from '../user-role/dto/response-update-user-role.dto';
-import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard';
-import { AdminGuard } from '../auth/guards/AdminGuard';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { SelfGuard } from '@/src/auth/guards/SelfGuard';
-import { UserWithRolesDto } from '@/src/user-role/dto/user-with-roles.dto';
 
 
 
@@ -66,8 +57,8 @@ export class UserController {
 
 
   @ApiOperation({
-    summary: 'Get users by email',
-    description: 'Get users by email',
+    summary: 'Get user by email',
+    description: 'Get user detail by email',
   })
   @ApiResponse({ type: UserDto })
   @Get('email/:email')

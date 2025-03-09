@@ -1,5 +1,4 @@
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '@/src/users/user.service';
 import {
   CanActivate,
   ExecutionContext,
@@ -34,7 +33,11 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('User not found');
       }
 
-      request.user = userWithRoles.dataValues;
+      request.user = {
+        id: userWithRoles.id,
+        roles: userWithRoles.roles,
+      };
+
     } catch {
       this.logger.error('Invalid token');
       throw new UnauthorizedException('Invalid token');

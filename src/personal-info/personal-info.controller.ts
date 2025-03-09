@@ -5,9 +5,8 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
 import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import {
@@ -15,14 +14,11 @@ import {
   UpdateInfoResponseInterface,
 } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
-import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { SelfGuard } from '@/src/auth/guards/SelfGuard';
-import { RoleGuard } from '@/src/auth/guards/RoleGuard';
-import { Roles } from '@/src/auth/decorators/get-role.decorator';
+
+
+
 
 @ApiTags('User additional information')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 @Controller('user_info')
 export class PersonalInfoController {
   constructor(private readonly personalInfoService: PersonalInfoService) {}
@@ -32,8 +28,6 @@ export class PersonalInfoController {
     description: 'Create user information and save to db',
   })
   @ApiResponse({ type: AddUserInfoDto })
-  // @UseGuards(RoleGuard)
-  // @Roles('admin')
   @Post()
   public async addUserInfo(
     @Body() addUserInfoDto: AddUserInfoDto
@@ -63,7 +57,6 @@ export class PersonalInfoController {
     return await this.personalInfoService.getAllUsersInfo();
   }
 
-  @UseGuards(SelfGuard)
   @ApiOperation({
     summary: 'Update fields: age, status, photo',
     description: 'Update user info',

@@ -14,7 +14,7 @@ import { PostDto } from '@/src/post/dto/post.dto';
 import { PostService } from '@/src/post/post.service';
 import { CreatePostInterface, PostInterface } from '@/src/post/interfaces/post.interface';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { SelfGuard } from '@/src/auth/guards/SelfGuard';
+
 import { CurrentUser } from '@/src/auth/decorators/current-user.decorator';
 import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
 import { IdPostDto } from '@/src/post/dto/id-post.dto';
@@ -87,7 +87,7 @@ export class PostController {
     summary: 'Update post',
     description: 'Update post',
   })
-  @UseGuards(JwtAuthGuard, SelfGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch('/update')
   async updatePost(
@@ -102,7 +102,7 @@ export class PostController {
     summary: 'Delete post',
     description: 'Delete post',
   })
-  @UseGuards(JwtAuthGuard, SelfGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
