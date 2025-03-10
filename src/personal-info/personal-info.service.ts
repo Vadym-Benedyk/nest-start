@@ -8,6 +8,7 @@ import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.model';
 import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
+import { UserService } from '@/src/users/user.service';
 
 @Injectable()
 export class PersonalInfoService {
@@ -15,13 +16,22 @@ export class PersonalInfoService {
   constructor(
     @InjectModel(PersonalInfoModel)
     private readonly personalInfoModel: typeof PersonalInfoModel,
+    private readonly userService: UserService
   ) {}
 
   async addUserInfo(
     addUserInfoDto: AddUserInfoDto,
   ): Promise<PersonalInfoInterface> {
-    try {
+    console.log('ADD USER INFO', addUserInfoDto.userId);
+      const existUser = await this.userService.checkUserById(addUserInfoDto.userId);
+
+      if (!existUser) {
+        this.logger.error('Error by adding user info. User ID from request not found');
+        throw new NotFoundException('User ID from request body object not found');
+      }
+
       const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
+
       if (isInfo) {
         this.logger.error('Error by adding user info. User info already exists');
         throw new ForbiddenException('User info already exists');
@@ -32,10 +42,6 @@ export class PersonalInfoService {
         status: addUserInfoDto.status,
         photo: addUserInfoDto.photo,
       });
-    } catch (error) {
-      this.logger.error('Failed to create user personal info');
-      throw new Error('Failed to create user personal info', error);
-    }
   }
 
   async getUserInfo(id: string): Promise<PersonalInfoInterface> {

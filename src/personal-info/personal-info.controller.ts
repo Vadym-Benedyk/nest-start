@@ -15,7 +15,8 @@ import {
 } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
 
 
 
@@ -30,7 +31,9 @@ export class PersonalInfoController {
     description: 'Create user information and save to db',
   })
   @ApiResponse({ type: AddUserInfoDto })
-  @UseGuards(JwtAuthGuard, OwnerGuard)
+  @Roles('emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  // @Permissions()
   @ApiBearerAuth()
   @Post()
   public async addUserInfo(

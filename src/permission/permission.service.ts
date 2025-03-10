@@ -3,13 +3,22 @@ import { InjectModel } from '@nestjs/sequelize';
 import { AddPermissionDto } from '@/src/permission/dto/add-permission.dto';
 import { PermissionInterface } from '@/src/permission/interfaces/permission.interface';
 import { PermissionModel } from '@/src/permission/models/permission.model';
+import { RoleModel } from '@/src/role/models/role.model';
+import { User } from '@/src/users/models/user.model';
 
 
 
 @Injectable()
 export class PermissionService {
   private readonly logger = new Logger(PermissionService.name);
-  constructor( @InjectModel(PermissionModel) private readonly permissionModel: typeof PermissionModel) { }
+  constructor(
+    @InjectModel(PermissionModel)
+    private readonly permissionModel: typeof PermissionModel,
+    @InjectModel(RoleModel)
+    private readonly roleModel: typeof RoleModel,
+    @InjectModel(User)
+    private readonly userModel: typeof User
+  ) {}
 
   async checkPermissionByName(permission: string): Promise<boolean> {
     const permissionExists = await this.permissionModel.findOne({where: {permission}});
@@ -82,5 +91,26 @@ export class PermissionService {
         )
       }
   }
-}
 
+  async getPermissionsByUserId(userId: string): Promise<any> {
+    const user = await this.userModel.findByPk(userId, {
+      include: [
+        {
+          model: RoleModel,
+          include: [
+            { model: PermissionModel, through: { attributes: [] } }, // пермішени через ролі
+          ],
+        },
+        // {
+        //   model: PermissionModel, // індивідуальні пермішени
+        //   through: { attributes: [] },
+        // },
+      ],
+    });
+
+    // const rolePermissions = user.Roles.flatMap(role => role.Permissions.map(p => p.name));
+    // const userPermissions = user.Permissions.map(p => p.name);
+
+    // return [...new Set([...rolePermissions, ...userPermissions])]; // об'єднуємо унікальні пермішени
+}
+}

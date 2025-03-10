@@ -24,7 +24,6 @@ export class PermissionController {
   @ApiResponse({ type: PermissionDto, status: 201 })
   @Get(':id')
   async getPermissionById(@Param('id') id: string): Promise<PermissionInterface> {
-    // console.log('type controller', typeof idPermission.id);
     return this.permissionService.getPermissionById(id);
   }
 
