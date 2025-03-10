@@ -4,9 +4,9 @@ import {
   Get,
   Param,
   Patch,
-  Post,
+  Post, UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
 import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import {
@@ -14,6 +14,8 @@ import {
   UpdateInfoResponseInterface,
 } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 
 
@@ -28,6 +30,8 @@ export class PersonalInfoController {
     description: 'Create user information and save to db',
   })
   @ApiResponse({ type: AddUserInfoDto })
+  @UseGuards(JwtAuthGuard, OwnerGuard)
+  @ApiBearerAuth()
   @Post()
   public async addUserInfo(
     @Body() addUserInfoDto: AddUserInfoDto
