@@ -13,9 +13,9 @@ export class ChapterRepository {
     private readonly chapterRepository: Repository<ChapterEntity>
   ) {}
 
-  async getAllChapters(): Promise<ChapterDto[]> {
+  async getAllChapters(): Promise<any> {
     try {
-      return this.chapterRepository.find({ select: ['chapterName']})
+      return this.chapterRepository.findAndCount()
     } catch (error) {
       throw new HttpException(
         'Internal server error by getting all chapters',
@@ -25,7 +25,7 @@ export class ChapterRepository {
   }
 
   async getChapterList(): Promise<ChapterDto[]> {
-    const chapters = await this.chapterRepository.find();
+    const chapters = await this.chapterRepository.find({ select: ['chapterName']});
     return chapters.sort((a, b) => a.chapterName.localeCompare(b.chapterName))
   }
 

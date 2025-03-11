@@ -18,6 +18,8 @@ import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
 import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
 import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
 
 
 
@@ -27,26 +29,32 @@ export class ChapterController {
 
 
   @ApiOperation({
-    summary: 'Array of Chapter list',
-    description: 'Getting array of chapter list'
+    summary: 'Chapters array',
+    description: 'Get Chapters array'
   })
   @ApiResponse({
+    type: [String],
     status: HttpStatus.OK,
     description: 'chapters list'
   })
   @Get()
-  async getChapters(): Promise<string[]> {
-    return await this.chapterService.getChapters();
+  async getChaptersArray(): Promise<string[]> {
+    return await this.chapterService.getChaptersArray();
   }
+
 
   @ApiOperation({
     summary: 'Chapters list',
-    description: 'list of chapters and chapterId'
+    description: 'Getting list of chapters'
   })
-  @ApiResponse({ type:  ChapterDto })
-  @Get()
-  async getChapterList(): Promise<ChapterDto[]> {
-    return await this.chapterService.getChapterList()
+  @ApiResponse({
+    type: ChapterDto,
+    status: HttpStatus.OK,
+    description: 'chapters list'
+  })
+  @Get('/list')
+  async getChapters(): Promise<any> {
+    return await this.chapterService.getChapters();
   }
 
 
@@ -64,8 +72,8 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('senator')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Add new Chapter',
@@ -81,9 +89,8 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('senator')
-
+  @Permissions('delete_chapter')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Chapter',

@@ -8,17 +8,13 @@ import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
 export class ChapterService {
   constructor( private readonly chapterRepository: ChapterRepository ) {}
 
-  async getChapters(): Promise<string[]> {
-    const chapters = await this.chapterRepository.getAllChapters()
-    return chapters.map(chapter => chapter.chapterName)
+  async getChaptersArray(): Promise<string[]> {
+    const chapterObject = await this.chapterRepository.getChapterList();
+    return chapterObject.map(chapter => chapter.chapterName)
   }
 
-  async getChapterList(): Promise<ChapterDto[]> {
-    try {
-      return await this.chapterRepository.getChapterList()
-    } catch (error) {
-      throw new HttpException('Problem with fetching chapter list', HttpStatus.BAD_REQUEST)
-    }
+  async getChapters(): Promise<any> {
+    return await this.chapterRepository.getAllChapters()
   }
 
   async getChapterById(id: string): Promise<ChapterInterface> {
