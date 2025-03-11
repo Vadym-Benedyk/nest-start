@@ -18,6 +18,8 @@ import { CurrentUser } from '@/src/auth/decorators/current-user.decorator';
 import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
 import { IdPostDto } from '@/src/post/dto/id-post.dto';
 import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
 
 
 
@@ -46,8 +48,9 @@ export class PostController {
     summary: 'Create a post',
     description: 'Create a post',
   })
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @Permissions('create_post')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The post has been successfully created.',
@@ -86,8 +89,14 @@ export class PostController {
     summary: 'Update post',
     description: 'Update post',
   })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Post updated successfully',
+    type: PostDto,
+  })
   @ApiBearerAuth()
+  @Permissions('update_post')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Patch('/update')
   async updatePost(
     @Body() updatePostDto: UpdatePostDto,
@@ -101,12 +110,13 @@ export class PostController {
     summary: 'Delete post',
     description: 'Delete post',
   })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Post deleted successfully',
   })
+  @ApiBearerAuth()
+  @Permissions('delete_post')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Delete('/delete/:id')
   async deletePost(@Param('id') idPostDto: IdPostDto): Promise<void> {
     return await this.postService.deletePost(idPostDto);
