@@ -43,4 +43,11 @@ export class PermissionController {
     return this.permissionService.deletePermission(id);
   }
 
+  @ApiOperation({ summary: 'Get permissions by userId', description: 'Get permissions by userId' })
+  @ApiResponse({ type: PermissionDto, status: 201 })
+  @Get('by_user/:userId')
+  async getPermissionsByUserId(@Param('userId') userId: string): Promise<string[]> {
+    return this.permissionService.getPermissionsByUserId(userId);
+  }
+
 }

@@ -59,7 +59,6 @@ export class UserRoleService {
     }
   }
 
-
   async getUserRoles(id: string): Promise<RoleInterface[]> {
     const userWithRoles = await this.userModel.findOne({
       where: { id },

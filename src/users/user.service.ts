@@ -120,9 +120,7 @@ export class UserService {
   }
 
 
-  async getUsers(
-    @Query() queryParams: GetUsersDto,
-  ): Promise<UserListInterfaces> {
+  async getUsers( @Query() queryParams: GetUsersDto ): Promise<UserListInterfaces> {
     const { search, searchField, page, pageSize, sortBy, sortDirection } =
       queryParams;
 
