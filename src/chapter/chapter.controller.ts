@@ -15,7 +15,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
-import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
+import { ChapterInterface, ChapterListInterface, ResponseMsgInterface } from '@/src/chapter/interfaces/chapter.interface';
 import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 import { Roles } from '@/src/auth/decorators/get-role.decorator';
 import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
@@ -53,7 +53,7 @@ export class ChapterController {
     description: 'chapters list'
   })
   @Get('/list')
-  async getChapters(): Promise<any> {
+  async getChapters(): Promise<ChapterListInterface> {
     return await this.chapterService.getChapters();
   }
 
@@ -89,8 +89,9 @@ export class ChapterController {
   }
 
 
-  @Permissions('delete_chapter')
+
   @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('delete_chapter')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Chapter',
@@ -101,7 +102,7 @@ export class ChapterController {
     description: 'chapter deleted'
   })
   @Delete('/delete/:id')
-  async deleteChapter(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
+  async deleteChapter(@Param('id', new ParseUUIDPipe()) id: string): Promise<ResponseMsgInterface> {
     return await this.chapterService.deleteChapter(id);
   }
 

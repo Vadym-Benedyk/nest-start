@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserService } from '@/src/users/user.service';
 import { PermissionService } from '@/src/permission/permission.service';
 
 export const Permissions = (...permissions: string[]) => SetMetadata('permissions', permissions);
@@ -20,6 +19,7 @@ export class PermissionsGuard implements CanActivate {
     if (!user) return false;
 
     const userPermissions = await this.permissionService.getPermissionsByUserId(user.id);
+    // console.log('-= userPermissions =-', userPermissions);
 
     return requiredPermissions.every(permission => userPermissions.includes(permission));
   }

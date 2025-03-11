@@ -4,7 +4,7 @@ import { ChapterEntity } from '@/src/chapter/entities/chapter.entity';
 import { Repository } from 'typeorm';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
-import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
+import { ChapterInterface, ChapterListInterface } from '@/src/chapter/interfaces/chapter.interface';
 
 @Injectable()
 export class ChapterRepository {
@@ -64,10 +64,10 @@ export class ChapterRepository {
   }
 
 
-  async deleteChapter(id: string): Promise<void> {
+  async deleteChapter(id: string): Promise<any> {
       await this.findChapterById( id )
     try {
-      await this.chapterRepository.delete(id);
+     return await this.chapterRepository.delete(id);
     } catch (error) {
       throw new HttpException(
         'Internal server error by deleting chapter',

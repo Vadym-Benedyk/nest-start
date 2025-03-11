@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserRoleService } from '@/src/user-role/user-role.service';
+import { PermissionService } from '@/src/permission/permission.service';
 
 
 @Injectable()
@@ -13,7 +14,8 @@ export class JwtAuthGuard implements CanActivate {
   private readonly logger = new Logger(JwtAuthGuard.name);
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userRoleService: UserRoleService
+    private readonly userRoleService: UserRoleService,
+    private readonly permissionService: PermissionService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -27,6 +29,7 @@ export class JwtAuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token);
       const userWithRoles: any = await this.userRoleService.getUserWithRoles(payload.userId);
+      const userPermissions: any = await this.permissionService.getPermissionsByUserId(payload.userId);
 
       if (!userWithRoles) {
         this.logger.warn('User not found');
@@ -36,6 +39,7 @@ export class JwtAuthGuard implements CanActivate {
       request.user = {
         id: userWithRoles.id,
         roles: userWithRoles.roles,
+        permissions: userPermissions
       };
 
     } catch {
