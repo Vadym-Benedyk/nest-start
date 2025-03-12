@@ -17,3 +17,9 @@ export interface IdTopicInterface {
 export interface IdInterface {
   id: string
 }
+
+export interface TopicInterface {
+  id: string,
+  topicName: string,
+  chapterId: string
+}

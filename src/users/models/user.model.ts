@@ -1,5 +1,6 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
-import { UserRole } from '../interfaces/role.enum';
+import { BelongsToMany, Column, DataType, Model, Table } from 'sequelize-typescript';
+import { RoleModel } from '@/src/role/models/role.model';
+import { UserRoleModel } from '@/src/user-role/models/user-role.model';
 
 @Table({
   tableName: 'users',
@@ -38,9 +39,6 @@ export class User extends Model<User> {
   })
   password: string;
 
-  @Column({
-    type: DataType.ENUM(...Object.values(UserRole)),
-    defaultValue: UserRole.USER,
-  })
-  role: UserRole;
+  @BelongsToMany(() => RoleModel, () => UserRoleModel)
+  roles: RoleModel[];
 }

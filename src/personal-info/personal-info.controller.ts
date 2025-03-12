@@ -4,23 +4,22 @@ import {
   Get,
   Param,
   Patch,
-  Post,
-  UseGuards,
+  Post, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
 import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
-import {
-  PersonalInfoInterface,
-  UpdateInfoResponseInterface,
-} from '@/src/personal-info/interfaces/personal-info.interface';
+import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { SelfGuard } from '@/src/auth/guards/SelfGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
+
 
 @ApiTags('User additional information')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
+@Roles('emperor', 'senator', 'legionary', 'general')
+@UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('user_info')
 export class PersonalInfoController {
   constructor(private readonly personalInfoService: PersonalInfoService) {}
@@ -30,13 +29,13 @@ export class PersonalInfoController {
     description: 'Create user information and save to db',
   })
   @ApiResponse({ type: AddUserInfoDto })
-  @UseGuards(SelfGuard)
   @Post()
   public async addUserInfo(
     @Body() addUserInfoDto: AddUserInfoDto
   ): Promise<PersonalInfoInterface> {
     return await this.personalInfoService.addUserInfo(addUserInfoDto);
   }
+
 
   @ApiOperation({
     summary: 'Get one user info',
@@ -50,6 +49,7 @@ export class PersonalInfoController {
     return await this.personalInfoService.getUserInfo(id);
   }
 
+
   @ApiOperation({
     summary: 'Get all users info',
     description: 'Get all users info',
@@ -60,7 +60,7 @@ export class PersonalInfoController {
     return await this.personalInfoService.getAllUsersInfo();
   }
 
-  @UseGuards(SelfGuard)
+
   @ApiOperation({
     summary: 'Update fields: age, status, photo',
     description: 'Update user info',

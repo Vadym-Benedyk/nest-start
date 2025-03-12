@@ -1,16 +1,24 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ChapterRepository } from '@/src/chapter/repositories/chapter.repository';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
-import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
+import {
+  ChapterInterface,
+  ChapterListInterface,
+  ResponseMsgInterface,
+} from '@/src/chapter/interfaces/chapter.interface';
 
 @Injectable()
 export class ChapterService {
   constructor( private readonly chapterRepository: ChapterRepository ) {}
 
-  async getChapters(): Promise<string[]> {
-    const chapters = await this.chapterRepository.getAllChapters()
-    return chapters.map(chapter => chapter.chapterName)
+  async getChaptersArray(): Promise<string[]> {
+    const chapterObject = await this.chapterRepository.getChapterList();
+    return chapterObject.map(chapter => chapter.chapterName)
+  }
+
+  async getChapters(): Promise<ChapterListInterface> {
+    return await this.chapterRepository.getAllChapters()
   }
 
   async getChapterById(id: string): Promise<ChapterInterface> {
@@ -26,8 +34,9 @@ export class ChapterService {
     return await this.chapterRepository.createChapter(addChapterDto)
   }
 
-  async deleteChapter(id: string): Promise<void> {
-      await this.chapterRepository.deleteChapter(id)
+  async deleteChapter(id: string): Promise<ResponseMsgInterface> {
+      const {affected} = await this.chapterRepository.deleteChapter(id);
+      return ({ message: affected ? `${affected} - Chapter deleted successfully` : 'Chapter not found' })
   }
 
   async updateChapter(chapterDto: ChapterDto): Promise<ChapterInterface> {

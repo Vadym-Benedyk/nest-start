@@ -5,9 +5,11 @@ import { TopicEntity } from '@/src/topic/entities/topic.entity';
 import { TopicRepository } from '@/src/topic/repositories/topic.repository';
 import { TopicController } from '@/src/topic/topic.controller';
 import { ChapterModule } from '@/src/chapter/chapter.module';
+import { PermissionModule } from '@/src/permission/permission.module';
+import { UserRoleModule } from '@/src/user-role/user-role.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TopicEntity]), ChapterModule],
+  imports: [TypeOrmModule.forFeature([TopicEntity]), ChapterModule, PermissionModule, UserRoleModule],
   controllers: [TopicController],
   providers: [TopicService, TopicRepository],
   exports: [TopicService, TopicRepository],

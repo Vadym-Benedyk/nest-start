@@ -4,7 +4,7 @@ import { TopicEntity } from '@/src/topic/entities/topic.entity';
 import { Repository } from 'typeorm';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
-import { StatusMessageInterface } from '@/src/topic/interfaces/topic.interface';
+import { StatusMessageInterface} from '@/src/topic/interfaces/topic.interface';
 
 
 @Injectable()
@@ -40,7 +40,7 @@ export class TopicRepository {
     try {
       return await this.topicRepository.findOneBy({ topicName: topicName })
     } catch (error) {
-      throw new HttpException('Error fetching topic name', HttpStatus.INTERNAL_SERVER_ERROR)
+      throw new HttpException('Error fetching topic name', HttpStatus.NOT_FOUND)
     }
   }
 

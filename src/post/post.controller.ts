@@ -12,21 +12,22 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostDto } from '@/src/post/dto/post.dto';
 import { PostService } from '@/src/post/post.service';
-import { CreatePostDto } from '@/src/post/dto/create-post.dto';
-import {
-  CreatePostInterface,
-  PostInterface,
-} from '@/src/post/interfaces/post.interface';
-import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { CreatePostInterface, PostInterface } from '@/src/post/interfaces/post.interface';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { SelfGuard } from '@/src/auth/guards/SelfGuard';
-
+import { CurrentUser } from '@/src/auth/decorators/current-user.decorator';
+import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
+import { IdPostDto } from '@/src/post/dto/id-post.dto';
+import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
+import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 
 
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
+
 
   @ApiOperation({
     summary: 'Get all posts',
@@ -42,12 +43,15 @@ export class PostController {
     return await this.postService.getPosts();
   }
 
+
+
   @ApiOperation({
     summary: 'Create a post',
     description: 'Create a post',
   })
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @Permissions('create_post')
+  @UseGuards(JwtAuthGuard, PermissionsGuard, OwnerGuard)
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The post has been successfully created.',
@@ -55,14 +59,18 @@ export class PostController {
   })
   @Post()
   async createPost(
-    @Body() createPostDto: CreatePostDto,
+    @Body() acceptPostDto: AcceptPostDto,
+    @CurrentUser('id') userId: string,
   ): Promise<CreatePostInterface> {
-    return await this.postService.createPost(createPostDto);
+    acceptPostDto.userId = userId;
+    return await this.postService.createPost( acceptPostDto );
   }
 
+
+
   @ApiOperation({
-    summary: 'Get one post',
-    description: 'Get post',
+    summary: 'Get one post by Id',
+    description: 'Get a post',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -70,16 +78,26 @@ export class PostController {
     type: PostDto,
   })
   @Get(':id')
-  async getPost(id: string): Promise<PostInterface> {
+  async getPost(
+    @Param('id') id: string,
+  ): Promise<PostInterface> {
     return await this.postService.getPost(id);
   }
+
+
 
   @ApiOperation({
     summary: 'Update post',
     description: 'Update post',
   })
-  @UseGuards(JwtAuthGuard, SelfGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Post updated successfully',
+    type: PostDto,
+  })
   @ApiBearerAuth()
+  @Permissions('update_post')
+  @UseGuards(JwtAuthGuard, PermissionsGuard, OwnerGuard)
   @Patch('/update')
   async updatePost(
     @Body() updatePostDto: UpdatePostDto,
@@ -87,18 +105,21 @@ export class PostController {
     return await this.postService.updatePost(updatePostDto);
   }
 
+
+
   @ApiOperation({
     summary: 'Delete post',
     description: 'Delete post',
   })
-  @UseGuards(JwtAuthGuard, SelfGuard)
-  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Post deleted successfully',
   })
+  @ApiBearerAuth()
+  @Permissions('delete_post')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Delete('/delete/:id')
-  async deletePost(@Param('id') id: string): Promise<void> {
-    return await this.postService.deletePost(id);
+  async deletePost(@Param('id') idPostDto: IdPostDto): Promise<void> {
+    return await this.postService.deletePost(idPostDto);
   }
 }

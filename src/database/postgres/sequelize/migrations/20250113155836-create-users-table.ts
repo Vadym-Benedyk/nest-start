@@ -1,5 +1,5 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { UserRole } from '@/src/users/interfaces/role.enum';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 
 export default {
   up: async (queryInterface: QueryInterface) => {
@@ -31,7 +31,7 @@ export default {
       role: {
         type: DataTypes.ENUM(...Object.values(UserRole)),
         allowNull: true,
-        defaultValue: UserRole.USER,
+        defaultValue: UserRole.LEGIONARY,
       },
       createdAt: {
         type: DataTypes.DATE,

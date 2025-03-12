@@ -8,7 +8,7 @@ import {
   AllTopicsInterface,
   IdInterface,
   IdTopicInterface,
-  StatusMessageInterface,
+  StatusMessageInterface, TopicInterface,
 } from '@/src/topic/interfaces/topic.interface';
 
 @Injectable()
@@ -35,10 +35,14 @@ export class TopicService {
     return topic
   }
 
-  async createTopic(addTopicDto: AddTopicDto): Promise<IdInterface> {
-    const isTopicInDb = await this.topicRepository.findTopicByName(addTopicDto.topicName)
+  async getTopicByName(topicName: string): Promise<TopicInterface> {
+    return this.topicRepository.findTopicByName(topicName)
+  }
 
-    if (isTopicInDb && isTopicInDb.length !== 0) {
+  async createTopic(addTopicDto: AddTopicDto): Promise<IdInterface> {
+    const topic = await this.topicRepository.findTopicByName(addTopicDto.topicName)
+
+    if (topic && topic.length !== 0) {
       throw new HttpException(
         `Topic with name ${addTopicDto.topicName} already exist in database `,
         HttpStatus.NOT_ACCEPTABLE

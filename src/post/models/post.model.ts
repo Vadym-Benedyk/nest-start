@@ -1,6 +1,7 @@
 import { BelongsTo, Column, DataType, Model, ForeignKey, Table } from 'sequelize-typescript';
 import { User } from '@/src/users/models/user.model';
 
+
 @Table({
   tableName: 'posts',
   timestamps: true,
@@ -31,6 +32,11 @@ export class PostModel extends Model<PostModel> {
 
   @BelongsTo(() => User)
   author: User;
+
+  @Column({
+    type: DataType.UUID
+  })
+  topicId: string;
 
   @Column({
     type: DataType.DATE,

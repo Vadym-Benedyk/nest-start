@@ -1,5 +1,17 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TopicService } from '@/src/topic/topic.service';
 import { AddTopicDto } from '@/src/topic/dto/add-topic.dto';
 import { UpdateTopicNameDto } from '@/src/topic/dto/update-topic-name.dto';
@@ -10,6 +22,9 @@ import {
   IdTopicInterface,
   StatusMessageInterface,
 } from '@/src/topic/interfaces/topic.interface';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
 
 @Controller('topic')
 export class TopicController {
@@ -44,6 +59,9 @@ export class TopicController {
   }
 
 
+  @ApiBearerAuth()
+  @Permissions('create_topic')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiOperation({
     summary: "Create Topic",
     description: "Create new Topic"
@@ -58,7 +76,9 @@ export class TopicController {
   }
 
 
-
+  @ApiBearerAuth()
+  @Permissions('update_topic')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiOperation({
     summary: "Update topic name. Accept topicName and newTopicName",
     description: "Change topic name"
@@ -73,6 +93,9 @@ export class TopicController {
   }
 
 
+  @ApiBearerAuth()
+  @Permissions('delete_topic')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiOperation({
     summary: "Delete topic",
     description: "Delete topic"
