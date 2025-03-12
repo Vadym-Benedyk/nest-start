@@ -14,9 +14,12 @@ import { ChapterService } from '@/src/chapter/chapter.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AddChapterDto } from '@/src/chapter/dto/add-chapter.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
-import { AdminGuard } from '@/src/auth/guards/AdminGuard';
 import { ChapterDto } from '@/src/chapter/dto/chapter.dto';
-import { ChapterInterface } from '@/src/chapter/interfaces/chapter.interface';
+import { ChapterInterface, ChapterListInterface, ResponseMsgInterface } from '@/src/chapter/interfaces/chapter.interface';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
 
 
 
@@ -26,18 +29,33 @@ export class ChapterController {
 
 
   @ApiOperation({
-    summary: 'list of all Chapters',
-    description: 'Getting array of chapter list'
+    summary: 'Chapters array',
+    description: 'Get Chapters array'
   })
   @ApiResponse({
+    type: [String],
     status: HttpStatus.OK,
     description: 'chapters list'
   })
   @Get()
-  async getChapters(): Promise<string[]> {
-    return await this.chapterService.getChapters();
+  async getChaptersArray(): Promise<string[]> {
+    return await this.chapterService.getChaptersArray();
   }
 
+
+  @ApiOperation({
+    summary: 'Chapters list',
+    description: 'Getting list of chapters'
+  })
+  @ApiResponse({
+    type: ChapterDto,
+    status: HttpStatus.OK,
+    description: 'chapters list'
+  })
+  @Get('/list')
+  async getChapters(): Promise<ChapterListInterface> {
+    return await this.chapterService.getChapters();
+  }
 
 
   @ApiOperation({
@@ -54,7 +72,8 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Roles('senator')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Add new Chapter',
@@ -70,7 +89,9 @@ export class ChapterController {
   }
 
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('delete_chapter')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Chapter',
@@ -81,12 +102,13 @@ export class ChapterController {
     description: 'chapter deleted'
   })
   @Delete('/delete/:id')
-  async deleteChapter(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
+  async deleteChapter(@Param('id', new ParseUUIDPipe()) id: string): Promise<ResponseMsgInterface> {
     return await this.chapterService.deleteChapter(id);
   }
 
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('senator', 'emperor')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update Chapter',

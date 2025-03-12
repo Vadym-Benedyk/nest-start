@@ -2,18 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../interfaces/role.enum';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
-export class UserRoleDto {
+export class UpdateUserRoleDto {
   @ApiProperty({ example: 'UUID', description: 'Id of users must be changed' })
   @IsString()
   @IsNotEmpty()
-  UserId: string;
+  userId: string;
 
   @ApiProperty({
-    example: UserRole.USER,
-    description: `The role of the user to change. Available roles: ${UserRole}`,
+    example: UserRole.LEGIONARY,
+    description: `New role for user. Available roles: ${UserRole}`,
     enum: UserRole,
-    default: UserRole.USER,
   })
   @IsEnum(UserRole)
-  role: UserRole = UserRole.USER;
+  role: UserRole = UserRole.LEGIONARY;
 }

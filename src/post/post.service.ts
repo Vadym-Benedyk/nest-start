@@ -6,10 +6,11 @@ import {
   CreatePostInterface,
   PostInterface,
 } from '@/src/post/interfaces/post.interface';
-import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
 import { UserService } from '@/src/users/user.service';
 import { TopicService } from '@/src/topic/topic.service';
 import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
+import { IdPostDto } from '@/src/post/dto/id-post.dto';
+import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
 
 
 @Injectable()
@@ -77,22 +78,16 @@ export class PostService {
 
 
   async getPost(id: string): Promise<PostInterface> {
-    try {
-      const post = await this.postModel.findByPk(id);
-      if (!post) {
-        throw new HttpException(
-          "There isn't any post in database",
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      return post;
-    } catch (error) {
-      this.logger.error(`Failed to get post: ${error}`);
+    this.logger.log('init fetch post by id');
+    const post = await this.postModel.findByPk(id);
+    if (!post) {
+      this.logger.error('Trouble fetching post by uuid from db');
       throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        "There isn't any post in database",
+        HttpStatus.NOT_FOUND,
       );
     }
+    return post;
   }
 
 
@@ -117,8 +112,8 @@ export class PostService {
   }
 
 
-  async deletePost(id: string): Promise<void> {
-    const post = await this.postModel.findByPk(id);
+  async deletePost(idPostDto: IdPostDto): Promise<void> {
+    const post = await this.postModel.findByPk(idPostDto.id);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }

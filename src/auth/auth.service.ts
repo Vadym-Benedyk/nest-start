@@ -1,20 +1,23 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
 import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
-import {
-  PayloadUserInterface,
-  RefreshPayloadUserInterface,
-} from '../refresh/interfaces/refresh.interfaces';
+import { PayloadUserInterface, RefreshPayloadUserInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'node:process';
+import { UserRoleService } from '@/src/user-role/user-role.service';
+
+
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
+    private readonly userRole: UserRoleService
   ) {}
 
   async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
@@ -34,9 +37,7 @@ export class AuthService {
   }
 
   // Register a new users and return tokens
-  async registerUser(
-    createUserDto: CreateUserDto,
-  ): Promise<RefreshPayloadUserInterface> {
+  async registerUser(createUserDto: CreateUserDto): Promise<RefreshPayloadUserInterface> {
     // Check if users already exists
     const userExist = await this.user.getUserByEmail(createUserDto.email);
     if (userExist) {
@@ -49,10 +50,15 @@ export class AuthService {
     }
     const payloadUser = await this.accessResponse(user);
     const refresh = await this.token.generateRefreshToken(user);
-    return {
-      payload: payloadUser,
-      refreshToken: refresh,
-    };
+    // Add default role to user when register
+    const addRole = await this.userRole.addDefaultRoleToUser(user.id);
+    if (payloadUser && refresh && addRole) {
+      this.logger.log('User was successfully registered in DB');
+      return {
+        payload: payloadUser,
+        refreshToken: refresh,
+      };
+    }
   }
 
   // Login

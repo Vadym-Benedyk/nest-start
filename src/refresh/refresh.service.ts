@@ -18,8 +18,7 @@ export class RefreshService {
 
   async generateAccessToken(user: UserInterfaces): Promise<string> {
     const payload = {
-      userId: user.id,
-      role: user.role,
+      userId: user.id
     };
     try {
       return await this.jwtService.signAsync(payload);
@@ -27,6 +26,7 @@ export class RefreshService {
       throw new Error('Failed to generate access token. Error: ' + error);
     }
   }
+
 
   async generateRefreshToken(user: UserInterfaces): Promise<string> {
     const expirationTime =
@@ -77,6 +77,7 @@ export class RefreshService {
       console.error('Failed to decode refresh token:', error);
     }
   }
+
   //delete refresh tokens.Return number of deleted tokens
   async deleteRefreshToken(userId: string) {
     try {
@@ -89,6 +90,7 @@ export class RefreshService {
       throw new Error('Failed to delete refresh token. Error: ' + error);
     }
   }
+
   // Get refresh token by token from DB
   async getDBToken(token: string): Promise<RefreshTokenInterface> {
     try {

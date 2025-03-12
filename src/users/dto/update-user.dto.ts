@@ -7,17 +7,17 @@ export class UpdateUserDto {
   @IsNotEmpty()
   id: string;
 
-  @ApiProperty({ example: 'John', description: 'first name' })
+  @ApiProperty({ example: 'Giulio', description: 'first name' })
   @IsString()
   @IsOptional()
   firstName?: string;
 
-  @ApiProperty({ example: 'Doe', description: 'last name' })
+  @ApiProperty({ example: 'Cesare', description: 'last name' })
   @IsString()
   @IsOptional()
   lastName?: string;
 
-  @ApiProperty({ example: 'john.doe@mail.com', description: 'email' })
+  @ApiProperty({ example: 'giulio.cesare@romain.empire', description: 'email' })
   @IsEmail()
   @IsOptional()
   email?: string;

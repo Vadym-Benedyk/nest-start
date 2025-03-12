@@ -8,17 +8,17 @@ export class UserDto {
   @IsOptional()
   id?: string;
 
-  @ApiProperty({ example: 'John', description: 'first name' })
+  @ApiProperty({ example: 'Giulio', description: 'first name' })
   @IsString()
   @IsNotEmpty()
   firstName: string;
 
-  @ApiProperty({ example: 'Doe', description: 'last name' })
+  @ApiProperty({ example: 'Cesare', description: 'last name' })
   @IsString()
   @IsNotEmpty()
   lastName: string;
 
-  @ApiProperty({ example: 'john.doe@mail.com', description: 'email' })
+  @ApiProperty({ example: 'giulio.cesare@romain.empire', description: 'email' })
   @IsEmail()
   @IsNotEmpty()
   email: string;

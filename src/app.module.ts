@@ -37,6 +37,17 @@ import { Topic } from './topic/topic';
 import { TopicModule } from './topic/topic.module';
 import * as process from 'node:process';
 import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
+import { RoleController } from './role/role.controller';
+import { RoleService } from './role/role.service';
+import { Role } from './role/role';
+import { RoleModule } from './role/role.module';
+import { UserRoleController } from './user-role/user-role.controller';
+import { UserRoleService } from './user-role/user-role.service';
+import { UserRoleModule } from './user-role/user-role.module';
+import { Permission } from './permission/permission';
+import { PermissionModule } from './permission/permission.module';
+import { RolePermissionsModule } from './role-permissions/role-permissions.module';
+import { PermissionController } from '@/src/permission/permission.controller';
 
 
 @Module({
@@ -46,7 +57,7 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
       isGlobal: true,
     }),
     SequelizeModule.forRoot({
-      models: [__dirname + '/entities/*.model.js'],
+      models: [__dirname + '/entities/*.models.js'],
       dialect: (process.env.DATABASE_DIALECT as Dialect) || 'postgres',
       host: process.env.DATABASE_HOST,
       port: +process.env.DATABASE_PORT,
@@ -70,6 +81,10 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
     PostModule,
     ChapterModule,
     TopicModule,
+    RoleModule,
+    UserRoleModule,
+    PermissionModule,
+    RolePermissionsModule,
   ],
   controllers: [
     AppController,
@@ -80,6 +95,9 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
     PostController,
     ChapterController,
     TopicController,
+    RoleController,
+    UserRoleController,
+    PermissionController
   ],
   providers: [
     AppService,
@@ -93,6 +111,10 @@ import { ormDbConfig } from '@/src/database/postgres/type-orm/database-config';
     ChapterService,
     Chapter,
     Topic,
+    RoleService,
+    Role,
+    UserRoleService,
+    Permission,
   ],
 })
 export class AppModule {}

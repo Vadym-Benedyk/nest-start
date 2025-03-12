@@ -19,6 +19,7 @@ export class PostDto extends PartialType(CreatePostDto) {
   @IsDate()
   createdAt: Date;
 
+
   @ApiProperty({
     example: 'Date and time of the post',
     description: 'Date and time of the post',

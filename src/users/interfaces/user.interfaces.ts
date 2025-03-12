@@ -1,4 +1,4 @@
-import { UserRole } from './role.enum';
+import { UserRole } from '@/src/role/interfaces/role.enum';
 
 export interface UserInterfaces {
   id: string;
@@ -6,7 +6,6 @@ export interface UserInterfaces {
   lastName: string;
   email: string;
   password: string;
-  role: UserRole;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 export class AcceptPostDto {
+
   @ApiProperty({
     example: 'Title of the post',
     description: 'Title of the post',
