@@ -6,11 +6,13 @@ import { RoleController } from '@/src/role/role.controller';
 import { RolePermissionsModel } from '@/src/role-permissions/models/role-permissions.model';
 import { PermissionModel } from '@/src/permission/models/permission.model';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
+import { PermissionModule } from '@/src/permission/permission.module';
 
 
 @Module({
   imports: [SequelizeModule.forFeature([RoleModel, RolePermissionsModel, PermissionModel]),
-    forwardRef(() => UserRoleModule)
+    forwardRef(() => UserRoleModule),
+    forwardRef(() => PermissionModule),
   ],
   providers: [RoleService],
   controllers: [RoleController],

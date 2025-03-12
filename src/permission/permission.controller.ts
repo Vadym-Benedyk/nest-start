@@ -1,10 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PermissionService } from '@/src/permission/permission.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddPermissionDto } from '@/src/permission/dto/add-permission.dto';
 import { PermissionDto } from '@/src/permission/dto/permission.dto';
 import { PermissionInterface } from '@/src/permission/interfaces/permission.interface';
 import { IdPermissionDto } from '@/src/permission/dto/id-permission.dto';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 
 
 @ApiTags('Permissions')
@@ -28,6 +31,9 @@ export class PermissionController {
   }
 
 
+  @ApiBearerAuth()
+  @Roles('senator', 'emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiOperation({ summary: 'Create permission', description: 'Create permission' })
   @ApiResponse({ type: AddPermissionDto, status: 201, description: 'Permission created' })
   @Post('permission')
@@ -36,12 +42,16 @@ export class PermissionController {
   }
 
 
+  @ApiBearerAuth()
+  @Roles('senator', 'emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiOperation({ summary: 'Delete permission by id', description: 'Delete permission by id' })
   @ApiResponse({ type: IdPermissionDto, status: 201 })
   @Delete(':id')
   async deletePermission(@Param('id') id: string): Promise<boolean> {
     return this.permissionService.deletePermission(id);
   }
+
 
   @ApiOperation({ summary: 'Get permissions by userId', description: 'Get permissions by userId' })
   @ApiResponse({ type: PermissionDto, status: 201 })

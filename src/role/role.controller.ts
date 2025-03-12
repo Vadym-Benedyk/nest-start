@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { RoleService } from '@/src/role/role.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RoleDto } from '@/src/role/dto/role.dto';
 import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
 import { CreateRoleDto } from '@/src/role/dto/createRole.dto';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 
 
 
@@ -41,6 +44,9 @@ export class RoleController {
   }
 
 
+  @ApiBearerAuth()
+  @Roles('emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiOperation({
     summary: 'Add role',
     description: 'Add new role'
@@ -56,6 +62,9 @@ export class RoleController {
   }
 
 
+  @ApiBearerAuth()
+  @Roles('emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiOperation({
     summary: 'Delete role',
     description: 'Delete role'
@@ -68,5 +77,4 @@ export class RoleController {
   async deleteRole(@Param('id') id: string): Promise<void> {
     return await this.roleService.deleteRole(id);
   }
-
 }

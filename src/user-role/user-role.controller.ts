@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserWithRolesDto } from '@/src/user-role/dto/user-with-roles.dto';
 import { UserRoleService } from '@/src/user-role/user-role.service';
 import { UsersInRoleInterface, UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
@@ -8,6 +8,9 @@ import { Response } from 'express';
 import { RoleDto } from '@/src/role/dto/role.dto';
 import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
 import { UsersInRoleDto } from '@/src/user-role/dto/users-in-role.dto';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
 
 
 @ApiTags('User Roles')
@@ -22,7 +25,6 @@ export class UserRoleController {
   async getUserRoles(@Param('id') id: string): Promise<RoleInterface[]> {
     return await this.userRoleService.getUserRoles(id)
   }
-
 
 
   @ApiOperation({ summary: 'Get user with roles', description: 'Get user by id' })
@@ -41,6 +43,9 @@ export class UserRoleController {
   }
 
 
+  @ApiBearerAuth()
+  @Permissions('add-role')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiOperation({ summary: 'Add role to user', description: 'Add role to user by id' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -69,6 +74,9 @@ export class UserRoleController {
   }
 
 
+  @ApiBearerAuth()
+  @Permissions('delete-role')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiOperation({ summary: 'Remove role from user', description: 'Remove role from user by userId and roleId' })
   @ApiResponse({
     status: HttpStatus.OK,

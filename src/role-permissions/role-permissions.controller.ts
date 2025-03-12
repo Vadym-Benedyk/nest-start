@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { RolePermissionsService } from '@/src/role-permissions/role-permissions.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RolePermissionDto } from '@/src/role-permissions/dto/role-permission.dto';
 import { AddPermissionToRoleDto } from '@/src/role-permissions/dto/add-permission-to-role.dto';
 import {
@@ -8,6 +8,9 @@ import {
   RolesWithPermissionInterface,
 } from '@/src/role-permissions/interfaces/role-permission.interfaces';
 import { PermissionDto } from '@/src/permission/dto/permission.dto';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 
 
 @ApiTags('Roles with Permissions')
@@ -41,7 +44,9 @@ export class RolePermissionsController {
     return await this.rolePermissionsService.getRolePermissions(roleId);
   }
 
-
+  @ApiBearerAuth()
+  @Roles('senator', 'emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiOperation({ summary: 'Add permission to role', description: 'Add permission to role' })
   @ApiResponse({ type: RolePermissionDto })
   @Post()
@@ -50,6 +55,9 @@ export class RolePermissionsController {
   }
 
 
+  @ApiBearerAuth()
+  @Roles('senator', 'emperor')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiOperation({ summary: 'Remove permission from a role', description: 'Remove certain role permission '})
   @ApiResponse({ type: RolePermissionDto, status: HttpStatus.OK, description: 'Permission  removed from role' })
   @Delete(':roleId/:permissionId')

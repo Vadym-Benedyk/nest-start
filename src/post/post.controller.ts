@@ -20,6 +20,7 @@ import { IdPostDto } from '@/src/post/dto/id-post.dto';
 import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
 import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
 import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
+import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 
 
@@ -50,7 +51,7 @@ export class PostController {
   })
   @ApiBearerAuth()
   @Permissions('create_post')
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @UseGuards(JwtAuthGuard, PermissionsGuard, OwnerGuard)
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The post has been successfully created.',
@@ -96,7 +97,7 @@ export class PostController {
   })
   @ApiBearerAuth()
   @Permissions('update_post')
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @UseGuards(JwtAuthGuard, PermissionsGuard, OwnerGuard)
   @Patch('/update')
   async updatePost(
     @Body() updatePostDto: UpdatePostDto,

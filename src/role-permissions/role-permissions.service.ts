@@ -1,4 +1,12 @@
-import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { RolePermissionsModel } from '@/src/role-permissions/models/role-permissions.model';
 import { RoleModel } from '@/src/role/models/role.model';
@@ -44,41 +52,40 @@ export class RolePermissionsService {
 
 
   async addPermissionToRole(addPermissionToRoleDto: AddPermissionToRoleDto): Promise<RolePermissionInterface> {
-      const role = await this.role.checkRoleById(addPermissionToRoleDto.roleId);
+    const role = await this.role.checkRoleById(addPermissionToRoleDto.roleId);
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
 
-      if (!role) {
-        throw new Error('Role not found');
-      }
-      const permission = await this.permission.checkPermissionById(addPermissionToRoleDto.permissionId);
-      if (!permission) {
-        throw new Error('Permission not found');
-      }
+    const permission = await this.permission.checkPermissionById(addPermissionToRoleDto.permissionId);
+    if (!permission) {
+      throw new NotFoundException('Permission not found');
+    }
 
-      const checkExist = await this.checkRolePermission(addPermissionToRoleDto);
-      if (checkExist) {
-        this.logger.error('Role has already this permission');
-        throw new Error('Permission already added to role');
-      }
+    const checkExist = await this.checkRolePermission(addPermissionToRoleDto);
+    if (checkExist) {
+      this.logger.error(`Role ${addPermissionToRoleDto.roleId} already has permission ${addPermissionToRoleDto.permissionId}`);
+      throw new ConflictException('Permission already added to role');
+    }
 
-      try {
-        const rolePermission = await this.rolePermissionsModel.create({
-          roleId: addPermissionToRoleDto.roleId,
-          permissionId: addPermissionToRoleDto.permissionId,
-        });
-        if (!rolePermission) {
-          this.logger.error('Error by saving permission to role');
-        }
+    try {
+      const rolePermission = await this.rolePermissionsModel.create({
+        roleId: addPermissionToRoleDto.roleId,
+        permissionId: addPermissionToRoleDto.permissionId,
+      });
 
-        this.logger.log('Permission added to role successfully');
-        return rolePermission
-
-      } catch (error) {
-        this.logger.error('Error by saving permission to role', error);
-        throw error;
+      if (!rolePermission) {
+        this.logger.error('Failed to save permission to role');
+        throw new InternalServerErrorException('Error saving permission to role');
       }
 
+      this.logger.log(`Permission ${addPermissionToRoleDto.permissionId} added to role ${addPermissionToRoleDto.roleId} successfully`);
+      return rolePermission;
+    } catch (error) {
+      this.logger.error('Database error while saving permission to role', error);
+      throw new InternalServerErrorException('Database error: could not add permission to role');
+    }
   }
-
 
   async checkRolePermission(addPermissionToRoleDto: AddPermissionToRoleDto): Promise<boolean> {
     const rolePermission = await this.rolePermissionsModel.findOne({
