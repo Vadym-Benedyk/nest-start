@@ -22,6 +22,11 @@ export class AddUserInfoDto {
   @IsOptional()
   age?: number;
 
+  @ApiPropertyOptional({ example: 'phone number', description: 'phone number' })
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
   @ApiPropertyOptional({
     example: 'married | divorced | single | widowed | separated | other...',
     description: 'civic status',

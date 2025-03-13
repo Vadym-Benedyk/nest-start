@@ -26,9 +26,7 @@ export class ResetPasswordService {
     private readonly emailService: MailService,
   ) {}
 
-  async generateResetToken(
-    changePasswordDto: ChangePasswordDto,
-  ): Promise<EmailResponseInterface> {
+  async generateResetToken( changePasswordDto: ChangePasswordDto ): Promise<EmailResponseInterface> {
     const { email } = changePasswordDto;
 
     const user = await this.userService.getUserByEmail(email);
@@ -73,9 +71,7 @@ export class ResetPasswordService {
     }
   }
 
-  private async saveOrUpdateResetToken(
-    resetToken: ResetTokenModel,
-  ): Promise<ResetUserTokenDto> {
+  private async saveOrUpdateResetToken( resetToken: ResetTokenModel ): Promise<ResetUserTokenDto> {
     resetToken.token = await generateToken();
     resetToken.updatedAt = new Date();
     resetToken.expiresAt = new Date(
@@ -87,10 +83,7 @@ export class ResetPasswordService {
     return await resetToken.save();
   }
 
-  private async sendPasswordResetEmail(
-    to: string,
-    token: string,
-  ): Promise<EmailResponseInterface> {
+  private async sendPasswordResetEmail( to: string, token: string ): Promise<EmailResponseInterface> {
     const resetUrl = `${this.configService.get<string>('HOST')}?token=${token}`;
 
     const templatePath = path.join(
@@ -111,9 +104,7 @@ export class ResetPasswordService {
     );
   }
 
-  async confirmNewPassword(
-    confirmNewPasswordDto: ConfirmNewPasswordDto,
-  ): Promise<UpdateUserInterface> {
+  async confirmNewPassword( confirmNewPasswordDto: ConfirmNewPasswordDto ): Promise<UpdateUserInterface> {
     const { password, resetToken } = confirmNewPasswordDto;
     const hashedPassword = await hashPassword(password);
     this.logger.log('hashed received password');

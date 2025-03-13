@@ -36,9 +36,11 @@ export class PersonalInfoService {
         this.logger.error('Error by adding user info. User info already exists');
         throw new ForbiddenException('User info already exists');
       }
+    console.log('add uus', addUserInfoDto);
       return await this.personalInfoModel.create({
         userId: addUserInfoDto.userId,
         age: addUserInfoDto.age,
+        phone: addUserInfoDto.phone,
         status: addUserInfoDto.status,
         photo: addUserInfoDto.photo,
       });
