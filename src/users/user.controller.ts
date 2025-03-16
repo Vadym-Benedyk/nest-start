@@ -6,17 +6,20 @@ import {
   Delete,
   Patch,
   HttpStatus,
-  Query
+  Query, UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserInterface, UserInterfaces } from './interfaces/user.interfaces';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 
 @Controller('users')
@@ -70,8 +73,8 @@ export class UserController {
     summary: 'Delete users by id',
     description: 'Delete users by id',
   })
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, OwnerGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {
     return await this.userService.deleteUser(id);

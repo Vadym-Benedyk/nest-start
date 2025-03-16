@@ -1,14 +1,13 @@
 import {
-  ForbiddenException,
-  Injectable, InternalServerErrorException, Logger,
-  NotFoundException,
-} from '@nestjs/common';
+  ForbiddenException,Injectable, InternalServerErrorException, Logger, NotFoundException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.model';
 import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { UserService } from '@/src/users/user.service';
+
+
 
 @Injectable()
 export class PersonalInfoService {
@@ -95,5 +94,15 @@ export class PersonalInfoService {
       updates: affectedRows,
       userInfo: newInfo,
     };
+  }
+
+  async getUserPhone(userInfoDto: UserInfoDto): Promise<any> {
+    const isUserInfo = await this.personalInfoModel.findByPk(userInfoDto.id);
+
+    if (!isUserInfo) {
+      throw new NotFoundException('No user info in database');
+    }
+
+    return isUserInfo.phone;
   }
 }
