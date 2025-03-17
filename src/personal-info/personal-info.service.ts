@@ -32,14 +32,14 @@ export class PersonalInfoService {
       const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
 
       if (isInfo) {
-        this.logger.error('Error by adding user info. User info already exists');
+        this.logger.error('Error by adding user info. Info for this user already exists');
         throw new ForbiddenException('User info already exists');
       }
-    console.log('add uus', addUserInfoDto);
+
+
       return await this.personalInfoModel.create({
         userId: addUserInfoDto.userId,
         age: addUserInfoDto.age,
-        phone: addUserInfoDto.phone,
         status: addUserInfoDto.status,
         photo: addUserInfoDto.photo,
       });
@@ -94,15 +94,5 @@ export class PersonalInfoService {
       updates: affectedRows,
       userInfo: newInfo,
     };
-  }
-
-  async getUserPhone(userInfoDto: UserInfoDto): Promise<any> {
-    const isUserInfo = await this.personalInfoModel.findByPk(userInfoDto.id);
-
-    if (!isUserInfo) {
-      throw new NotFoundException('No user info in database');
-    }
-
-    return isUserInfo.phone;
   }
 }

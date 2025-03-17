@@ -22,10 +22,6 @@ export class AddUserInfoDto {
   @IsOptional()
   age?: number;
 
-  @ApiPropertyOptional({ example: 'phone number', description: 'phone number' })
-  @IsString()
-  @IsOptional()
-  phone?: string;
 
   @ApiPropertyOptional({
     example: 'married | divorced | single | widowed | separated | other...',
@@ -34,6 +30,7 @@ export class AddUserInfoDto {
   @IsEnum(StatusEnum, { message: 'status must be one of the provided values' })
   @IsOptional()
   status?: StatusEnum;
+
 
   @ApiPropertyOptional({ example: 'URL', description: 'photo url' })
   @IsString()

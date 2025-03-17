@@ -35,12 +35,6 @@ export class PersonalInfoModel extends Model<PersonalInfoModel> {
   age: number;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  phone: string;
-
-  @Column({
     type: DataType.ENUM(...Object.values(StatusEnum)),
     allowNull: true,
   })

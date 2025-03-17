@@ -2,7 +2,6 @@ export interface PersonalInfoInterface {
   id: string;
   userId: string;
   age: number;
-  phone: string;
   status: string;
   photo: string;
 }
