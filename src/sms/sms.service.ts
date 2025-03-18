@@ -25,7 +25,6 @@ export class SmsService {
     return { message };
   }
 
-
   async smsHistory(userId: string): Promise<any> {
     const user = await this.personalInfoService.getUserInfo(userId);
     if (!user) {
@@ -40,5 +39,16 @@ export class SmsService {
     }
 
     messages.forEach((m) => console.log(m.body));
+  }
+
+  async createVerification() {
+    const verification = await this.client.verify.v2
+      .services("VAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+      .verifications.create({
+        channel: "sms",
+        to: process.env.TWILIO_PHONE_NUMBER,
+      });
+
+    console.log(verification.status);
   }
 }

@@ -27,13 +27,21 @@ export class SmsController {
     summary: 'User message history',
     description: 'User message history'
   })
-  @ApiResponse({
-    status: 200,
-
-  })
+  @ApiResponse({ status: 200 })
   @Get('history/:userId')
   async smsHistory(@Param('userId') userId: string): Promise<any> {
     return await this.smsService.smsHistory(userId);
+  }
+
+
+  @ApiOperation({
+    summary: 'Get verify OTP',
+    description: 'Get verify sms for OTP'
+  })
+  @ApiResponse({})
+  @Get('otp')
+  async createVerification() {
+    return await this.smsService.createVerification()
   }
 
 }

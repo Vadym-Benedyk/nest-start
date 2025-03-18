@@ -3,6 +3,8 @@ import { PhoneModel } from '@/src/phone/models/phone.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
+import { PhoneInterfaces, ResponseStatusInterface } from '@/src/phone/interfaces/phone.interfaces';
+import { UpdatePhoneDto } from '@/src/phone/dto/update-phone.dto';
 
 
 @Injectable()
@@ -21,6 +23,10 @@ export class PhoneService {
   }
 
   async getPhone(userId: string): Promise<any> {
+    const user = await this.userService.checkUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     try {
       return await this.phoneModel.findOne({ where: { userId } });
     } catch (error) {
@@ -49,25 +55,27 @@ export class PhoneService {
     }
   }
 
-  async updatePhone(phoneDto: PhoneDto): Promise<any> {
-    const phoneRecord = await this.getPhone(phoneDto.userId);
-    if (!phoneRecord) {
+  async updatePhone(updatePhoneDto: UpdatePhoneDto): Promise<PhoneInterfaces> {
+    const [updated] = await this.phoneModel.update(
+      { phone: updatePhoneDto.newPhone },
+      { where: { userId: updatePhoneDto.userId, phone: updatePhoneDto.phone } }
+    );
+
+    if (updated === 0) {
       throw new NotFoundException('User not found');
     }
 
-    phoneRecord.phone = phoneDto.phone;
-    await phoneRecord.save();
-
-    return phoneRecord;
+    return await this.getPhone(updatePhoneDto.userId);
   }
 
-  async deletePhone(userId: string): Promise<any> {
-    try {
-      return await this.phoneModel.destroy({ where: { userId } });
-    } catch (error) {
-      throw new Error('Failed to delete user phone from DB. Error: ' + error);
-    }
+  async deletePhone(userId: string, phone: string): Promise<ResponseStatusInterface> {
+      const deleted = await this.phoneModel.destroy({ where: { userId, phone } });
+      if(!deleted) {
+        throw new NotFoundException('User not found');
+      }
+    return {
+      message: 'Phone deleted successfully.',
+    };
   }
-
 
 }

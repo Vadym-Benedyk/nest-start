@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhoneService } from '@/src/phone/phone.service';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
+import { PhoneInterfaces, ResponseStatusInterface } from '@/src/phone/interfaces/phone.interfaces';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
 
 
 @ApiTags('Phone')
@@ -10,7 +12,7 @@ export class PhoneController {
   constructor(private readonly phoneService: PhoneService) {}
 
   @ApiOperation({
-    summary: 'Get user phone',
+    summary: 'Get phone user',
     description: 'Get user phone by userId',
   })
   @ApiResponse({ status: 200, type: PhoneDto })
@@ -35,20 +37,24 @@ export class PhoneController {
     summary: 'Update user phone',
     description: 'Update user phone by userId',
   })
-  @ApiResponse({ status: 200, type: PhoneDto })
+  @ApiResponse({ status: 200, type: UpdatePhoneDto })
   @Patch('update')
-  async updateUserPhone( @Body() phoneDto: PhoneDto): Promise<any> {
-    return this.phoneService.updatePhone(phoneDto);
+  async updateUserPhone( @Body() updatePhoneDto: UpdatePhoneDto): Promise<PhoneInterfaces> {
+    return this.phoneService.updatePhone(updatePhoneDto);
   }
+
 
   @ApiOperation({
     summary: 'Delete user phone',
-    description: 'Delete user phone by userId',
+    description: 'Delete user phone by userId and phone',
   })
-  @ApiResponse({ status: 200, type: PhoneDto })
-  @Delete(':userId')
-  async deleteUserPhone( @Param('userId') userId: string ): Promise<any> {
-    return this.phoneService.deletePhone(userId);
+  @ApiResponse({ status: 200, description: 'delete message status' })
+  @Delete(':userId/:phone')
+  async deleteUserPhone(
+    @Param('userId') userId: string,
+    @Param('phone') phone: string
+  ): Promise<ResponseStatusInterface> {
+    return this.phoneService.deletePhone(userId, phone);
   }
 
 }
