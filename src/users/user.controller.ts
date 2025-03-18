@@ -24,8 +24,7 @@ import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {
-  }
+  constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
   @ApiResponse({ type: [UserDto] })

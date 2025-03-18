@@ -12,8 +12,8 @@ import { PermissionModule } from '@/src/permission/permission.module';
 
 @Module({
   imports: [SequelizeModule.forFeature([PersonalInfoModel]), UserModule, UserRoleModule, PermissionModule],
-  providers: [PersonalInfoService],
   controllers: [PersonalInfoController],
+  providers: [PersonalInfoService],
   exports: [PersonalInfoService],
 })
 export class PersonalInfoModule {}

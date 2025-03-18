@@ -32,7 +32,7 @@ export class SmsService {
       throw new NotFoundException('No user info in database');
     }
     const messages = await this.client.messages.list({
-      to: user.phone
+      // to: user.phone
     });
 
     if (messages.length === 0) {
