@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SmsService } from '@/src/sms/sms.service';
-import { SmsDto } from '@/src/sms/dto/smsDto';
+import { SmsDto} from '@/src/sms/dto/smsDto';
+import { VerifyPhoneDto } from '@/src/sms/dto/verifyPhone.dto';
+import { VerifyAskInterface, VerifyOtpInterface } from '@/src/sms/interfaces/verify.interface';
+import { PhoneDto } from '@/src/sms/dto/phone.dto';
 
 
 @Controller('sms')
@@ -35,13 +38,23 @@ export class SmsController {
 
 
   @ApiOperation({
-    summary: 'Get verify OTP',
-    description: 'Get verify sms for OTP'
+    summary: 'Ask OTP',
+    description: 'Get verify by phone number'
   })
-  @ApiResponse({})
-  @Get('otp')
-  async createVerification() {
-    return await this.smsService.createVerification()
+  @ApiResponse({ status: 200 })
+  @Post('otp')
+  async createVerification(@Body() phoneDto: PhoneDto): Promise<VerifyAskInterface> {
+    return await this.smsService.createVerification(phoneDto)
+  }
+
+
+  @ApiOperation({
+    summary: 'Verify OTP',
+    description: 'Return phone number and verification sms code'
+  })
+  @Post('verify')
+  async verifyOtp(@Body() verifyPhoneDto: VerifyPhoneDto): Promise<VerifyOtpInterface> {
+    return await this.smsService.createVerificationCheck( verifyPhoneDto );
   }
 
 }

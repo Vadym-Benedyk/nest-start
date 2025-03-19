@@ -4,6 +4,7 @@ import { PhoneService } from '@/src/phone/phone.service';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
 import { PhoneInterfaces, ResponseStatusInterface } from '@/src/phone/interfaces/phone.interfaces';
 import { UpdatePhoneDto } from './dto/update-phone.dto';
+import { VerifyUserPhoneDto } from '@/src/phone/dto/verify-user-phone.dto';
 
 
 @ApiTags('Phone')
@@ -55,6 +56,17 @@ export class PhoneController {
     @Param('phone') phone: string
   ): Promise<ResponseStatusInterface> {
     return this.phoneService.deletePhone(userId, phone);
+  }
+
+
+  @ApiOperation({
+    summary: 'Get verify phone',
+    description: 'Get verify phone by userId and OTP',
+  })
+  @ApiResponse({ status: 200, type: VerifyUserPhoneDto })
+  @Post('verify')
+  async verifyPhone( @Body() phoneDto: PhoneDto ): Promise<ResponseStatusInterface> {
+    return this.phoneService.verifyPhone(phoneDto)
   }
 
 }

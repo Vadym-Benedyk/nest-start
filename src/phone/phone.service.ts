@@ -57,7 +57,7 @@ export class PhoneService {
 
   async updatePhone(updatePhoneDto: UpdatePhoneDto): Promise<PhoneInterfaces> {
     const [updated] = await this.phoneModel.update(
-      { phone: updatePhoneDto.newPhone },
+      { phone: updatePhoneDto.newPhone, verified: false },
       { where: { userId: updatePhoneDto.userId, phone: updatePhoneDto.phone } }
     );
 
@@ -76,6 +76,14 @@ export class PhoneService {
     return {
       message: 'Phone deleted successfully.',
     };
+  }
+
+  async verifyPhone(phoneDto: PhoneDto): Promise<any> {
+    const user = await this.phoneModel.findOne({where: {phone: phoneDto.phone, userId: phoneDto.userId}})
+    if (!user) {
+      throw new NotFoundException('User with current phone not found');
+    }
+
   }
 
 }
