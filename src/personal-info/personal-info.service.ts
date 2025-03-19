@@ -1,14 +1,13 @@
 import {
-  ForbiddenException,
-  Injectable, InternalServerErrorException, Logger,
-  NotFoundException,
-} from '@nestjs/common';
+  ForbiddenException,Injectable, InternalServerErrorException, Logger, NotFoundException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.model';
 import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { UserService } from '@/src/users/user.service';
+
+
 
 @Injectable()
 export class PersonalInfoService {
@@ -33,9 +32,11 @@ export class PersonalInfoService {
       const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
 
       if (isInfo) {
-        this.logger.error('Error by adding user info. User info already exists');
+        this.logger.error('Error by adding user info. Info for this user already exists');
         throw new ForbiddenException('User info already exists');
       }
+
+
       return await this.personalInfoModel.create({
         userId: addUserInfoDto.userId,
         age: addUserInfoDto.age,

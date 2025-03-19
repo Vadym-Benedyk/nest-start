@@ -6,14 +6,14 @@ import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.mode
 import { UserModule } from '@/src/users/user.module';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
 import { PermissionModule } from '@/src/permission/permission.module';
-import { PermissionService } from '@/src/permission/permission.service';
+
 
 
 
 @Module({
   imports: [SequelizeModule.forFeature([PersonalInfoModel]), UserModule, UserRoleModule, PermissionModule],
-  providers: [PersonalInfoService],
   controllers: [PersonalInfoController],
+  providers: [PersonalInfoService],
   exports: [PersonalInfoService],
 })
 export class PersonalInfoModule {}

@@ -48,6 +48,11 @@ import { Permission } from './permission/permission';
 import { PermissionModule } from './permission/permission.module';
 import { RolePermissionsModule } from './role-permissions/role-permissions.module';
 import { PermissionController } from '@/src/permission/permission.controller';
+import { SmsModule } from './sms/sms.module';
+import { SmsController } from '@/src/sms/sms.controller';
+import { Sms } from 'twilio/lib/twiml/VoiceResponse';
+import { PhoneController } from './phone/phone.controller';
+import { PhoneModule } from './phone/phone.module';
 
 
 @Module({
@@ -85,6 +90,8 @@ import { PermissionController } from '@/src/permission/permission.controller';
     UserRoleModule,
     PermissionModule,
     RolePermissionsModule,
+    SmsModule,
+    PhoneModule,
   ],
   controllers: [
     AppController,
@@ -97,7 +104,9 @@ import { PermissionController } from '@/src/permission/permission.controller';
     TopicController,
     RoleController,
     UserRoleController,
-    PermissionController
+    PermissionController,
+    SmsController,
+    PhoneController,
   ],
   providers: [
     AppService,
@@ -115,6 +124,7 @@ import { PermissionController } from '@/src/permission/permission.controller';
     Role,
     UserRoleService,
     Permission,
+    Sms,
   ],
 })
 export class AppModule {}

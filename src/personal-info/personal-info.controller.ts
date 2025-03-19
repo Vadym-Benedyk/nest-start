@@ -36,7 +36,6 @@ export class PersonalInfoController {
     return await this.personalInfoService.addUserInfo(addUserInfoDto);
   }
 
-
   @ApiOperation({
     summary: 'Get one user info',
     description: 'Get user info by id (age, status and photo)',
