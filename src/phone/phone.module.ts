@@ -5,9 +5,12 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { PhoneModel } from '@/src/phone/models/phone.model';
 import { UserModule } from '@/src/users/user.module';
 import { PhoneController } from '@/src/phone/phone.controller';
+import { SmsModule } from '@/src/sms/sms.module';
+import { UserRoleModule } from '@/src/user-role/user-role.module';
+import { PermissionModule } from '@/src/permission/permission.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([PhoneModel]), UserModule],
+  imports: [SequelizeModule.forFeature([PhoneModel]), UserModule, SmsModule, UserRoleModule, PermissionModule],
   controllers: [PhoneController],
   providers: [Phone, PhoneService],
   exports: [PhoneService],

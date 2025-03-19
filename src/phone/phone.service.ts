@@ -1,10 +1,13 @@
-import { Injectable, Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { PhoneModel } from '@/src/phone/models/phone.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
 import { PhoneInterfaces, ResponseStatusInterface } from '@/src/phone/interfaces/phone.interfaces';
 import { UpdatePhoneDto } from '@/src/phone/dto/update-phone.dto';
+import { SmsService } from '@/src/sms/sms.service';
+import { VerifyPhoneDto } from '@/src/sms/dto/verifyPhone.dto';
+import { VerifyOtpInterface } from '@/src/sms/interfaces/verify.interface';
 
 
 @Injectable()
@@ -15,6 +18,7 @@ export class PhoneService {
     @InjectModel(PhoneModel)
     private readonly phoneModel: typeof PhoneModel,
     private readonly userService: UserService,
+    private readonly smsService: SmsService
   ) {}
 
 
@@ -83,7 +87,28 @@ export class PhoneService {
     if (!user) {
       throw new NotFoundException('User with current phone not found');
     }
+    this.logger.log('Ask verify phone');
 
+    return await this.smsService.createVerification(phoneDto)
   }
 
+  async getVerifiedPhone(verifyPhoneDto: VerifyPhoneDto): Promise<VerifyOtpInterface> {
+
+    const verified = await this.smsService.createVerificationCheck(verifyPhoneDto);
+    if (verified.status === HttpStatus.OK) {
+      const user = await this.phoneModel.findOne({
+        where: {
+          phone: verifyPhoneDto.phone,
+          userId: verifyPhoneDto.userId
+        }
+      })
+      user.verified = true;
+      await user.save();
+      this.logger.log('Phone verified');
+      return {
+        status: HttpStatus.OK,
+        message: 'Phone verified successfully.',
+      };
+    }
+  }
 }

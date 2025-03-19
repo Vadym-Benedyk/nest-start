@@ -1,12 +1,18 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SmsService } from '@/src/sms/sms.service';
 import { SmsDto} from '@/src/sms/dto/smsDto';
 import { VerifyPhoneDto } from '@/src/sms/dto/verifyPhone.dto';
 import { VerifyAskInterface, VerifyOtpInterface } from '@/src/sms/interfaces/verify.interface';
-import { PhoneDto } from '@/src/sms/dto/phone.dto';
+import { PhoneDto } from '@/src/phone/dto/phone.dto';
+import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
 
 
+@ApiBearerAuth()
+@Permissions('otp-service')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('sms')
 export class SmsController {
   constructor(private readonly smsService: SmsService) {

@@ -1,13 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhoneService } from '@/src/phone/phone.service';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
 import { PhoneInterfaces, ResponseStatusInterface } from '@/src/phone/interfaces/phone.interfaces';
 import { UpdatePhoneDto } from './dto/update-phone.dto';
 import { VerifyUserPhoneDto } from '@/src/phone/dto/verify-user-phone.dto';
+import { VerifyPhoneDto } from '@/src/sms/dto/verifyPhone.dto';
+import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
+import { RoleGuard } from '@/src/auth/guards/RoleGuard';
+import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 
 @ApiTags('Phone')
+@ApiBearerAuth()
+@Roles('emperor', 'senator', 'legionary', 'general')
+@UseGuards(JwtAuthGuard, RoleGuard, OwnerGuard)
 @Controller('phone')
 export class PhoneController {
   constructor(private readonly phoneService: PhoneService) {}
@@ -60,13 +68,23 @@ export class PhoneController {
 
 
   @ApiOperation({
-    summary: 'Get verify phone',
+    summary: 'Ask OTP',
     description: 'Get verify phone by userId and OTP',
   })
   @ApiResponse({ status: 200, type: VerifyUserPhoneDto })
   @Post('verify')
   async verifyPhone( @Body() phoneDto: PhoneDto ): Promise<ResponseStatusInterface> {
     return this.phoneService.verifyPhone(phoneDto)
+  }
+
+  @ApiOperation({
+    summary: 'Get verify phone',
+    description: 'Get verify phone by userId and OTP',
+  })
+  @ApiResponse({ status: 200, type: VerifyUserPhoneDto })
+  @Post('verify/check')
+  async getVerifiedPhone( @Body() verifyPhoneDto: VerifyPhoneDto ): Promise<ResponseStatusInterface> {
+    return this.phoneService.getVerifiedPhone(verifyPhoneDto)
   }
 
 }
