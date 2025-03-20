@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as process from 'node:process';
 import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +10,7 @@ import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
 @Injectable()
 export class RefreshService {
   protected readonly jwtweb = jwt;
+  private readonly logger = new Logger(RefreshService.name);
 
   constructor(
     @InjectModel(RefreshToken) private refreshModel: typeof RefreshToken,
@@ -79,7 +80,7 @@ export class RefreshService {
   }
 
   //delete refresh tokens.Return number of deleted tokens
-  async deleteRefreshToken(userId: string) {
+  async deleteRefreshToken(userId: string):Promise<number> {
     try {
       return await this.refreshModel.destroy({
         where: {
@@ -87,6 +88,7 @@ export class RefreshService {
         },
       });
     } catch (error) {
+      this.logger.error('Failed to delete refresh token, token not found');
       throw new Error('Failed to delete refresh token. Error: ' + error);
     }
   }

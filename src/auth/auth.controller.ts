@@ -1,13 +1,13 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Response } from 'express';
-import { cookiesGenerator } from './utility/cookiesGenerator';
+import { cookiesGenerator, resetCookies } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
+import { CreateUserDataInterface, RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 
 
 
@@ -63,6 +63,19 @@ export class AuthController {
         error: error,
       });
     }
+  }
+
+
+  @ApiOperation({
+    summary: 'Logout',
+    description: 'Logout users',
+  })
+  @ApiResponse({ status: 200 })
+  @Post('logout/:userId')
+  public async logout(@Param('userId') userId: string, @Res() res: Response): Promise<any> {
+    resetCookies(res);
+    const result = await this.authService.logoutUser(userId);
+    return res.status(result.status).json(result);
   }
 
 

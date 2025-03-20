@@ -7,6 +7,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'node:process';
 import { UserRoleService } from '@/src/user-role/user-role.service';
+import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 
 
 
@@ -65,11 +66,12 @@ export class AuthService {
   async loginUser(
     loginUserDto: LoginUserDto,
   ): Promise<RefreshPayloadUserInterface> {
+    //Getting user from email
     const user = await this.user.getUserByEmail(loginUserDto.email);
     if (!user) {
       throw new UnauthorizedException('Login not found');
     }
-
+    //Check coincidence password
     const passwordMatch = await this.user.validatePassword(
       user.id,
       loginUserDto.password,
@@ -78,7 +80,7 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Incorrect password');
     }
-
+    //Nearby data expiration range for checking soon expiration token
     const expTokenRange: number =
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
@@ -115,6 +117,24 @@ export class AuthService {
       payload: payloadUser,
       refreshToken: tokenInDatabase.refreshToken,
     };
+  }
+
+
+  async logoutUser(userId: string): Promise<RefreshStatusInterface> {
+    const deletedTokens = await this.token.deleteRefreshToken(userId);
+    if (deletedTokens) {
+      this.logger.log('Logout successful');
+      return {
+        status: 200,
+        message: 'Logout successful',
+      };
+    } else {
+      this.logger.log('Logout get started but refresh token not found')
+      return {
+        status: 500,
+        message: 'Refresh token not found',
+      };
+    }
   }
 
   //refresh token
