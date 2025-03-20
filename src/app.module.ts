@@ -53,6 +53,8 @@ import { SmsController } from '@/src/sms/sms.controller';
 import { Sms } from 'twilio/lib/twiml/VoiceResponse';
 import { PhoneController } from './phone/phone.controller';
 import { PhoneModule } from './phone/phone.module';
+import { OAuthStrategyController } from './o-auth-strategy/o-auth-strategy.controller';
+import { OAuthStrategyModule } from './o-auth-strategy/o-auth-strategy.module';
 
 
 @Module({
@@ -92,6 +94,7 @@ import { PhoneModule } from './phone/phone.module';
     RolePermissionsModule,
     SmsModule,
     PhoneModule,
+    OAuthStrategyModule,
   ],
   controllers: [
     AppController,
@@ -107,6 +110,7 @@ import { PhoneModule } from './phone/phone.module';
     PermissionController,
     SmsController,
     PhoneController,
+    OAuthStrategyController,
   ],
   providers: [
     AppService,
