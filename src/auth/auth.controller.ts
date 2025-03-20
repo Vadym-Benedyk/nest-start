@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Param, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -7,7 +7,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Response } from 'express';
 import { cookiesGenerator, resetCookies } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { CreateUserDataInterface, RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
+import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
 
 
 
