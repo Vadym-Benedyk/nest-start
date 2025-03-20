@@ -37,4 +37,19 @@ export class AppController {
     const filePath = path.join(__dirname, '..', 'static', 'privacy', 'privacy_policy.html');
     return res.sendFile(filePath);
   }
+
+  @ApiOperation({
+    summary: 'Terms of service and delete data instructions',
+    description: 'Terms of service for getting user terms of service data'
+  })
+  @ApiResponse({ status: 200, description: 'Returns the terms of service HTML file' })
+  @Get('/terms_of_service')
+  getTermsOfService(@Res() res: Response) {
+    const filePath = this.appService.getTermsOfService();
+    if (!filePath) {
+      res.status(404).send('File not found');
+      return '<h2>Hello from Poster!</h2>'
+    }
+    return res.sendFile(filePath);
+  }
 }
