@@ -8,6 +8,8 @@ import { Response } from 'express';
 import { cookiesGenerator, resetCookies } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
+import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
+
 
 
 
@@ -85,7 +87,7 @@ export class AuthController {
   })
   @ApiResponse({ type: AuthResponseDto })
   @Post('/refresh')
-  public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response) {
+  public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response): Promise<any> {
     try {
       const { payload, refreshToken } = await this.authService.refreshValidate(
         body.refreshToken,
@@ -101,5 +103,28 @@ export class AuthController {
         error: error,
       });
     }
+  }
+
+
+  @ApiOperation({
+    summary: 'Post facebook token',
+    description: 'Post facebook token',
+  })
+  @ApiResponse({ type: RefreshTokenDto })
+  @Post('facebook/token')
+  public async postFacebookToken(@Body() fbTokenDto: FbTokenDto, @Res() res: Response): Promise<any> {
+    try {
+      const jwtToken = await this.authService.postFacebookToken(fbTokenDto);
+      return res.status(200).json({
+        status: 'success',
+        data: jwtToken,
+      });
+    } catch (error) {
+      return res.status(401).json({
+        status: 'error',
+        error: error,
+      });
+    }
+
   }
 }

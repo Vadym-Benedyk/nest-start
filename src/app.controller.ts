@@ -27,6 +27,8 @@ export class AppController {
     return res.sendFile(filePath);
   }
 
+
+
   @ApiOperation({
     summary: 'Privacy policy',
     description: 'Privacy policy for getting user privacy data'
@@ -38,6 +40,7 @@ export class AppController {
     return res.sendFile(filePath);
   }
 
+
   @ApiOperation({
     summary: 'Terms of service and delete data instructions',
     description: 'Terms of service for getting user terms of service data'
@@ -45,6 +48,23 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'Returns the terms of service HTML file' })
   @Get('/terms_of_service')
   getTermsOfService(@Res() res: Response) {
+    const filePath = this.appService.getTermsOfService();
+    if (!filePath) {
+      res.status(404).send('File not found');
+      return '<h2>Hello from Poster!</h2>'
+    }
+    return res.sendFile(filePath);
+  }
+
+
+
+  @ApiOperation({
+    summary: 'Delete data instructions',
+    description: 'Delete data instructions for getting user delete data instructions data'
+  })
+  @ApiResponse({ status: 200, description: 'Returns the delete data instructions HTML file' })
+  @Get('/delete_data_instructions')
+  getDeleteDataInstructions(@Res() res: Response) {
     const filePath = this.appService.getTermsOfService();
     if (!filePath) {
       res.status(404).send('File not found');

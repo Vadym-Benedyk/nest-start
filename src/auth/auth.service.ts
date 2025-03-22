@@ -8,6 +8,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'node:process';
 import { UserRoleService } from '@/src/user-role/user-role.service';
 import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
+import axios from 'axios';
+import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
 
 
 
@@ -19,7 +21,8 @@ export class AuthService {
     private readonly user: UserService,
     private readonly token: RefreshService,
     private readonly userRole: UserRoleService
-  ) {}
+  ) {
+  }
 
   async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
     try {
@@ -84,10 +87,10 @@ export class AuthService {
     const expTokenRange: number =
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
-        24 *
-        60 *
-        60 *
-        1000;
+      24 *
+      60 *
+      60 *
+      1000;
 
     const payloadUser = await this.accessResponse(user);
 
@@ -188,4 +191,42 @@ export class AuthService {
       };
     }
   }
+
+
+  async postFacebookToken( fbTokenDto: FbTokenDto): Promise<any> {
+    try {
+      // Перевіряємо токен Facebook
+      const fbResponse = await axios.get('https://graph.facebook.com/me', {
+        params: {
+          access_token: fbTokenDto.token,
+          fields: 'id,name,email'
+        }
+      })
+
+      if (fbResponse.data) {
+        console.log("Fb user info", fbResponse.data);
+        return fbTokenDto.token
+      }
+
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Facebook token')
+    }
+
+
+  }
+
+
+  //   const user = fbResponse.data; // { id, name, email }
+  //   console.log("U S E R", user);
+  // return res.status(200).json(token);
+  // Додаємо або авторизуємо користувача
+  // const jwtTokens = await this.authService.authenticateFacebookUser(user);
+
+  // Відправляємо JWT-токени у відповідь
+  // return res.json(jwtTokens);
+  // } catch (error) {
+  //   return res.status(401).json({ message: 'Invalid Facebook token' });
+  // }
+
+
 }

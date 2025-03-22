@@ -9,6 +9,7 @@
           margin: 0;
           padding: 0;
           display: flex;
+          flex-direction: column;
           justify-content: center;
           align-items: center;
           height: 100vh;
@@ -17,12 +18,22 @@
           text-align: center;
           color: white;
       }
+
       .container {
           padding: 20px;
           background: rgba(0, 0, 0, 0.3);
           border-radius: 15px;
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          margin-bottom: 10px;
       }
+
+      /*tr {*/
+      /*    display: flex;*/
+      /*    justify-content: space-between;*/
+      /*    flex-direction: column;*/
+      /*    align-items: center;*/
+      /*}*/
+
       h1 {
           font-size: 60px;
           margin: 0;
@@ -33,12 +44,68 @@
           font-size: 20px;
           margin-top: 10px;
       }
+
+      .fb-login-button {
+          margin-top: 40px;
+      }
+
+      .fb-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 362px; /* Adjust based on your layout */
+          height: 40px;
+          background-color: #1877f2; /* Facebook Blue */
+          color: white;
+          font-size: 18px;
+          font-weight: bold;
+          text-align: center;
+          border-radius: 9px;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .fb-button:hover {
+          background-color: #166fe5; /* Slightly darker blue */
+          transform: scale(1.02);
+      }
+
+      .fb-button:active {
+          background-color: #0e5db8;
+          transform: scale(0.98);
+      }
+
+      .i_like {
+   margin-top: 200px;
+      }
+
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Poster</h1>
-  <p>Welcome to the Poster landing page</p>
-</div>
+  <div class="container">
+    <h1>Poster</h1>
+    <p>Welcome to the Poster landing page</p>
+  </div>
+  <div class="fb-login-button fb-button"
+       data-width="362"
+       data-height="50"
+       data-size="large"
+       data-layout=""
+       data-button-type="continue_with"
+       data-use-continue-as="true"
+       id="fb-login-btn"
+  >
+  </div>
+  <div id="fb-root"></div>
+  <div
+    class="fb-like i_like"
+    data-share="true"
+    data-width="450"
+    data-show-faces="true">
+  </div>
 </body>
 </html>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v22.0&appId=1833672894076404"></script>
