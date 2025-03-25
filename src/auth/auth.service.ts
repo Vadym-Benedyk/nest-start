@@ -1,6 +1,5 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
-import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 import { PayloadUserInterface, RefreshPayloadUserInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -9,7 +8,7 @@ import * as process from 'node:process';
 import { UserRoleService } from '@/src/user-role/user-role.service';
 import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 import axios from 'axios';
-import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
+import { ConfigService } from '@nestjs/config';
 
 
 
@@ -20,13 +19,13 @@ export class AuthService {
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
-    private readonly userRole: UserRoleService
-  ) {
-  }
+    private readonly userRole: UserRoleService,
+    private readonly configService: ConfigService
+  ) {}
 
-  async accessResponse(user: UserInterfaces): Promise<PayloadUserInterface> {
+  async accessResponse(user: CreateUserDto): Promise<PayloadUserInterface> {
     try {
-      const access = await this.token.generateAccessToken(user);
+      const access: string = await this.token.generateAccessToken(user);
 
       return {
         user: user,
@@ -52,6 +51,7 @@ export class AuthService {
     if (!user) {
       throw new Error('Failed to register users');
     }
+    //return user obj and payload(access_token)
     const payloadUser = await this.accessResponse(user);
     const refresh = await this.token.generateRefreshToken(user);
     // Add default role to user when register
@@ -69,7 +69,7 @@ export class AuthService {
   async loginUser(
     loginUserDto: LoginUserDto,
   ): Promise<RefreshPayloadUserInterface> {
-    //Getting user from email
+    //Get user from email
     const user = await this.user.getUserByEmail(loginUserDto.email);
     if (!user) {
       throw new UnauthorizedException('Login not found');
@@ -83,42 +83,13 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Incorrect password');
     }
-    //Nearby data expiration range for checking soon expiration token
-    const expTokenRange: number =
-      Date.now() +
-      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
-      24 *
-      60 *
-      60 *
-      1000;
 
     const payloadUser = await this.accessResponse(user);
+    const refreshToken = await this.token.checkGenerateRefreshToken(user);
 
-    const tokenInDatabase = await this.token.getRefreshByUserId(user.id);
-
-    if (!tokenInDatabase) {
-      // Gen a new refresh if not found
-      const refresh = await this.token.generateRefreshToken(user);
-      return {
-        payload: payloadUser,
-        refreshToken: refresh,
-      };
-    }
-
-    const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
-
-    if (expirationDbRefresh < expTokenRange) {
-      // Gen new refresh if almost expired
-      const refresh = await this.token.generateRefreshToken(user);
-      return {
-        payload: payloadUser,
-        refreshToken: refresh,
-      };
-    }
-    // Back refresh if valid
     return {
       payload: payloadUser,
-      refreshToken: tokenInDatabase.refreshToken,
+      refreshToken: refreshToken,
     };
   }
 
@@ -143,7 +114,7 @@ export class AuthService {
   //refresh token
   async refreshValidate(
     refreshToken: string,
-  ): Promise<RefreshPayloadUserInterface> {
+  ): Promise<RefreshPayloadUserInterface>  {
     const decodedToken = this.token.decodeRefreshToken(refreshToken);
 
     if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
@@ -151,7 +122,7 @@ export class AuthService {
     }
     const user = await this.user.getUserById(decodedToken.userId);
     if (!user) {
-      throw new UnauthorizedException('User in refresh token not found');
+      throw new UnauthorizedException('User from refresh token not found');
     }
     //check token in db
     const databaseToken = await this.token.getDBToken(refreshToken);
@@ -192,41 +163,78 @@ export class AuthService {
     }
   }
 
+  // going to facebook for authentication
+  getFacebookAuthUrl(): string {
+    const appId = this.configService.get<string>('FACEBOOK_CLIENT_ID');
+    const redirectUri = this.configService.get<string>('FACEBOOK_CALLBACK_URL');
 
-  async postFacebookToken( fbTokenDto: FbTokenDto): Promise<any> {
-    try {
-      // Перевіряємо токен Facebook
-      const fbResponse = await axios.get('https://graph.facebook.com/me', {
-        params: {
-          access_token: fbTokenDto.token,
-          fields: 'id,name,email'
-        }
-      })
-
-      if (fbResponse.data) {
-        console.log("Fb user info", fbResponse.data);
-        return fbTokenDto.token
-      }
-
-    } catch (error) {
-      throw new UnauthorizedException('Invalid Facebook token')
-    }
-
-
+    return `https://www.facebook.com/v12.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=email`;
   }
 
 
-  //   const user = fbResponse.data; // { id, name, email }
-  //   console.log("U S E R", user);
-  // return res.status(200).json(token);
-  // Додаємо або авторизуємо користувача
-  // const jwtTokens = await this.authService.authenticateFacebookUser(user);
+  // Отримую access_token за code фейсбука
+  async handleFacebookCallback(code: string): Promise<any> {
+    const appId = this.configService.get<string>('FACEBOOK_CLIENT_ID');
+    const appSecret = this.configService.get<string>('FACEBOOK_CLIENT_SECRET');
+    const redirectUri = this.configService.get<string>('FACEBOOK_CALLBACK_URL');
+    // Запит на отримання access_token
+    const tokenResponse = await axios.get(`https://graph.facebook.com/v12.0/oauth/access_token`, {
+      params: {
+        client_id: appId,
+        client_secret: appSecret,
+        redirect_uri: redirectUri,
+        code,
+      },
+    });
 
-  // Відправляємо JWT-токени у відповідь
-  // return res.json(jwtTokens);
-  // } catch (error) {
-  //   return res.status(401).json({ message: 'Invalid Facebook token' });
-  // }
+    const accessToken = tokenResponse.data.access_token;
+    // Отримую дані користувача
+    const userResponse = await axios.get('https://graph.facebook.com/me', {
+      params: {
+        access_token: accessToken,
+        fields: 'first_name,last_name,email,picture'
+      },
+    });
+
+    const user = userResponse.data;
+    if (!user.email) {
+      this.logger.error('Facebook account does not have an email address');
+      throw new Error('Facebook account does not have an email address');
+    }
+
+    const userExist = await this.user.getUserByEmail(user.email);
+    if (!userExist) {
+      const newUser = await this.user.createUser({
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+        password: process.env.USER_DEFOULT_PASSWORD,
+      });
+      if (!newUser) {
+        this.logger.error('User registration failed');
+        throw new Error('User registration failed');
+      }
+
+      const getUser = await this.user.getUserByEmail(user.email);
+      console.log("GET-USER", getUser);
+      await this.userRole.addDefaultRoleToUser(getUser.id);
+      const payloadUser = await this.accessResponse(getUser);
+      const refresh = await this.token.generateRefreshToken(getUser);
+
+      return {
+          payload: payloadUser,
+          refreshToken: refresh,
+        };
+    }
+
+    const payloadUser = await this.token.generateAccessToken(user);
+    const refresh = await this.token.checkGenerateRefreshToken(userExist);
+
+    return {
+      payload: payloadUser,
+      refreshToken: refresh,
+    };
+  }
 
 
 }

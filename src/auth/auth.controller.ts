@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -9,6 +9,7 @@ import { cookiesGenerator, resetCookies } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
 import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
+import * as process from 'node:process';
 
 
 
@@ -105,26 +106,34 @@ export class AuthController {
     }
   }
 
+//-------------------------------------- F B -----------------------------------------
+  @ApiOperation({
+    summary: 'Get facebook token',
+    description: 'Generate authorization URL for facebook',
+  })
+  @ApiResponse({ type: FbTokenDto })
+  @Get('facebook')
+  async redirectToFacebook(@Res() res: Response): Promise<void> {
+    const url = this.authService.getFacebookAuthUrl();
+    //facebook login url redirect
+    return res.redirect(url);
+  }
+
 
   @ApiOperation({
-    summary: 'Post facebook token',
-    description: 'Post facebook token',
+    summary: 'Facebook redirect',
+    description: 'Elaborate facebook redirect',
   })
-  @ApiResponse({ type: RefreshTokenDto })
-  @Post('facebook/token')
-  public async postFacebookToken(@Body() fbTokenDto: FbTokenDto, @Res() res: Response): Promise<any> {
+  @ApiResponse({ })
+  @Get('facebook/callback')
+  async facebookCallback(@Query('code') code: string, @Res() res: Response): Promise<any> {
     try {
-      const jwtToken = await this.authService.postFacebookToken(fbTokenDto);
-      return res.status(200).json({
-        status: 'success',
-        data: jwtToken,
-      });
-    } catch (error) {
-      return res.status(401).json({
-        status: 'error',
-        error: error,
-      });
-    }
+      const { payload, refreshToken } = await this.authService.handleFacebookCallback(code);
+      cookiesGenerator(res, refreshToken);
 
+      return res.redirect(process.env.NGROK_DOMAIN+`?access_token=${payload}`)
+    } catch (error) {
+      return res.status(400).json({ status: 'error', message: error });
+    }
   }
 }

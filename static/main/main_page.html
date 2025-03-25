@@ -27,13 +27,6 @@
           margin-bottom: 10px;
       }
 
-      /*tr {*/
-      /*    display: flex;*/
-      /*    justify-content: space-between;*/
-      /*    flex-direction: column;*/
-      /*    align-items: center;*/
-      /*}*/
-
       h1 {
           font-size: 60px;
           margin: 0;
@@ -78,7 +71,7 @@
       }
 
       .i_like {
-   margin-top: 200px;
+        margin-top: 200px;
       }
 
   </style>
@@ -95,8 +88,11 @@
        data-layout=""
        data-button-type="continue_with"
        data-use-continue-as="true"
-       id="fb-login-btn"
-  >
+       data-scope="email"
+       data-onlogin="checkLoginState();"
+       data-display="popup"
+       id="fb-login-btn">
+    login with fb
   </div>
   <div id="fb-root"></div>
   <div
@@ -109,3 +105,44 @@
 </html>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js"></script>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v22.0&appId=1833672894076404"></script>
+<script>
+  document.getElementById("fb-login-btn").addEventListener("click", function () {
+    const popup = window.open(
+      "https://calm-platypus-prompt.ngrok-free.app/auth/facebook",
+      "fbLogin",
+      "width=500,height=600"
+    );
+
+    const checkPopup = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopup);
+        console.log("Popup closed. Checking authentication token...");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get("access_token");
+
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          console.log("Login successful! Token saved.");
+
+          const userId = getUserIdFromToken(accessToken);
+          console.log("User ID:", userId);
+
+          window.location.href = "/api";
+        } else {
+          console.error("Login failed: No access token found.");
+        }
+      }
+    }, 2500);
+  });
+
+  function getUserIdFromToken(token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Декодуємо payload
+      return payload.userId || payload.sub || null; // Повертаємо userId
+    } catch (error) {
+      console.error("Invalid token:", error);
+      return null;
+    }
+  }
+</script>
