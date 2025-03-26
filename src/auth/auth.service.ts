@@ -1,10 +1,10 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
 import { PayloadUserInterface, RefreshPayloadUserInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import * as process from 'node:process';
+import * as process from 'process';
 import { UserRoleService } from '@/src/user-role/user-role.service';
 import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 import axios from 'axios';
@@ -105,7 +105,7 @@ export class AuthService {
     } else {
       this.logger.log('Logout get started but refresh token not found')
       return {
-        status: 500,
+        status: 404,
         message: 'Refresh token not found',
       };
     }
@@ -178,25 +178,40 @@ export class AuthService {
     const appSecret = this.configService.get<string>('FACEBOOK_CLIENT_SECRET');
     const redirectUri = this.configService.get<string>('FACEBOOK_CALLBACK_URL');
     // Запит на отримання access_token
-    const tokenResponse = await axios.get(`https://graph.facebook.com/v12.0/oauth/access_token`, {
-      params: {
-        client_id: appId,
-        client_secret: appSecret,
-        redirect_uri: redirectUri,
-        code,
-      },
-    });
+    let accessToken: string;
 
-    const accessToken = tokenResponse.data.access_token;
+    try {
+      const tokenResponse = await axios.get(`https://graph.facebook.com/v12.0/oauth/access_token`, {
+        params: {
+          client_id: appId,
+          client_secret: appSecret,
+          redirect_uri: redirectUri,
+          code,
+        },
+      });
+
+      accessToken = tokenResponse.data.access_token;
+    } catch (error) {
+      this.logger.error('Failed to get access token from Facebook:', error);
+      throw new NotFoundException('Failed to get access token from Facebook');
+    }
+
     // Отримую дані користувача
-    const userResponse = await axios.get('https://graph.facebook.com/me', {
-      params: {
-        access_token: accessToken,
-        fields: 'first_name,last_name,email,picture'
-      },
-    });
+    let user: any;
+    try {
+      const userResponse = await axios.get('https://graph.facebook.com/me', {
+        params: {
+          access_token: accessToken,
+          fields: 'first_name,last_name,email,picture'
+        },
+      });
 
-    const user = userResponse.data;
+      user = userResponse.data;
+    } catch (error) {
+      this.logger.error('Failed to get user data from Facebook:', error);
+      throw new NotFoundException('Failed to get user data from Facebook');
+    }
+
     if (!user.email) {
       this.logger.error('Facebook account does not have an email address');
       throw new Error('Facebook account does not have an email address');
@@ -208,7 +223,7 @@ export class AuthService {
         firstName: user.first_name,
         lastName: user.last_name,
         email: user.email,
-        password: process.env.USER_DEFOULT_PASSWORD,
+        password: process.env.USER_DEFAULT_PASSWORD,
       });
       if (!newUser) {
         this.logger.error('User registration failed');

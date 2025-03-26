@@ -7,7 +7,6 @@ import * as process from 'node:process';
 @Injectable()
 export class GoogleService {
   constructor(
-    // private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly token: RefreshService,
     private readonly userRole: UserRoleService,
@@ -36,16 +35,14 @@ export class GoogleService {
       };
     }
 
-    console.log("USER FROM GOOGLE",user);
     //Add default password
     const userWithPassword = {
       ...user,
-      password: process.env.USER_DEFOULT_PASSWORD,
+      password: process.env.USER_DEFAULT_PASSWORD,
     }
 
     try {
       const newUser = await this.userService.createUser(userWithPassword);
-      console.log("NEW USER",newUser);
       await this.userRole.addDefaultRoleToUser(newUser.id);
       const payloadUser = await this.token.generateAccessToken(newUser);
       const refreshToken = await this.token.generateRefreshToken(newUser);

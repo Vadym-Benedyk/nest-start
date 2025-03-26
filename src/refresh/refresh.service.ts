@@ -19,7 +19,7 @@ export class RefreshService {
 
   async generateAccessToken(user: CreateUserDto): Promise<string> {
     const payload = {
-      userId: user.id
+      userId: user.id,
     };
     try {
       return await this.jwtService.signAsync(payload);
@@ -27,7 +27,6 @@ export class RefreshService {
       throw new Error('Failed to generate access token. Error: ' + error);
     }
   }
-
 
   async generateRefreshToken(user: CreateUserDto): Promise<string> {
     const expirationTime =
@@ -55,10 +54,10 @@ export class RefreshService {
     const expTokenRange =
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
-      24 *
-      60 *
-      60 *
-      1000;
+        24 *
+        60 *
+        60 *
+        1000;
 
     const tokenInDatabase = await this.getRefreshByUserId(user.id);
     if (!tokenInDatabase) {
@@ -67,7 +66,7 @@ export class RefreshService {
 
     const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
 
-    if ( expirationDbRefresh < expTokenRange ) {
+    if (expirationDbRefresh < expTokenRange) {
       return await this.generateRefreshToken(user);
     } else {
       return tokenInDatabase.refreshToken;
@@ -104,7 +103,7 @@ export class RefreshService {
   }
 
   //delete refresh tokens.Return number of deleted tokens
-  async deleteRefreshToken(userId: string):Promise<number> {
+  async deleteRefreshToken(userId: string): Promise<number> {
     try {
       return await this.refreshModel.destroy({
         where: {

@@ -79,7 +79,7 @@ export class UserController {
   @Delete(':id')
 
 
-  async deleteUser(@Param('id') id: string, @Res() res: Response): Promise<any> {
+  async deleteUser(@Param('id') id: string, @Res() res: Response): Promise<Response> {
     await this.userService.deleteUser(id);
     return res.status(HttpStatus.OK).json({ message: 'User deleted successfully' });
   }

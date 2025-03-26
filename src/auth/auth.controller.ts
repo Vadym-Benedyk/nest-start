@@ -10,6 +10,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
 import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
 import * as process from 'node:process';
+import { PayloadUserInterface } from '@/src/refresh/interfaces/refresh.interfaces';
 
 
 
@@ -88,7 +89,7 @@ export class AuthController {
   })
   @ApiResponse({ type: AuthResponseDto })
   @Post('/refresh')
-  public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response): Promise<any> {
+  public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response): Promise<Response<PayloadUserInterface>> {
     try {
       const { payload, refreshToken } = await this.authService.refreshValidate(
         body.refreshToken,
@@ -96,12 +97,12 @@ export class AuthController {
       cookiesGenerator(res, refreshToken);
       return res.status(200).json({
         status: 'success',
-        data: payload,
+        payload: payload,
       });
     } catch (error) {
       return res.status(401).json({
         status: 'error',
-        error: error,
+        payload: error,
       });
     }
   }
