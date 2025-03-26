@@ -37,36 +37,37 @@
           margin: 0;
           text-transform: uppercase;
           letter-spacing: 4px;
+          cursor: pointer;
       }
+
       p {
           font-size: 20px;
           margin-top: 10px;
       }
 
-      .fb-login-button {
-          margin-top: 40px;
-      }
-
-      .fb-button {
+      .fb-button, #g_button {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 362px; /* Adjust based on your layout */
+          width: 362px;
           height: 40px;
-          background-color: #1877f2; /* Facebook Blue */
-          color: white;
+          border-radius: 9px;
           font-size: 18px;
           font-weight: bold;
-          text-align: center;
-          border-radius: 9px;
-          border: none;
           cursor: pointer;
           transition: background-color 0.3s ease, transform 0.2s ease;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          margin-top: 20px;
+      }
+
+      .fb-button {
+          background-color: #1877f2;
+          color: white;
+          border: none;
       }
 
       .fb-button:hover {
-          background-color: #166fe5; /* Slightly darker blue */
+          background-color: #166fe5;
           transform: scale(1.02);
       }
 
@@ -75,122 +76,69 @@
           transform: scale(0.98);
       }
 
-      .i_like {
-        margin-top: 200px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
       #g_button {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          width: 362px;
-          height: 40px;
-          border-radius: 5px;
           background-color: #f9f9f9;
           color: #423f3f;
-          font-weight: bold;
-          margin-top: 40px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: background-color 0.3s ease, transform 0.2s ease;
       }
+
       #g_button:hover {
           background-color: #ecd8e3;
           transform: scale(1.02);
-          cursor: pointer;
       }
 
       #g_button:active {
           background-color: #e3b4b2;
           transform: scale(0.98);
       }
-
-      #api_page:hover {
-          cursor: pointer;
-          color: bisque;
-      }
-
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="api_page">Poster</h1>
-    <p>Welcome to the Poster landing page</p>
-  </div>
-  <div class="fb-login-button fb-button"
-       data-width="362"
-       data-height="50"
-       data-size="large"
-       data-layout=""
-       data-button-type="continue_with"
-       data-use-continue-as="true"
-       data-scope="email"
-       data-onlogin="checkLoginState();"
-       data-display="popup"
-       id="fb-login-btn">
-    login with fb
-  </div>
+<div class="container">
+  <h1 id="api_page">Poster</h1>
+  <p>Welcome to the Poster landing page</p>
+</div>
 
-  <div id="g_button" ><span id="g_icon"></span>Login with Google<span id="avatar"></span></div>
+<div id="fb-login-btn" class="fb-button">Login with Facebook</div>
+<div id="g_button">Login with Google</div>
 
-  <div id="fb-root"></div>
-  <div
-    class="fb-like i_like"
-    data-share="true"
-    data-width="450"
-    data-show-faces="true">
-  </div>
+<div id="fb-root"></div>
 </body>
 </html>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_EN/sdk.js"></script>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_EN/sdk.js#xfbml=1&version=v22.0&appId=1833672894076404"></script>
+
+<!-- Facebook SDK -->
 <script>
-  document.getElementById('api_page').addEventListener('click', function() {
-    window.location.href = "/api";
-  });
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1833672894076404',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v22.0'
+    });
+  };
 
-  document.getElementById("fb-login-btn").addEventListener("click", function () {
-    const popup = window.open(
-      "https://calm-platypus-prompt.ngrok-free.app/auth/facebook",
-      "fbLogin",
-      "width=500,height=600"
-    );
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_EN/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
 
-    const checkPopup = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(checkPopup);
-        console.log("Popup closed. Checking authentication token...");
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken = urlParams.get("access_token");
-
-        if (accessToken) {
-          localStorage.setItem("accessToken", accessToken);
-          console.log("Login successful! Token saved.");
-
-          const userId = getUserIdFromToken(accessToken);
-          console.log("User ID:", userId);
-
-          window.location.href = "/api";
-        } else {
-          console.error("Login failed: No access token found.");
-        }
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        sessionStorage.setItem('fb_access_token', response.authResponse.accessToken);
+        console.log("Facebook Access Token:", response.authResponse.accessToken);
       }
-    }, 2500);
-  });
-
-  function getUserIdFromToken(token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1])); // Декодую payload
-      return payload.userId || payload.sub || null; // Повертаю userId
-    } catch (error) {
-      console.error("Invalid token:", error);
-      return null;
-    }
+    });
   }
 
+  document.getElementById("fb-login-btn").addEventListener("click", function () {
+    FB.login(checkLoginState, {scope: 'email'});
+  });
 </script>
+
+<!-- Google Sign-In -->
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script>
   document.getElementById('g_button').addEventListener('click', function() {
