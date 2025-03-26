@@ -93,7 +93,7 @@ export class UserService {
   }
 
 
-  async deleteUser(id: string): Promise<void> {
+  async deleteUser(id: string): Promise<any> {
     const user = await this.userModel.findByPk(id);
     if (!user) {
       throw new NotFoundException('User not found');

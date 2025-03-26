@@ -216,7 +216,6 @@ export class AuthService {
       }
 
       const getUser = await this.user.getUserByEmail(user.email);
-      console.log("GET-USER", getUser);
       await this.userRole.addDefaultRoleToUser(getUser.id);
       const payloadUser = await this.accessResponse(getUser);
       const refresh = await this.token.generateRefreshToken(getUser);

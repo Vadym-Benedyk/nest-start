@@ -25,6 +25,11 @@
           border-radius: 15px;
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
           margin-bottom: 10px;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .container:hover {
+          background: rgba(0, 0, 0, 0.5);
       }
 
       h1 {
@@ -72,13 +77,45 @@
 
       .i_like {
         margin-top: 200px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #g_button {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          width: 362px;
+          height: 40px;
+          border-radius: 5px;
+          background-color: #f9f9f9;
+          color: #423f3f;
+          font-weight: bold;
+          margin-top: 40px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      #g_button:hover {
+          background-color: #ecd8e3;
+          transform: scale(1.02);
+          cursor: pointer;
+      }
+
+      #g_button:active {
+          background-color: #e3b4b2;
+          transform: scale(0.98);
+      }
+
+      #api_page:hover {
+          cursor: pointer;
+          color: bisque;
       }
 
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Poster</h1>
+    <h1 id="api_page">Poster</h1>
     <p>Welcome to the Poster landing page</p>
   </div>
   <div class="fb-login-button fb-button"
@@ -94,6 +131,9 @@
        id="fb-login-btn">
     login with fb
   </div>
+
+  <div id="g_button" ><span id="g_icon"></span>Login with Google<span id="avatar"></span></div>
+
   <div id="fb-root"></div>
   <div
     class="fb-like i_like"
@@ -103,9 +143,13 @@
   </div>
 </body>
 </html>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js"></script>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v22.0&appId=1833672894076404"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_EN/sdk.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_EN/sdk.js#xfbml=1&version=v22.0&appId=1833672894076404"></script>
 <script>
+  document.getElementById('api_page').addEventListener('click', function() {
+    window.location.href = "/api";
+  });
+
   document.getElementById("fb-login-btn").addEventListener("click", function () {
     const popup = window.open(
       "https://calm-platypus-prompt.ngrok-free.app/auth/facebook",
@@ -138,11 +182,31 @@
 
   function getUserIdFromToken(token) {
     try {
-      const payload = JSON.parse(atob(token.split(".")[1])); // Декодуємо payload
-      return payload.userId || payload.sub || null; // Повертаємо userId
+      const payload = JSON.parse(atob(token.split(".")[1])); // Декодую payload
+      return payload.userId || payload.sub || null; // Повертаю userId
     } catch (error) {
       console.error("Invalid token:", error);
       return null;
     }
   }
+
+</script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+  document.getElementById('g_button').addEventListener('click', function() {
+    window.location.href = "https://calm-platypus-prompt.ngrok-free.app/auth/google";
+  });
+
+  function getAccessTokenFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('access_token');
+  }
+
+  window.addEventListener('load', function() {
+    const accessToken = getAccessTokenFromUrl();
+    if (accessToken) {
+      sessionStorage.setItem('access_token', accessToken);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  });
 </script>

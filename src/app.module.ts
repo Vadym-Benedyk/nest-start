@@ -53,8 +53,10 @@ import { SmsController } from '@/src/sms/sms.controller';
 import { Sms } from 'twilio/lib/twiml/VoiceResponse';
 import { PhoneController } from './phone/phone.controller';
 import { PhoneModule } from './phone/phone.module';
-import { OAuthStrategyController } from './o-auth-strategy/o-auth-strategy.controller';
-import { OAuthStrategyModule } from './o-auth-strategy/o-auth-strategy.module';
+import { GoogleModule } from '@/src/strategies/google/google.module';
+import { GoogleController } from '@/src/strategies/google/google.controller';
+import { Google } from '@/src/strategies/google/google';
+
 
 
 @Module({
@@ -94,7 +96,7 @@ import { OAuthStrategyModule } from './o-auth-strategy/o-auth-strategy.module';
     RolePermissionsModule,
     SmsModule,
     PhoneModule,
-    OAuthStrategyModule,
+    GoogleModule
   ],
   controllers: [
     AppController,
@@ -110,10 +112,11 @@ import { OAuthStrategyModule } from './o-auth-strategy/o-auth-strategy.module';
     PermissionController,
     SmsController,
     PhoneController,
-    OAuthStrategyController,
+    GoogleController,
   ],
   providers: [
     AppService,
+    Google,
     UserService,
     RefreshService,
     PersonalInfo,

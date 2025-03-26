@@ -21,7 +21,6 @@ export class PersonalInfoService {
   async addUserInfo(
     addUserInfoDto: AddUserInfoDto,
   ): Promise<PersonalInfoInterface> {
-    console.log('ADD USER INFO', addUserInfoDto.userId);
       const existUser = await this.userService.checkUserById(addUserInfoDto.userId);
 
       if (!existUser) {

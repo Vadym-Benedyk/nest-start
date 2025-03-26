@@ -6,7 +6,7 @@ import {
   Delete,
   Patch,
   HttpStatus,
-  Query, UseGuards,
+  Query, UseGuards, Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,6 +20,8 @@ import { UpdateUserInterface, UserInterfaces } from './interfaces/user.interface
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
+import { Response } from 'express';
+
 
 
 @Controller('users')
@@ -75,8 +77,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard, OwnerGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<void> {
-    return await this.userService.deleteUser(id);
+
+
+  async deleteUser(@Param('id') id: string, @Res() res: Response): Promise<any> {
+    await this.userService.deleteUser(id);
+    return res.status(HttpStatus.OK).json({ message: 'User deleted successfully' });
   }
 
 
