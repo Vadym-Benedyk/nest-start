@@ -10,3 +10,13 @@ export const cookiesGenerator = (res: Response, refreshToken: string) => {
 };
 
 // Simple func for accept refresh token and set cookie
+
+
+export const resetCookies = (res: Response) => {
+  res.cookie('refreshToken', '', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 0,
+  });
+}

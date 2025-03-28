@@ -1,24 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as process from 'node:process';
 import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
-import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 import { InjectModel } from '@nestjs/sequelize';
 import { RefreshToken } from './models/refresh.model';
 import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
+import { CreateUserDto } from '@/src/users/dto/create-user.dto';
 
 @Injectable()
 export class RefreshService {
   protected readonly jwtweb = jwt;
+  private readonly logger = new Logger(RefreshService.name);
 
   constructor(
     @InjectModel(RefreshToken) private refreshModel: typeof RefreshToken,
     private jwtService: JwtService,
   ) {}
 
-  async generateAccessToken(user: UserInterfaces): Promise<string> {
+  async generateAccessToken(user: CreateUserDto): Promise<string> {
     const payload = {
-      userId: user.id
+      userId: user.id,
     };
     try {
       return await this.jwtService.signAsync(payload);
@@ -27,8 +28,7 @@ export class RefreshService {
     }
   }
 
-
-  async generateRefreshToken(user: UserInterfaces): Promise<string> {
+  async generateRefreshToken(user: CreateUserDto): Promise<string> {
     const expirationTime =
       parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60;
 
@@ -46,6 +46,30 @@ export class RefreshService {
 
     if (isSavedToken) {
       return token;
+    }
+  }
+
+  //check validation refresh token and nearby expiration date
+  async checkGenerateRefreshToken(user: CreateUserDto): Promise<any> {
+    const expTokenRange =
+      Date.now() +
+      parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
+        24 *
+        60 *
+        60 *
+        1000;
+
+    const tokenInDatabase = await this.getRefreshByUserId(user.id);
+    if (!tokenInDatabase) {
+      return await this.generateRefreshToken(user);
+    }
+
+    const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
+
+    if (expirationDbRefresh < expTokenRange) {
+      return await this.generateRefreshToken(user);
+    } else {
+      return tokenInDatabase.refreshToken;
     }
   }
 
@@ -79,7 +103,7 @@ export class RefreshService {
   }
 
   //delete refresh tokens.Return number of deleted tokens
-  async deleteRefreshToken(userId: string) {
+  async deleteRefreshToken(userId: string): Promise<number> {
     try {
       return await this.refreshModel.destroy({
         where: {
@@ -87,6 +111,7 @@ export class RefreshService {
         },
       });
     } catch (error) {
+      this.logger.error('Failed to delete refresh token, token not found');
       throw new Error('Failed to delete refresh token. Error: ' + error);
     }
   }

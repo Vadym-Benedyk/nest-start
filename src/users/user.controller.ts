@@ -6,10 +6,10 @@ import {
   Delete,
   Patch,
   HttpStatus,
-  Query, UseGuards,
+  Query, UseGuards, Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDto } from './dto/user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -20,6 +20,8 @@ import { UpdateUserInterface, UserInterfaces } from './interfaces/user.interface
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
+import { Response } from 'express';
+
 
 
 @Controller('users')
@@ -27,7 +29,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
-  @ApiResponse({ type: [UserDto] })
+  @ApiResponse({ type: [CreateUserDto] })
   @Get()
   async getAllUsers(): Promise<UserInterfaces[]> {
     return await this.userService.getAllUsers()
@@ -41,7 +43,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns an array of users',
-    type: UserDto,
+    type: CreateUserDto,
   })
   @Get('list')
   async getUsers(@Query() queryParams: GetUsersDto) {
@@ -50,7 +52,7 @@ export class UserController {
 
 
   @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: CreateUserDto })
   @Get(':id')
   async getUserById(@Param('id') id: string) {
     return await this.userService.getUserById(id);
@@ -61,7 +63,7 @@ export class UserController {
     summary: 'Get user by email',
     description: 'Get user detail by email',
   })
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: CreateUserDto })
   @Get('email/:email')
   async getUserByEmail(@Param('email') email: string) {
     return await this.userService.getUserByEmail(email);
@@ -75,8 +77,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard, OwnerGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<void> {
-    return await this.userService.deleteUser(id);
+
+
+  async deleteUser(@Param('id') id: string, @Res() res: Response): Promise<Response> {
+    await this.userService.deleteUser(id);
+    return res.status(HttpStatus.OK).json({ message: 'User deleted successfully' });
   }
 
 
@@ -84,7 +89,7 @@ export class UserController {
     summary: 'Update users by id',
     description: 'Update users by id',
   })
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: CreateUserDto })
   @Patch('update')
   async updateUser(
     @Body() updateUserDto: UpdateUserDto,

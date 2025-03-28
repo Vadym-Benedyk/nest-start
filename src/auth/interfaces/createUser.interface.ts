@@ -1,3 +1,5 @@
+import { HttpStatus } from '@nestjs/common';
+
 export interface CreateUserInterface {
   id?: string;
   firstName: string;
@@ -11,4 +13,9 @@ export interface CreateUserInterface {
 export interface CreateUserDataInterface {
   status: object;
   data?: CreateUserInterface;
+}
+
+export interface RefreshStatusInterface {
+  status: HttpStatus,
+  message: string
 }

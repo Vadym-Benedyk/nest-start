@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poster</title>
+  <style>
+      body {
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+          font-family: Arial, sans-serif;
+          text-align: center;
+          color: white;
+      }
+
+      .container {
+          padding: 20px;
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 15px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          margin-bottom: 10px;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .container:hover {
+          background: rgba(0, 0, 0, 0.5);
+      }
+
+      h1 {
+          font-size: 60px;
+          margin: 0;
+          text-transform: uppercase;
+          letter-spacing: 4px;
+          cursor: pointer;
+      }
+
+      p {
+          font-size: 20px;
+          margin-top: 10px;
+      }
+
+      .fb-button, #g_button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 362px;
+          height: 40px;
+          border-radius: 9px;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          margin-top: 20px;
+      }
+
+      .fb-button {
+          background-color: #1877f2;
+          color: white;
+          border: none;
+      }
+
+      .fb-button:hover {
+          background-color: #166fe5;
+          transform: scale(1.02);
+      }
+
+      .fb-button:active {
+          background-color: #0e5db8;
+          transform: scale(0.98);
+      }
+
+      #g_button {
+          background-color: #f9f9f9;
+          color: #423f3f;
+      }
+
+      #g_button:hover {
+          background-color: #ecd8e3;
+          transform: scale(1.02);
+      }
+
+      #g_button:active {
+          background-color: #e3b4b2;
+          transform: scale(0.98);
+      }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 id="api_page">Poster</h1>
+  <p>Welcome to the Poster landing page</p>
+</div>
+
+<div id="fb-login-btn" class="fb-button">Login with Facebook</div>
+<div id="g_button">Login with Google</div>
+
+<div id="fb-root"></div>
+</body>
+</html>
+
+<!-- Facebook SDK -->
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1833672894076404',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v22.0'
+    });
+  };
+
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_EN/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        sessionStorage.setItem('fb_access_token', response.authResponse.accessToken);
+        console.log("Facebook Access Token:", response.authResponse.accessToken);
+      }
+    });
+  }
+
+  document.getElementById("fb-login-btn").addEventListener("click", function () {
+    FB.login(checkLoginState, {scope: 'email'});
+  });
+</script>
+
+<!-- Google Sign-In -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+  document.getElementById('g_button').addEventListener('click', function() {
+    window.location.href = "https://calm-platypus-prompt.ngrok-free.app/auth/google";
+  });
+
+  function getAccessTokenFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('access_token');
+  }
+
+  window.addEventListener('load', function() {
+    const accessToken = getAccessTokenFromUrl();
+    if (accessToken) {
+      sessionStorage.setItem('access_token', accessToken);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  });
+</script>
