@@ -25,6 +25,9 @@ import {
 import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
+import { TopicDto } from '@/src/topic/dto/topic.dto';
+import { ToLowercasePipe } from '@/src/topic/pipes/to-lower-case.pipe';
+
 
 @Controller('topic')
 export class TopicController {
@@ -37,7 +40,7 @@ export class TopicController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
+    type: [TopicDto]
   })
   @Get()
   async getAllTopics(): Promise<AllTopicsInterface[]>  {
@@ -51,7 +54,8 @@ export class TopicController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Topic description"
+    description: "Topic description",
+    type: AddTopicDto
   })
   @Get(':id')
   async getTopicById(@Param('id', new ParseUUIDPipe) id: string): Promise<IdTopicInterface> {
@@ -71,7 +75,7 @@ export class TopicController {
     description: "Topic ID"
   })
   @Post()
-  async createTopic(@Body() addTopicDto: AddTopicDto): Promise<IdInterface> {
+  async createTopic(@Body(new ToLowercasePipe(['topicName', 'chapterName'])) addTopicDto: AddTopicDto): Promise<IdInterface> {
     return await this.topicService.createTopic(addTopicDto);
   }
 

@@ -101,7 +101,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard, PermissionsGuard, OwnerGuard)
   @Patch('/update')
   async updatePost(
-    @Body() updatePostDto: UpdatePostDto,
+    @Body(new ToLowercasePipe(['title', 'content', 'topicName'])) updatePostDto: UpdatePostDto,
   ): Promise<PostInterface> {
     return await this.postService.updatePost(updatePostDto);
   }
