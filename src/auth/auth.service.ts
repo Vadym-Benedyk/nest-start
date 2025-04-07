@@ -15,17 +15,13 @@ import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 @Injectable()
 export class AuthService {
-  private readonly logger: LoggerFacadeService;
-
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
     private readonly userRole: UserRoleService,
     private readonly configService: ConfigService,
-    private readonly loggerFacadeService: LoggerFacadeService,
-  ) {
-    this.logger = this.loggerFacadeService;
-  }
+    private readonly logger: LoggerFacadeService,
+  ) { }
 
   async accessResponse(user: CreateUserDto): Promise<PayloadUserInterface> {
     try {

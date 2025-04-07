@@ -5,6 +5,7 @@ import { UserController } from './user.controller';
 import { User } from './models/user.model';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
 import { PermissionModule } from '@/src/permission/permission.module';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 
 @Module({
@@ -12,6 +13,7 @@ import { PermissionModule } from '@/src/permission/permission.module';
     SequelizeModule.forFeature([User]),
     forwardRef(() => UserRoleModule),
     forwardRef(() => PermissionModule),
+    LoggerModule
   ],
   providers: [UserService],
   controllers: [UserController],

@@ -8,6 +8,7 @@ import { PermissionModel } from '@/src/permission/models/permission.model';
 import { User } from '@/src/users/models/user.model';
 import { RoleModule } from '@/src/role/role.module';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 
 
@@ -15,7 +16,8 @@ import { UserRoleModule } from '@/src/user-role/user-role.module';
   imports: [
     SequelizeModule.forFeature([PermissionModel, RoleModel, RolePermissionsModel, User]),
     forwardRef(() => RoleModule),
-    forwardRef(() => UserRoleModule)
+    forwardRef(() => UserRoleModule),
+    LoggerModule
   ],
   controllers: [PermissionController],
   providers: [PermissionService],

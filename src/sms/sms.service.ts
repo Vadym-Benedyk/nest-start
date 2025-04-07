@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import * as twilio from 'twilio';
 import * as process from 'node:process';
 import { SmsDto } from '@/src/sms/dto/smsDto';
@@ -6,16 +6,17 @@ import { PersonalInfoService } from '@/src/personal-info/personal-info.service';
 import { VerifyPhoneDto } from '@/src/sms/dto/verifyPhone.dto';
 import { VerifyAskInterface, VerifyOtpInterface } from '@/src/sms/interfaces/verify.interface';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 
 @Injectable()
 export class SmsService {
   private readonly client;
   private readonly verifyServiceSid: string;
-  private readonly logger = new Logger(SmsService.name);
 
   constructor(
-    private readonly personalInfoService: PersonalInfoService
+    private readonly personalInfoService: PersonalInfoService,
+    private readonly logger: LoggerFacadeService,
   ) {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -58,7 +59,7 @@ export class SmsService {
           channel: "sms",
           to: phone,
         });
-      this.logger.log(`Request OTP verification to ${phone}`);
+      this.logger.log(`Request OTP verification to ${phone}`, SmsService.name);
 
       return {
         status: verification.status,
@@ -81,13 +82,13 @@ export class SmsService {
         });
 
       if (verificationCheck.status === 'approved') {
-        this.logger.log(`Verification approved successfully`);
+        this.logger.log(`Verification approved successfully`, SmsService.name);
         return {
           status: HttpStatus.OK,
           message: 'OTP verification successful',
         };
       } else {
-        this.logger.log(`Verification OTP failed`);
+        this.logger.log(`Verification OTP failed`, SmsService.name);
         return {
           status: HttpStatus.BAD_REQUEST,
           message: 'Invalid OTP or verification failed',

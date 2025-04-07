@@ -2,7 +2,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
   NotFoundException,
   Query,
   UnauthorizedException,
@@ -16,12 +15,16 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
+import { IdDto } from '@/src/users/dto/id.dto';
 
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
-  constructor(@InjectModel(User) private readonly userModel: typeof User) {}
+  constructor(
+    @InjectModel(User) private readonly userModel: typeof User,
+    private readonly logger: LoggerFacadeService
+  ) {}
 
 
   async getAllUsers(): Promise<UserInterfaces[]> {
@@ -45,7 +48,7 @@ export class UserService {
     try {
       const isUser = await this.userModel.count({ where: { email: email } });
       if (isUser > 0) {
-        this.logger.warn(`User with ${email} is already register`);
+        this.logger.warn(`User with ${email} is already register`, UserService.name);
         throw new HttpException(
           'This email is already register, please SignIn or use any else',
           HttpStatus.NOT_ACCEPTABLE,
@@ -59,7 +62,7 @@ export class UserService {
         password: hashedPassword,
       });
     } catch (error) {
-      this.logger.error(`Failed to create user: ${error}`);
+      this.logger.error(`Failed to create user: ${error}`, UserService.name);
       if (error instanceof HttpException) throw error;
       throw new HttpException(
         'Internal server error',
@@ -82,6 +85,7 @@ export class UserService {
   async getUserById(id: string): Promise<UserInterfaces> {
     const user = await this.userModel.findByPk(id);
     if (!user) {
+      this.logger.warn('User not found', UserService.name);
       throw new NotFoundException(HttpStatus.NOT_FOUND);
     }
     return user;
@@ -93,8 +97,8 @@ export class UserService {
   }
 
 
-  async deleteUser(id: string): Promise<void> {
-    const user = await this.userModel.findByPk(id);
+  async deleteUser(idDto: IdDto): Promise<void> {
+    const user = await this.userModel.findByPk(idDto.id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -111,7 +115,7 @@ export class UserService {
     const { id, ...user } = updateUserDto;
     const [affectedRows] = await this.userModel.update(user, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
-    this.logger.log('User updated successfully');
+    this.logger.log('User updated successfully', UserService.name);
 
     return {
       updates: affectedRows,

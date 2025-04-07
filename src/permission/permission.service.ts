@@ -1,14 +1,15 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AddPermissionDto } from '@/src/permission/dto/add-permission.dto';
 import { PermissionInterface } from '@/src/permission/interfaces/permission.interface';
 import { PermissionModel } from '@/src/permission/models/permission.model';
 import { RoleModel } from '@/src/role/models/role.model';
 import { User } from '@/src/users/models/user.model';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 @Injectable()
 export class PermissionService {
-  private readonly logger = new Logger(PermissionService.name);
+
   constructor(
     @InjectModel(PermissionModel)
     private readonly permissionModel: typeof PermissionModel,
@@ -16,6 +17,7 @@ export class PermissionService {
     private readonly roleModel: typeof RoleModel,
     @InjectModel(User)
     private readonly userModel: typeof User,
+    private readonly logger: LoggerFacadeService
   ) {}
 
   async checkPermissionByName(permission: string): Promise<boolean> {
@@ -47,7 +49,7 @@ export class PermissionService {
         description,
       });
       if (newPermission) {
-        this.logger.log(`Permission '${permission}' created successfully`);
+        this.logger.log(`Permission '${permission}' created successfully`, PermissionService.name);
         return newPermission.toJSON();
       }
     } catch (error) {
@@ -86,9 +88,7 @@ export class PermissionService {
     }
     const result = await this.permissionModel.destroy({ where: { id } });
     if (result > 0) {
-      this.logger.log(
-        `Permission '${permission.permission}' deleted successfully`,
-      );
+      this.logger.log(`Permission '${permission.permission}' deleted successfully`, PermissionService.name);
       return true;
     } else {
       throw new HttpException(

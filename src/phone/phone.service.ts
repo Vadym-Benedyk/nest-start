@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { PhoneModel } from '@/src/phone/models/phone.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
@@ -8,17 +8,18 @@ import { UpdatePhoneDto } from '@/src/phone/dto/update-phone.dto';
 import { SmsService } from '@/src/sms/sms.service';
 import { VerifyPhoneDto } from '@/src/sms/dto/verifyPhone.dto';
 import { VerifyOtpInterface } from '@/src/sms/interfaces/verify.interface';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 
 @Injectable()
 export class PhoneService {
-  private readonly logger = new Logger(PhoneService.name);
 
   constructor(
     @InjectModel(PhoneModel)
     private readonly phoneModel: typeof PhoneModel,
     private readonly userService: UserService,
-    private readonly smsService: SmsService
+    private readonly smsService: SmsService,
+    private readonly logger: LoggerFacadeService
   ) {}
 
 
@@ -87,7 +88,7 @@ export class PhoneService {
     if (!user) {
       throw new NotFoundException('User with current phone not found');
     }
-    this.logger.log('Ask verify phone');
+    this.logger.log('Ask verify phone', PhoneService.name);
 
     return await this.smsService.createVerification(phoneDto)
   }
@@ -104,7 +105,7 @@ export class PhoneService {
       })
       user.verified = true;
       await user.save();
-      this.logger.log('Phone verified');
+      this.logger.log('Phone verified', PhoneService.name);
       return {
         status: HttpStatus.OK,
         message: 'Phone verified successfully.',

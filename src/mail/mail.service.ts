@@ -1,14 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
+
+
 
 @Injectable()
 export class MailService {
-  private readonly logger = new Logger(MailService.name);
   private transporter: nodemailer.Transporter;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: LoggerFacadeService
+    ) {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('smtp.host'),
       port: this.configService.get<number>('smtp.port'),
@@ -31,10 +36,10 @@ export class MailService {
 
     try {
       const { ehlo, ...filteredResponse } = await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Email sent to ${to} with a subject: ${subject}`);
+      this.logger.log(`Email sent to ${to} with a subject: ${subject}`, MailService.name);
       return filteredResponse;
     } catch (error) {
-      this.logger.error(`Error sending email to ${to}: ${error}`);
+      this.logger.error(`Error sending email to ${to}: ${error}`, MailService.name);
       throw new Error('Email sending failed');
     }
   }

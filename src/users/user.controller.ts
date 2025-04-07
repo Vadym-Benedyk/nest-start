@@ -21,6 +21,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 import { Response } from 'express';
+import { IdDto } from '@/src/users/dto/id.dto';
 
 
 
@@ -46,16 +47,16 @@ export class UserController {
     type: CreateUserDto,
   })
   @Get('list')
-  async getUsers(@Query() queryParams: GetUsersDto) {
-    return await this.userService.getUsers(queryParams);
+  async getUsers(@Query() getUsersDto: GetUsersDto) {
+    return await this.userService.getUsers(getUsersDto);
   }
 
 
   @ApiOperation({ summary: 'Get user by id', description: 'Get user by id' })
   @ApiResponse({ type: CreateUserDto })
   @Get(':id')
-  async getUserById(@Param('id') id: string) {
-    return await this.userService.getUserById(id);
+  async getUserById(@Param('id') idDto: IdDto) {
+    return await this.userService.getUserById(idDto.id);
   }
 
 
@@ -79,8 +80,8 @@ export class UserController {
   @Delete(':id')
 
 
-  async deleteUser(@Param('id') id: string, @Res() res: Response): Promise<Response> {
-    await this.userService.deleteUser(id);
+  async deleteUser(@Param('id') idDto: IdDto, @Res() res: Response): Promise<Response> {
+    await this.userService.deleteUser(idDto);
     return res.status(HttpStatus.OK).json({ message: 'User deleted successfully' });
   }
 

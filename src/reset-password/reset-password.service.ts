@@ -1,4 +1,4 @@
-import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ResetTokenModel } from '@/src/reset-password/models/reset-token.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserService } from '@/src/users/user.service';
@@ -14,16 +14,17 @@ import { UpdateUserInterface } from '@/src/users/interfaces/user.interfaces';
 import * as fs from 'fs';
 import * as path from 'path';
 import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 @Injectable()
 export class ResetPasswordService {
-  private readonly logger = new Logger(ResetPasswordService.name);
   constructor(
     @InjectModel(ResetTokenModel)
     private resetTokenModel: typeof ResetTokenModel,
     private userService: UserService,
     private readonly configService: ConfigService,
     private readonly emailService: MailService,
+    private readonly logger: LoggerFacadeService,
   ) {}
 
   async generateResetToken( changePasswordDto: ChangePasswordDto ): Promise<EmailResponseInterface> {
@@ -31,7 +32,7 @@ export class ResetPasswordService {
 
     const user = await this.userService.getUserByEmail(email);
     if (!user) {
-      this.logger.error(`User with email ${email} not found`);
+      this.logger.error(`User with email ${email} not found`, ResetPasswordService.name);
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
@@ -63,7 +64,7 @@ export class ResetPasswordService {
         +process.env.CRYPTO_TOKEN_EXPIRATION_DAILY_RANGE &&
       timeDiff < 24
     ) {
-      this.logger.warn('Too many reset requests. Try again later');
+      this.logger.warn('Too many reset requests. Try again later', ResetPasswordService.name);
       throw new HttpException(
         'Too many reset requests. Try again after 24 hours',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -107,13 +108,13 @@ export class ResetPasswordService {
   async confirmNewPassword( confirmNewPasswordDto: ConfirmNewPasswordDto ): Promise<UpdateUserInterface> {
     const { password, resetToken } = confirmNewPasswordDto;
     const hashedPassword = await hashPassword(password);
-    this.logger.log('hashed received password');
+    this.logger.log('hashed received password', ResetPasswordService.name);
     const findToken = await this.resetTokenModel.findOne({
       where: { token: resetToken },
     });
 
     if (!findToken) {
-      this.logger.error('Invalid token');
+      this.logger.error('Invalid token', ResetPasswordService.name);
       throw new HttpException(
         'There is not request token in database',
         HttpStatus.BAD_REQUEST,
@@ -121,10 +122,10 @@ export class ResetPasswordService {
     }
 
     const { expiresAt, userId } = findToken;
-    this.logger.log('Valid token executed');
+    this.logger.log('Valid token executed', ResetPasswordService.name);
 
     if (expiresAt && expiresAt < new Date(Date.now())) {
-      this.logger.error('Reset token expired');
+      this.logger.error('Reset token expired', ResetPasswordService.name);
       throw new HttpException(
         'Reset password token is expired',
         HttpStatus.GATEWAY_TIMEOUT,

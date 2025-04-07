@@ -1,21 +1,22 @@
 import {
-  ForbiddenException,Injectable, InternalServerErrorException, Logger, NotFoundException} from '@nestjs/common';
+  ForbiddenException,Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AddUserInfoDto } from '@/src/personal-info/dto/addUserInfo.dto';
 import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.model';
 import { PersonalInfoInterface, UpdateInfoResponseInterface } from '@/src/personal-info/interfaces/personal-info.interface';
 import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { UserService } from '@/src/users/user.service';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 
 
 @Injectable()
 export class PersonalInfoService {
-  private readonly logger = new Logger(PersonalInfoService.name);
   constructor(
     @InjectModel(PersonalInfoModel)
     private readonly personalInfoModel: typeof PersonalInfoModel,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly logger: LoggerFacadeService
   ) {}
 
   async addUserInfo(
@@ -24,14 +25,14 @@ export class PersonalInfoService {
       const existUser = await this.userService.checkUserById(addUserInfoDto.userId);
 
       if (!existUser) {
-        this.logger.error('Error by adding user info. User ID from request not found');
+        this.logger.error('Error by adding user info. User ID from request not found', PersonalInfoService.name);
         throw new NotFoundException('User ID from request body object not found');
       }
 
       const isInfo = await this.personalInfoModel.findOne({ where: { userId: addUserInfoDto.userId } });
 
       if (isInfo) {
-        this.logger.error('Error by adding user info. Info for this user already exists');
+        this.logger.error('Error by adding user info. Info for this user already exists', PersonalInfoService.name);
         throw new ForbiddenException('User info already exists');
       }
 

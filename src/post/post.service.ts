@@ -1,25 +1,24 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { PostModel } from '@/src/post/models/post.model';
 import { CreatePostDto } from '@/src/post/dto/create-post.dto';
-import {
-  CreatePostInterface,
-  PostInterface,
-} from '@/src/post/interfaces/post.interface';
+import { CreatePostInterface, PostInterface } from '@/src/post/interfaces/post.interface';
 import { UserService } from '@/src/users/user.service';
 import { TopicService } from '@/src/topic/topic.service';
 import { AcceptPostDto } from '@/src/post/dto/accept-post.dto';
 import { IdPostDto } from '@/src/post/dto/id-post.dto';
 import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 
 @Injectable()
 export class PostService {
-  private readonly logger = new Logger(PostService.name);
+
   constructor(
     @InjectModel(PostModel) private readonly postModel: typeof PostModel,
     private readonly userService: UserService,
-    private readonly topicService: TopicService
+    private readonly topicService: TopicService,
+    private readonly logger: LoggerFacadeService,
   ) {}
 
 
@@ -32,7 +31,7 @@ export class PostService {
 
       return posts;
     } catch (error) {
-      this.logger.error(`Failed to get posts: ${error}`);
+      this.logger.error('Failed to get posts', PostService.name);
 
       if (error instanceof HttpException) {
         throw error;
@@ -49,13 +48,13 @@ export class PostService {
   async createPost(acceptPostDto: AcceptPostDto): Promise<CreatePostInterface> {
     const isUser = await this.userService.checkUserById(acceptPostDto.userId);
     if(!isUser) {
-      this.logger.warn('User not found in database')
+      this.logger.warn('User not found in database', PostService.name)
       throw new HttpException('userId has not corresponds in database', HttpStatus.BAD_REQUEST)
     }
 
     const topic = await this.topicService.getTopicByName(acceptPostDto.topicName)
     if (!topic) {
-      this.logger.error('Topic not found in database', HttpStatus.NOT_ACCEPTABLE)
+      this.logger.error('Topic not found in database', PostService.name)
     }
 
     const createPostDto: CreatePostDto = {
@@ -68,7 +67,7 @@ export class PostService {
     try {
       return await this.postModel.create(createPostDto);
     } catch (error) {
-      this.logger.error(`Failed to create post: ${error}`);
+      this.logger.error('Failed to create post', PostService.name);
       throw new HttpException(
         'Error while saving post',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -78,10 +77,10 @@ export class PostService {
 
 
   async getPost(id: string): Promise<PostInterface> {
-    this.logger.log('init fetch post by id');
+    this.logger.log('init fetch post by id', PostService.name);
     const post = await this.postModel.findByPk(id);
     if (!post) {
-      this.logger.error('Trouble fetching post by uuid from db');
+      this.logger.error('Trouble fetching post by uuid from db', PostService.name);
       throw new HttpException(
         "There isn't any post in database",
         HttpStatus.NOT_FOUND,
@@ -103,7 +102,7 @@ export class PostService {
 
       return await post.save();
     } catch (error) {
-      this.logger.error(`Failed to update post: ${error}`);
+      this.logger.error(`Failed to update post: ${error}`, PostService.name);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -120,7 +119,7 @@ export class PostService {
     try {
       await post.destroy();
     } catch (error) {
-      this.logger.error(`Failed to delete post: ${error}`);
+      this.logger.error(`Failed to delete post: ${error}`, PostService.name);
       throw new HttpException(
         'Internal server error',
         HttpStatus.BAD_REQUEST,
