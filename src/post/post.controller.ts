@@ -21,6 +21,7 @@ import { UpdatePostDto } from '@/src/post/dto/update-post.dto';
 import { PermissionsGuard } from '@/src/auth/guards/PermissionsGuard';
 import { Permissions } from '@/src/auth/decorators/get-permission.decorator';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
+import { ToLowercasePipe } from '@/src/post/pipe/to-lower-case.pipe';
 
 
 
@@ -59,7 +60,7 @@ export class PostController {
   })
   @Post()
   async createPost(
-    @Body() acceptPostDto: AcceptPostDto,
+    @Body(new ToLowercasePipe(['title', 'content'])) acceptPostDto: AcceptPostDto,
     @CurrentUser('id') userId: string,
   ): Promise<CreatePostInterface> {
     acceptPostDto.userId = userId;
@@ -100,7 +101,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard, PermissionsGuard, OwnerGuard)
   @Patch('/update')
   async updatePost(
-    @Body() updatePostDto: UpdatePostDto,
+    @Body(new ToLowercasePipe(['title', 'content', 'topicName'])) updatePostDto: UpdatePostDto,
   ): Promise<PostInterface> {
     return await this.postService.updatePost(updatePostDto);
   }
