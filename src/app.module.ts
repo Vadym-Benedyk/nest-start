@@ -56,6 +56,8 @@ import { PhoneModule } from './phone/phone.module';
 import { GoogleModule } from '@/src/strategies/google/google.module';
 import { GoogleController } from '@/src/strategies/google/google.controller';
 import { Google } from '@/src/strategies/google/google';
+import { WinstonModule } from 'nest-winston';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 
 
@@ -96,7 +98,8 @@ import { Google } from '@/src/strategies/google/google';
     RolePermissionsModule,
     SmsModule,
     PhoneModule,
-    GoogleModule
+    GoogleModule,
+    LoggerModule
   ],
   controllers: [
     AppController,

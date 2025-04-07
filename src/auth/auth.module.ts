@@ -5,10 +5,11 @@ import { UserService } from '@/src/users/user.service';
 import { RefreshModule } from '../refresh/refresh.module';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
 import { GoogleModule } from '@/src/strategies/google/google.module';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 
 @Module({
-  imports: [ RefreshModule, UserRoleModule, GoogleModule],
+  imports: [ RefreshModule, UserRoleModule, GoogleModule, LoggerModule],
   providers: [AuthService, UserService],
   controllers: [AuthController],
   exports: [AuthService],

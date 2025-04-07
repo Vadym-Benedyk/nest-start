@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
 import { PayloadUserInterface, RefreshPayloadUserInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
@@ -9,24 +9,28 @@ import { UserRoleService } from '@/src/user-role/user-role.service';
 import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger: LoggerFacadeService;
 
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
     private readonly userRole: UserRoleService,
-    private readonly configService: ConfigService
-  ) {}
+    private readonly configService: ConfigService,
+    private readonly loggerFacadeService: LoggerFacadeService,
+  ) {
+    this.logger = this.loggerFacadeService;
+  }
 
   async accessResponse(user: CreateUserDto): Promise<PayloadUserInterface> {
     try {
       const access: string = await this.token.generateAccessToken(user);
-
+      this.logger.log(`User ${user.firstName+' '+user.lastName} was successfully logged in`, AuthService.name);
       return {
         user: user,
         payload: {
@@ -57,7 +61,7 @@ export class AuthService {
     // Add default role to user when register
     const addRole = await this.userRole.addDefaultRoleToUser(user.id);
     if (payloadUser && refresh && addRole) {
-      this.logger.log('User was successfully registered in DB');
+      this.logger.log('User was successfully registered in DB', AuthService.name);
       return {
         payload: payloadUser,
         refreshToken: refresh,
@@ -74,7 +78,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Login not found');
     }
-    //Check coincidence password
+    //Check coincidence password hash
     const passwordMatch = await this.user.validatePassword(
       user.id,
       loginUserDto.password,
@@ -97,13 +101,13 @@ export class AuthService {
   async logoutUser(userId: string): Promise<RefreshStatusInterface> {
     const deletedTokens = await this.token.deleteRefreshToken(userId);
     if (deletedTokens) {
-      this.logger.log('Logout successful');
+      this.logger.log('Logout successful', AuthService.name);
       return {
         status: 200,
         message: 'Logout successful',
       };
     } else {
-      this.logger.log('Logout get started but refresh token not found')
+      this.logger.log('Logout get started but refresh token not found', AuthService.name)
       return {
         status: 404,
         message: 'Refresh token not found',
@@ -192,7 +196,7 @@ export class AuthService {
 
       accessToken = tokenResponse.data.access_token;
     } catch (error) {
-      this.logger.error('Failed to get access token from Facebook:', error);
+      this.logger.error('Failed to get access token from Facebook:', AuthService.name);
       throw new NotFoundException('Failed to get access token from Facebook');
     }
 
@@ -208,12 +212,12 @@ export class AuthService {
 
       user = userResponse.data;
     } catch (error) {
-      this.logger.error('Failed to get user data from Facebook:', error);
+      this.logger.error('Failed to get user data from Facebook:', AuthService.name);
       throw new NotFoundException('Failed to get user data from Facebook');
     }
 
     if (!user.email) {
-      this.logger.error('Facebook account does not have an email address');
+      this.logger.error('Facebook account does not have an email address', AuthService.name);
       throw new Error('Facebook account does not have an email address');
     }
 
@@ -226,7 +230,7 @@ export class AuthService {
         password: process.env.USER_DEFAULT_PASSWORD,
       });
       if (!newUser) {
-        this.logger.error('User registration failed');
+        this.logger.error('User registration failed', AuthService.name);
         throw new Error('User registration failed');
       }
 
