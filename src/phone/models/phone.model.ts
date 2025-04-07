@@ -1,6 +1,5 @@
 import { Column, DataType, Model, ForeignKey, PrimaryKey, Table } from 'sequelize-typescript';
 import { User } from '@/src/users/models/user.model';
-import { MAX } from 'class-validator';
 
 
 @Table({

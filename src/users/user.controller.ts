@@ -16,7 +16,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
-import { UpdateUserInterface, UserInterfaces, UserWithoutPasswordInterfaces } from './interfaces/user.interfaces';
+import { UpdateUserInterface, UserWithoutPasswordInterfaces } from './interfaces/user.interfaces';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';

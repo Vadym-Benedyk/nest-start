@@ -6,12 +6,11 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'process';
 import { UserRoleService } from '@/src/user-role/user-role.service';
-import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 import { UserDto } from '@/src/users/dto/user.dto';
-import { LogOutInterface, UserInterfaces } from '@/src/users/interfaces/user.interfaces';
+import { LogOutInterface } from '@/src/users/interfaces/user.interfaces';
 
 
 @Injectable()
