@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 import { Roles } from '@/src/auth/decorators/get-role.decorator';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
+import { IdDto } from '@/src/users/dto/id.dto';
 
 
 @ApiTags('Phone')
@@ -26,8 +27,8 @@ export class PhoneController {
   })
   @ApiResponse({ status: 200, type: PhoneDto })
   @Get(':userId')
-  async getUserPhone( @Param('userId') userId: string ): Promise<any> {
-    return this.phoneService.getPhone(userId);
+  async getUserPhone( @Param('userId') userId: IdDto ): Promise<PhoneDto> {
+    return this.phoneService.getPhone(userId.id);
   }
 
 

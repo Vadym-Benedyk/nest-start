@@ -7,6 +7,7 @@ import { RefreshToken } from './models/refresh.model';
 import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 import { UpdateUserDto } from '@/src/users/dto/update-user.dto';
+import { UserDto } from '@/src/users/dto/user.dto';
 
 
 
@@ -20,9 +21,9 @@ export class RefreshService {
     private readonly logger: LoggerFacadeService,
   ) {}
 
-  async generateAccessToken(user: UpdateUserDto): Promise<string> {
+  async generateAccessToken(userDto: UserDto): Promise<string> {
     const payload = {
-      userId: user.id,
+      userId: userDto.id,
     };
     try {
       return await this.jwtService.signAsync(payload);

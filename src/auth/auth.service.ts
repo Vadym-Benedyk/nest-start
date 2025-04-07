@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
 import { PayloadUserInterface, RefreshPayloadUserInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
@@ -10,7 +10,8 @@ import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interfa
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
-
+import { UserDto } from '@/src/users/dto/user.dto';
+import { LogOutInterface, UserInterfaces } from '@/src/users/interfaces/user.interfaces';
 
 
 @Injectable()
@@ -21,14 +22,14 @@ export class AuthService {
     private readonly userRole: UserRoleService,
     private readonly configService: ConfigService,
     private readonly logger: LoggerFacadeService,
-  ) { }
+  ) {}
 
-  async accessResponse(user: CreateUserDto): Promise<PayloadUserInterface> {
+  async accessResponse(userDto: UserDto): Promise<PayloadUserInterface> {
     try {
-      const access: string = await this.token.generateAccessToken(user);
-      this.logger.log(`User ${user.firstName+' '+user.lastName} was successfully logged in`, AuthService.name);
+      const access: string = await this.token.generateAccessToken(userDto);
+      this.logger.log(`User ${userDto.firstName+' '+userDto.lastName} was successfully logged in`, AuthService.name);
       return {
-        user: user,
+        user: userDto,
         payload: {
           type: 'bearer',
           token: access,
@@ -94,18 +95,18 @@ export class AuthService {
   }
 
 
-  async logoutUser(userId: string): Promise<RefreshStatusInterface> {
+  async logoutUser(userId: string): Promise<LogOutInterface> {
     const deletedTokens = await this.token.deleteRefreshToken(userId);
     if (deletedTokens) {
       this.logger.log('Logout successful', AuthService.name);
       return {
-        status: 200,
+        status: HttpStatus.OK,
         message: 'Logout successful',
       };
     } else {
       this.logger.log('Logout get started but refresh token not found', AuthService.name)
       return {
-        status: 404,
+        status: HttpStatus.NOT_FOUND,
         message: 'Refresh token not found',
       };
     }
@@ -146,7 +147,7 @@ export class AuthService {
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
 
-    const accessPayload: PayloadUserInterface = await this.accessResponse(user);
+    const accessPayload = await this.accessResponse(user);
 
     //If expiration date leas then 3 days remaining let's generate both tokens, else gen access token only
     if (decodedTokenExpiration < expTokenRange) {

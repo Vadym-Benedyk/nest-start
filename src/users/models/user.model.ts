@@ -39,6 +39,18 @@ export class User extends Model<User> {
   })
   password: string;
 
+  @Column({
+    type: DataType.DATE,
+    defaultValue: DataType.NOW,
+  })
+  createdAt: Date;
+
+  @Column({
+    type: DataType.DATE,
+    defaultValue: DataType.NOW,
+  })
+  updatedAt: Date;
+
   @BelongsToMany(() => RoleModel, () => UserRoleModel)
   roles: RoleModel[];
 }
