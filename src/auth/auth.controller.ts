@@ -79,9 +79,9 @@ export class AuthController {
   @ApiParam({ name: 'id', required: true, type: 'string', description: 'UUID of the user' })
   @ApiResponse({ status: 200 })
   @Post('logout/:id')
-  public async logout(@Param() idDto: IdDto, @Res() res: Response): Promise<LogOutInterface> {
+  public async logout(@Param() id: IdDto, @Res() res: Response): Promise<LogOutInterface> {
     resetCookies(res);
-    return await this.authService.logoutUser(idDto.id);
+    return await this.authService.logoutUser(id.id);
   }
 
 

@@ -49,8 +49,8 @@ export class UserController {
     type: CreateUserDto,
   })
   @Get('list')
-  async getUsers(@Query() getUsersDto: GetUsersDto) {
-    return await this.userService.getUsers(getUsersDto);
+  async getUsers(@Query() filterUsersData: GetUsersDto) {
+    return await this.userService.getUsers(filterUsersData);
   }
 
 
@@ -61,8 +61,8 @@ export class UserController {
   @ApiParam({ name: 'id', required: true, type: 'string', description: 'UUID of the user' })
   @ApiResponse({ type: UserSecureDto })
   @Post(':id')
-  async getUserById(@Param() idDto: IdDto): Promise<UserSecureDto> {
-    const {password, ...user} = await this.userService.getUserById(idDto.id);
+  async getUserById(@Param() id: IdDto): Promise<UserSecureDto> {
+    const {password, ...user} = await this.userService.getUserById(id.id);
     return user;
   }
 
@@ -88,8 +88,8 @@ export class UserController {
   @Delete(':id')
 
 
-  async deleteUser(@Param('id') idDto: IdDto, @Res() res: Response): Promise<Response> {
-    await this.userService.deleteUser(idDto);
+  async deleteUser(@Param('id') id: IdDto, @Res() res: Response): Promise<Response> {
+    await this.userService.deleteUser(id);
     return res.status(HttpStatus.OK).json({ message: 'User deleted successfully' });
   }
 
@@ -101,9 +101,9 @@ export class UserController {
   @ApiResponse({ type: UserDto })
   @Patch('update')
   async updateUser(
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUser: UpdateUserDto,
   ): Promise<UpdateUserInterface> {
-    return await this.userService.updateUser(updateUserDto);
+    return await this.userService.updateUser(updateUser);
   }
 
 }

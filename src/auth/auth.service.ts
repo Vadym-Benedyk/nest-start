@@ -23,32 +23,34 @@ export class AuthService {
     private readonly logger: LoggerFacadeService,
   ) {}
 
-  async accessResponse(userDto: UserDto): Promise<PayloadUserInterface> {
+  async accessResponse(user: UserDto): Promise<PayloadUserInterface> {
     try {
-      const access: string = await this.token.generateAccessToken(userDto);
-      this.logger.log(`User ${userDto.firstName+' '+userDto.lastName} was successfully logged in`, AuthService.name);
+      const access: string = await this.token.generateAccessToken(user);
+      this.logger.log(`User ${user.firstName+' '+user.lastName} was successfully logged in`, AuthService.name);
       return {
-        user: userDto,
+        user: user,
         payload: {
           type: 'bearer',
           token: access,
         },
       };
     } catch (error) {
+      this.logger.error(`Failed to generate access token. Error: ${error}`, AuthService.name);
       throw new Error('Failed to generate tokens. Error: ' + error);
     }
   }
 
   // Register a new users and return tokens
-  async registerUser(createUserDto: CreateUserDto): Promise<RefreshPayloadUserInterface> {
+  async registerUser(newUser: CreateUserDto): Promise<RefreshPayloadUserInterface> {
     // Check if users already exists
-    const userExist = await this.user.getUserByEmail(createUserDto.email);
+    const userExist = await this.user.getUserByEmail(newUser.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
     // Create users and hash password in database
-    const user = await this.user.createUser(createUserDto);
+    const user = await this.user.createUser(newUser);
     if (!user) {
+      this.logger.error('Failed to register users', AuthService.name);
       throw new Error('Failed to register users');
     }
     //return user obj and payload(access_token)
@@ -67,17 +69,17 @@ export class AuthService {
 
   // Login
   async loginUser(
-    loginUserDto: LoginUserDto,
+    loginData: LoginUserDto,
   ): Promise<RefreshPayloadUserInterface> {
     //Get user from email
-    const user = await this.user.getUserByEmail(loginUserDto.email);
+    const user = await this.user.getUserByEmail(loginData.email);
     if (!user) {
       throw new UnauthorizedException('Login not found');
     }
     //Check coincidence password hash
     const passwordMatch = await this.user.validatePassword(
       user.id,
-      loginUserDto.password,
+      loginData.password,
     );
 
     if (!passwordMatch) {
@@ -192,7 +194,7 @@ export class AuthService {
 
       accessToken = tokenResponse.data.access_token;
     } catch (error) {
-      this.logger.error('Failed to get access token from Facebook:', AuthService.name);
+      this.logger.error(`Failed to get access token from Facebook. Error: ${error}`, AuthService.name);
       throw new NotFoundException('Failed to get access token from Facebook');
     }
 
@@ -208,7 +210,7 @@ export class AuthService {
 
       user = userResponse.data;
     } catch (error) {
-      this.logger.error('Failed to get user data from Facebook:', AuthService.name);
+      this.logger.error(`Failed to get user data from Facebook.. Error: ${error}`, AuthService.name);
       throw new NotFoundException('Failed to get user data from Facebook');
     }
 

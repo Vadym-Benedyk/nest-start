@@ -39,7 +39,7 @@ export class MailService {
       this.logger.log(`Email sent to ${to} with a subject: ${subject}`, MailService.name);
       return filteredResponse;
     } catch (error) {
-      this.logger.error(`Error sending email to ${to}: ${error}`, MailService.name);
+      this.logger.error(`Error sending email to ${to}. Error: ${error}`, MailService.name);
       throw new Error('Email sending failed');
     }
   }

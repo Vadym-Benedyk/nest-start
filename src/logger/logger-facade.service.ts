@@ -3,6 +3,7 @@ import { ILogger } from '@/src/logger/interface/logger.interface';
 import { NativeLoggerService } from '@/src/logger/services/native-logger.service';
 import { WinstonLoggerService } from '@/src/logger/services/winston-logger.service';
 import { ConfigService } from '@nestjs/config';
+import * as process from 'node:process';
 
 
 @Injectable()
@@ -16,7 +17,7 @@ export class LoggerFacadeService implements ILogger {
   ) {
 
     const loggerType = this.configService.get<string>('LOGGER');
-    if (loggerType === 'winston') {
+    if (loggerType === process.env.LOGGER) {
       this.logger = this.winstonLoggerService;
     } else {
       this.logger = this.nativeLoggerService;

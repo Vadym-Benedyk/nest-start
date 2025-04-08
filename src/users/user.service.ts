@@ -104,8 +104,8 @@ export class UserService {
     }
   }
 
-  async deleteUser(idDto: IdDto): Promise<void> {
-    const user = await this.userModel.findByPk(idDto.id);
+  async deleteUser(id: IdDto): Promise<void> {
+    const user = await this.userModel.findByPk(id.id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
