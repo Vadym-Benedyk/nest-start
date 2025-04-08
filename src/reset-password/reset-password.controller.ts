@@ -29,7 +29,7 @@ export class ResetPasswordController {
   })
   @ApiResponse({ type: ResponseUpdateUserDto })
   @Post('confirm')
-  public async confirmNewPassword(
+  protected async confirmNewPassword(
     @Body() confirmNewPasswordDto: ConfirmNewPasswordDto,
   ): Promise<UpdateUserInterface> {
     return await this.resetPassService.confirmNewPassword(

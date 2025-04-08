@@ -22,6 +22,7 @@ import * as bcrypt from 'bcryptjs';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 import { IdDto } from '@/src/users/dto/id.dto';
+import { UpdatePasswordDto } from '@/src/users/dto/update-password.dto';
 
 @Injectable()
 export class UserService {
@@ -54,7 +55,6 @@ export class UserService {
     const { firstName, lastName, email, password } = createUserDto;
     const hashedPassword = await hashPassword(password);
 
-    try {
       const isUser = await this.userModel.count({ where: { email: email } });
       if (isUser > 0) {
         this.logger.warn(
@@ -73,14 +73,6 @@ export class UserService {
         email,
         password: hashedPassword,
       });
-    } catch (error) {
-      this.logger.error(`Failed to create user: ${error}`, UserService.name);
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
   }
 
   async validatePassword(userId: string, password: string): Promise<boolean> {
@@ -136,6 +128,25 @@ export class UserService {
       user: updatedUser,
     };
   }
+
+  async updateUserPassword(updatePasswordDto: UpdatePasswordDto): Promise<UpdateUserInterface> {
+    const { id, password } = updatePasswordDto;
+    const isUser = await this.getUserById(id);
+    if (!isUser) {
+      this.logger.warn('Error by editing. User not found', UserService.name);
+      throw new NotFoundException('Error by editing. User not found');
+    }
+
+    const [affectedRows] = await this.userModel.update({ password }, { where: { id } });
+    const updatedUser = await this.userModel.findByPk(id);
+    this.logger.log('User password updated successfully', UserService.name);
+
+    return {
+      updates: affectedRows,
+      user: updatedUser,
+    }
+  }
+
 
   async getUsers(
     @Query() queryParams: GetUsersDto,

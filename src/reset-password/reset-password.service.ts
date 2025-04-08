@@ -16,6 +16,9 @@ import * as path from 'path';
 import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
+
+
+
 @Injectable()
 export class ResetPasswordService {
   constructor(
@@ -105,7 +108,7 @@ export class ResetPasswordService {
     );
   }
 
-  async confirmNewPassword( confirmNewPasswordDto: ConfirmNewPasswordDto ): Promise<UpdateUserInterface> {
+  async confirmNewPassword(confirmNewPasswordDto: ConfirmNewPasswordDto ): Promise<UpdateUserInterface> {
     const { password, resetToken } = confirmNewPasswordDto;
     const hashedPassword = await hashPassword(password);
     this.logger.log('hashed received password', ResetPasswordService.name);
@@ -132,7 +135,7 @@ export class ResetPasswordService {
       );
     }
 
-    return this.userService.updateUser({
+    return this.userService.updateUserPassword({
       id: userId,
       password: hashedPassword,
     });

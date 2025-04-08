@@ -90,7 +90,7 @@ export class AuthController {
     description: 'Refresh token',
   })
   @ApiResponse({ type: AuthResponseDto })
-  @Post('/refresh')
+  @Post('refresh')
   public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response): Promise<Response<PayloadUserInterface>> {
     try {
       const { payload, refreshToken } = await this.authService.refreshValidate(
