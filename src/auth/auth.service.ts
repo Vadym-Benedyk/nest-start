@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@/src/users/user.service';
 import { PayloadUserInterface, RefreshPayloadUserInterface } from '../refresh/interfaces/refresh.interfaces';
 import { RefreshService } from '../refresh/refresh.service';
@@ -6,27 +6,27 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as process from 'process';
 import { UserRoleService } from '@/src/user-role/user-role.service';
-import { RefreshStatusInterface } from '@/src/auth/interfaces/createUser.interface';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
-
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
+import { UserDto } from '@/src/users/dto/user.dto';
+import { LogOutInterface } from '@/src/users/interfaces/user.interfaces';
 
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
-
   constructor(
     private readonly user: UserService,
     private readonly token: RefreshService,
     private readonly userRole: UserRoleService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly logger: LoggerFacadeService,
   ) {}
 
-  async accessResponse(user: CreateUserDto): Promise<PayloadUserInterface> {
+  async accessResponse(user: UserDto): Promise<PayloadUserInterface> {
     try {
       const access: string = await this.token.generateAccessToken(user);
-
+      this.logger.log(`User ${user.firstName+' '+user.lastName} was successfully logged in`, AuthService.name);
       return {
         user: user,
         payload: {
@@ -35,20 +35,22 @@ export class AuthService {
         },
       };
     } catch (error) {
+      this.logger.error(`Failed to generate access token. Error: ${error}`, AuthService.name);
       throw new Error('Failed to generate tokens. Error: ' + error);
     }
   }
 
   // Register a new users and return tokens
-  async registerUser(createUserDto: CreateUserDto): Promise<RefreshPayloadUserInterface> {
+  async registerUser(newUser: CreateUserDto): Promise<RefreshPayloadUserInterface> {
     // Check if users already exists
-    const userExist = await this.user.getUserByEmail(createUserDto.email);
+    const userExist = await this.user.getUserByEmail(newUser.email);
     if (userExist) {
       throw new UnauthorizedException('User already exists');
     }
     // Create users and hash password in database
-    const user = await this.user.createUser(createUserDto);
+    const user = await this.user.createUser(newUser);
     if (!user) {
+      this.logger.error('Failed to register users', AuthService.name);
       throw new Error('Failed to register users');
     }
     //return user obj and payload(access_token)
@@ -57,7 +59,7 @@ export class AuthService {
     // Add default role to user when register
     const addRole = await this.userRole.addDefaultRoleToUser(user.id);
     if (payloadUser && refresh && addRole) {
-      this.logger.log('User was successfully registered in DB');
+      this.logger.log('User was successfully registered in DB', AuthService.name);
       return {
         payload: payloadUser,
         refreshToken: refresh,
@@ -67,17 +69,17 @@ export class AuthService {
 
   // Login
   async loginUser(
-    loginUserDto: LoginUserDto,
+    loginData: LoginUserDto,
   ): Promise<RefreshPayloadUserInterface> {
     //Get user from email
-    const user = await this.user.getUserByEmail(loginUserDto.email);
+    const user = await this.user.getUserByEmail(loginData.email);
     if (!user) {
       throw new UnauthorizedException('Login not found');
     }
-    //Check coincidence password
+    //Check coincidence password hash
     const passwordMatch = await this.user.validatePassword(
       user.id,
-      loginUserDto.password,
+      loginData.password,
     );
 
     if (!passwordMatch) {
@@ -94,18 +96,18 @@ export class AuthService {
   }
 
 
-  async logoutUser(userId: string): Promise<RefreshStatusInterface> {
+  async logoutUser(userId: string): Promise<LogOutInterface> {
     const deletedTokens = await this.token.deleteRefreshToken(userId);
     if (deletedTokens) {
-      this.logger.log('Logout successful');
+      this.logger.log('Logout successful', AuthService.name);
       return {
-        status: 200,
+        status: HttpStatus.OK,
         message: 'Logout successful',
       };
     } else {
-      this.logger.log('Logout get started but refresh token not found')
+      this.logger.log('Logout get started but refresh token not found', AuthService.name)
       return {
-        status: 404,
+        status: HttpStatus.NOT_FOUND,
         message: 'Refresh token not found',
       };
     }
@@ -146,7 +148,7 @@ export class AuthService {
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE) * 24 * 60 * 60 * 1000;
 
-    const accessPayload: PayloadUserInterface = await this.accessResponse(user);
+    const accessPayload = await this.accessResponse(user);
 
     //If expiration date leas then 3 days remaining let's generate both tokens, else gen access token only
     if (decodedTokenExpiration < expTokenRange) {
@@ -192,7 +194,7 @@ export class AuthService {
 
       accessToken = tokenResponse.data.access_token;
     } catch (error) {
-      this.logger.error('Failed to get access token from Facebook:', error);
+      this.logger.error(`Failed to get access token from Facebook. Error: ${error}`, AuthService.name);
       throw new NotFoundException('Failed to get access token from Facebook');
     }
 
@@ -208,12 +210,12 @@ export class AuthService {
 
       user = userResponse.data;
     } catch (error) {
-      this.logger.error('Failed to get user data from Facebook:', error);
+      this.logger.error(`Failed to get user data from Facebook.. Error: ${error}`, AuthService.name);
       throw new NotFoundException('Failed to get user data from Facebook');
     }
 
     if (!user.email) {
-      this.logger.error('Facebook account does not have an email address');
+      this.logger.error('Facebook account does not have an email address', AuthService.name);
       throw new Error('Facebook account does not have an email address');
     }
 
@@ -226,7 +228,7 @@ export class AuthService {
         password: process.env.USER_DEFAULT_PASSWORD,
       });
       if (!newUser) {
-        this.logger.error('User registration failed');
+        this.logger.error('User registration failed', AuthService.name);
         throw new Error('User registration failed');
       }
 

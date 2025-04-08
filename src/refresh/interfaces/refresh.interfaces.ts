@@ -1,7 +1,5 @@
-import { UserInterfaces } from '@/src/users/interfaces/user.interfaces';
-
 export interface PayloadUserInterface {
-  user: UserInterfaces;
+  user: UserInterface;
   payload: {
     type: string;
     token: string;
@@ -18,6 +16,16 @@ export interface RefreshTokenInterface {
   refreshToken: string;
   userId: string;
   expires: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface UserInterface {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
   createdAt: Date;
   updatedAt: Date;
 }

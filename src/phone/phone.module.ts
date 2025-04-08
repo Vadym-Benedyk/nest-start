@@ -8,9 +8,10 @@ import { PhoneController } from '@/src/phone/phone.controller';
 import { SmsModule } from '@/src/sms/sms.module';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
 import { PermissionModule } from '@/src/permission/permission.module';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([PhoneModel]), UserModule, SmsModule, UserRoleModule, PermissionModule],
+  imports: [SequelizeModule.forFeature([PhoneModel]), UserModule, SmsModule, UserRoleModule, PermissionModule, LoggerModule],
   controllers: [PhoneController],
   providers: [Phone, PhoneService],
   exports: [PhoneService],

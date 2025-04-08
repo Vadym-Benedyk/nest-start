@@ -6,12 +6,13 @@ import { PersonalInfoModel } from '@/src/personal-info/models/personal-info.mode
 import { UserModule } from '@/src/users/user.module';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
 import { PermissionModule } from '@/src/permission/permission.module';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 
 
 
 @Module({
-  imports: [SequelizeModule.forFeature([PersonalInfoModel]), UserModule, UserRoleModule, PermissionModule],
+  imports: [SequelizeModule.forFeature([PersonalInfoModel]), UserModule, UserRoleModule, PermissionModule, LoggerModule],
   controllers: [PersonalInfoController],
   providers: [PersonalInfoService],
   exports: [PersonalInfoService],

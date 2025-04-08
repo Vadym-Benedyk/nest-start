@@ -72,7 +72,7 @@ export class UserRoleService {
     return userWithRoles.roles.map(role => role.dataValues);
   }
 
-  async getUserWithRoles(id: string): Promise<UserWithRolesInterface> {
+  async getUserWithRoles(id: string): Promise<any> {
     const userWithRoles = await this.userModel.findOne({
       where: { id },
       include: { model: RoleModel, through: { attributes: [] } },

@@ -7,6 +7,7 @@ import { ResetPasswordService } from '@/src/reset-password/reset-password.servic
 import { MailService } from '@/src/mail/mail.service';
 import { MailModule } from '@/src/mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     SequelizeModule.forFeature([ResetTokenModel]),
     UserModule,
     MailModule,
+    LoggerModule
   ],
   providers: [ResetPasswordService, MailService],
   controllers: [ResetPasswordController],

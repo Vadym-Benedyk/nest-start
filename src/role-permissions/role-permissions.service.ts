@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -15,13 +14,12 @@ import { PermissionService } from '@/src/permission/permission.service';
 import { PermissionModel } from '@/src/permission/models/permission.model';
 import { AddPermissionToRoleDto } from '@/src/role-permissions/dto/add-permission-to-role.dto';
 import { RolePermissionInterface, RolesWithPermissionInterface } from '@/src/role-permissions/interfaces/role-permission.interfaces';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 
 
 
 @Injectable()
 export class RolePermissionsService {
-  private readonly logger = new Logger(RolePermissionsService.name);
-
   constructor(
     @InjectModel(RolePermissionsModel)
     private readonly rolePermissionsModel: typeof RolePermissionsModel,
@@ -32,7 +30,8 @@ export class RolePermissionsService {
     @Inject(forwardRef(() => RoleService))
     private readonly role: RoleService,
     @Inject(forwardRef(() => PermissionService))
-    private readonly permission: PermissionService
+    private readonly permission: PermissionService,
+    private readonly logger: LoggerFacadeService,
   ) {}
 
   async getRolesWithPermissionId(permissionId: string): Promise<RolesWithPermissionInterface[]> {
@@ -45,7 +44,7 @@ export class RolePermissionsService {
       }
       });
     } catch (error) {
-      this.logger.error('Error by getting roles with permission id', error);
+      this.logger.error('Error by getting roles with current permission id', RolePermissionsService.name);
       throw error;
     }
   }
@@ -64,7 +63,7 @@ export class RolePermissionsService {
 
     const checkExist = await this.checkRolePermission(addPermissionToRoleDto);
     if (checkExist) {
-      this.logger.error(`Role ${addPermissionToRoleDto.roleId} already has permission ${addPermissionToRoleDto.permissionId}`);
+      this.logger.error(`Role ${addPermissionToRoleDto.roleId} already has permission ${addPermissionToRoleDto.permissionId}`, RolePermissionsService.name);
       throw new ConflictException('Permission already added to role');
     }
 
@@ -75,14 +74,14 @@ export class RolePermissionsService {
       });
 
       if (!rolePermission) {
-        this.logger.error('Failed to save permission to role');
+        this.logger.error('Failed to save permission to role', RolePermissionsService.name);
         throw new InternalServerErrorException('Error saving permission to role');
       }
 
-      this.logger.log(`Permission ${addPermissionToRoleDto.permissionId} added to role ${addPermissionToRoleDto.roleId} successfully`);
+      this.logger.log(`Permission ${addPermissionToRoleDto.permissionId} added to role ${addPermissionToRoleDto.roleId} successfully`, RolePermissionsService.name);
       return rolePermission;
     } catch (error) {
-      this.logger.error('Database error while saving permission to role', error);
+      this.logger.error('Database error while saving permission to role', RolePermissionsService.name);
       throw new InternalServerErrorException('Database error: could not add permission to role');
     }
   }
@@ -119,13 +118,13 @@ export class RolePermissionsService {
   async deletePermissionFromRole(roleId: string, permissionId: string): Promise<any> {
     const roleIdCheck = await this.rolePermissionsModel.findOne({ where: {roleId: roleId} })
     if (!roleIdCheck) {
-      this.logger.error('Role not found when trying to delete permission');
+      this.logger.error('Role not found when trying to delete permission', RolePermissionsService.name);
       throw new Error('Role not found when trying to delete permission');
     }
 
     const permissionIdCheck = await this.rolePermissionsModel.findOne({ where: {permissionId: permissionId} })
     if (!permissionIdCheck) {
-      this.logger.error('Permission not found when trying to delete permission');
+      this.logger.error('Permission not found when trying to delete permission', RolePermissionsService.name);
       throw new Error('Permission not found when trying to delete permission');
     }
 
@@ -133,10 +132,10 @@ export class RolePermissionsService {
       await this.rolePermissionsModel.destroy({
         where: { roleId, permissionId },
       });
-      this.logger.log('Permission removed from role successfully');
+      this.logger.log('Permission removed from role successfully', RolePermissionsService.name);
       return { message: 'Permission removed from role successfully' };
     } catch (error) {
-      this.logger.error('Error by removing permission from role', error);
+      this.logger.error('Error by removing permission from role', RolePermissionsService.name);
       throw error;
     }
   }

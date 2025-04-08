@@ -1,25 +1,29 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as process from 'node:process';
 import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { RefreshToken } from './models/refresh.model';
 import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
-import { CreateUserDto } from '@/src/users/dto/create-user.dto';
+import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
+import { UpdateUserDto } from '@/src/users/dto/update-user.dto';
+import { UserDto } from '@/src/users/dto/user.dto';
+
+
 
 @Injectable()
 export class RefreshService {
   protected readonly jwtweb = jwt;
-  private readonly logger = new Logger(RefreshService.name);
 
   constructor(
     @InjectModel(RefreshToken) private refreshModel: typeof RefreshToken,
     private jwtService: JwtService,
+    private readonly logger: LoggerFacadeService,
   ) {}
 
-  async generateAccessToken(user: CreateUserDto): Promise<string> {
+  async generateAccessToken(userDto: UserDto): Promise<string> {
     const payload = {
-      userId: user.id,
+      userId: userDto.id,
     };
     try {
       return await this.jwtService.signAsync(payload);
@@ -28,7 +32,7 @@ export class RefreshService {
     }
   }
 
-  async generateRefreshToken(user: CreateUserDto): Promise<string> {
+  async generateRefreshToken(user: UpdateUserDto): Promise<string> {
     const expirationTime =
       parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60;
 
@@ -50,7 +54,7 @@ export class RefreshService {
   }
 
   //check validation refresh token and nearby expiration date
-  async checkGenerateRefreshToken(user: CreateUserDto): Promise<any> {
+  async checkGenerateRefreshToken(user: UpdateUserDto): Promise<any> {
     const expTokenRange =
       Date.now() +
       parseInt(process.env.JWT_REFRESH_EXPIRATION_RANGE, 10) *
@@ -111,7 +115,7 @@ export class RefreshService {
         },
       });
     } catch (error) {
-      this.logger.error('Failed to delete refresh token, token not found');
+      this.logger.error('Failed to delete refresh token, token not found', RefreshService.name);
       throw new Error('Failed to delete refresh token. Error: ' + error);
     }
   }

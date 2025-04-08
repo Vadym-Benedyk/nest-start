@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -11,6 +11,9 @@ import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interf
 import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
 import * as process from 'node:process';
 import { PayloadUserInterface } from '@/src/refresh/interfaces/refresh.interfaces';
+import { UserDto } from '@/src/users/dto/user.dto';
+import { IdDto } from '@/src/users/dto/id.dto';
+import { LogOutInterface } from '@/src/users/interfaces/user.interfaces';
 
 
 
@@ -23,7 +26,7 @@ export class AuthController {
     summary: 'Create new user',
     description: 'Registration new user',
   })
-  @ApiResponse({ type: CreateUserDto })
+  @ApiResponse({ status: 201, type: UserDto })
   @Post('register')
   public async registerUser(
     @Body() createUserDto: CreateUserDto,
@@ -54,8 +57,7 @@ export class AuthController {
   @Post('login')
   public async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     try {
-      const { payload, refreshToken } =
-        await this.authService.loginUser(loginUserDto);
+      const { payload, refreshToken } = await this.authService.loginUser(loginUserDto);
       cookiesGenerator(res, refreshToken);
       return res.status(200).json({
         status: 'success',
@@ -74,12 +76,12 @@ export class AuthController {
     summary: 'Logout',
     description: 'Logout users',
   })
+  @ApiParam({ name: 'id', required: true, type: 'string', description: 'UUID of the user' })
   @ApiResponse({ status: 200 })
-  @Post('logout/:userId')
-  public async logout(@Param('userId') userId: string, @Res() res: Response): Promise<any> {
+  @Post('logout/:id')
+  public async logout(@Param() id: IdDto, @Res() res: Response): Promise<LogOutInterface> {
     resetCookies(res);
-    const result = await this.authService.logoutUser(userId);
-    return res.status(result.status).json(result);
+    return await this.authService.logoutUser(id.id);
   }
 
 
@@ -88,7 +90,7 @@ export class AuthController {
     description: 'Refresh token',
   })
   @ApiResponse({ type: AuthResponseDto })
-  @Post('/refresh')
+  @Post('refresh')
   public async refresh(@Body() body: RefreshTokenDto, @Res() res: Response): Promise<Response<PayloadUserInterface>> {
     try {
       const { payload, refreshToken } = await this.authService.refreshValidate(
