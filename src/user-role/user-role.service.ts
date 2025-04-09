@@ -116,11 +116,11 @@ export class UserRoleService {
         roleId: userRoleDto.roleId,
       });
     } else {
-      this.logger.error('There is a problem by saving user role to db');
+      this.logger.error('There is a problem by saving user role to db', UserRoleService.name);
       throw new NotFoundException('User or role not found');
     }
 
-    this.logger.log('User role added successfully');
+    this.logger.log(`Role added to user successfully`);
     return await this.getUserWithRoles(userRoleDto.userId)
   }
 

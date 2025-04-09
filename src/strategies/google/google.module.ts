@@ -2,13 +2,12 @@ import { Module } from '@nestjs/common';
 import { GoogleStrategy } from './google.strategy';
 import { GoogleController } from './google.controller';
 import { GoogleService } from './google.service';
-import { AuthService } from '../../auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { Google } from './google';
 import { UserModule } from '@/src/users/user.module';
 import { RefreshModule } from '@/src/refresh/refresh.module';
 import { UserRoleModule } from '@/src/user-role/user-role.module';
+import { LoggerModule } from '@/src/logger/logger.module';
 
 @Module({
   imports: [
@@ -16,6 +15,7 @@ import { UserRoleModule } from '@/src/user-role/user-role.module';
     UserModule,
     RefreshModule,
     UserRoleModule,
+    LoggerModule,
     JwtModule.register({
     global: true,
     secret: process.env.JWT_SECRET || 'secret',

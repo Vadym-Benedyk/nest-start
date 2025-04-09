@@ -1,5 +1,5 @@
 export interface PayloadUserInterface {
-  user: UserInterface;
+  user: UserSecureInterface;
   payload: {
     type: string;
     token: string;
@@ -20,12 +20,11 @@ export interface RefreshTokenInterface {
   updatedAt: Date;
 }
 
-interface UserInterface {
+interface UserSecureInterface {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
   createdAt: Date;
   updatedAt: Date;
 }

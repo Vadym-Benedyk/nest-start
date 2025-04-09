@@ -11,7 +11,7 @@ export interface UserInterfaces {
   updatedAt: Date;
 }
 
-export interface UserWithoutPasswordInterfaces {
+export interface UserSecureInterfaces {
   id: string;
   firstName: string;
   lastName: string;
@@ -21,7 +21,7 @@ export interface UserWithoutPasswordInterfaces {
 }
 
 export interface UserListInterfaces {
-  data?: UserInterfaces[];
+  data?: UserSecureInterfaces[];
   meta?: {
     totalItems?: number;
     totalPages?: number;
@@ -32,7 +32,7 @@ export interface UserListInterfaces {
 
 export interface UpdateUserInterface {
   updates: number;
-  user: UserInterfaces;
+  user: UserSecureInterfaces;
 }
 
 export interface LogOutInterface {

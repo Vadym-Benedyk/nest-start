@@ -1,10 +1,9 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserWithRolesDto } from '@/src/user-role/dto/user-with-roles.dto';
 import { UserRoleService } from '@/src/user-role/user-role.service';
 import { UsersInRoleInterface, UserWithRolesInterface } from '@/src/user-role/interfaces/user-role.interface';
 import { UserRoleDto } from '@/src/user-role/dto/user-role.dto';
-import { Response } from 'express';
 import { RoleDto } from '@/src/role/dto/role.dto';
 import { RoleInterface } from '@/src/role/interfaces/role.interfaces';
 import { UsersInRoleDto } from '@/src/user-role/dto/users-in-role.dto';
@@ -47,30 +46,17 @@ export class UserRoleController {
   @Permissions('add-role')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @ApiOperation({ summary: 'Add role to user', description: 'Add role to user by id' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Role added to user',
-    type: UserWithRolesDto
-  })
+  @ApiResponse({status: HttpStatus.CREATED, description: 'Role added to user', type: UserWithRolesDto})
   @Post()
-  async addRoleToUser(
-    @Body() userRoleDto: UserRoleDto,
-    @Res() res: Response,
-  ): Promise<any> {
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: UserRoleDto })
+  async addRoleToUser( @Body() userRoleDto: UserRoleDto ): Promise<{ status: string; message: string }> {
+    const { firstName, lastName, roles } = await this.userRoleService.addNewRoleToUser(userRoleDto);
 
-    try {
-      const {firstName, lastName, roles} = await this.userRoleService.addNewRoleToUser(userRoleDto);
-
-      return res.status(201).json({
-        status: 'success',
-        message: `Role ${roles} added to user ${firstName} ${lastName}`,
-      });
-    } catch (error) {
-      return res.status(400).json({
-        status: 'error',
-        error: error,
-      });
-    }
+    return {
+      status: 'success',
+      message: `Role ${roles} added to user ${firstName} ${lastName}`,
+    };
   }
 
 

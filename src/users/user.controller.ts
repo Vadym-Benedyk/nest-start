@@ -6,7 +6,7 @@ import {
   Delete,
   Patch,
   HttpStatus,
-  Query, UseGuards, Res, Post,
+  Query, UseGuards, Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,14 +16,12 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { GetUsersDto } from './dto/get-users.dto';
-import { UpdateUserInterface, UserWithoutPasswordInterfaces } from './interfaces/user.interfaces';
+import { UpdateUserInterface, UserSecureInterfaces } from './interfaces/user.interfaces';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
-import { Response } from 'express';
 import { IdDto } from '@/src/users/dto/id.dto';
-import { UserDto } from '@/src/users/dto/user.dto';
-import { UserSecureDto } from '@/src/users/dto/userSecure.dto';
+import { UserSecureDto } from '@/src/users/dto/user-secure.dto';
 
 
 
@@ -34,7 +32,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get all users', description: 'Get all users' })
   @ApiResponse({ type: [CreateUserDto] })
   @Get()
-  async getAllUsers(): Promise<UserWithoutPasswordInterfaces[]> {
+  async getAllUsers(): Promise<UserSecureInterfaces[]> {
     return await this.userService.getAllUsers()
   }
 
@@ -62,8 +60,7 @@ export class UserController {
   @ApiResponse({ type: UserSecureDto })
   @Post(':id')
   async getUserById(@Param() id: IdDto): Promise<UserSecureDto> {
-    const {password, ...user} = await this.userService.getUserById(id.id);
-    return user;
+    return await this.userService.getUserById(id.id);
   }
 
 
@@ -74,8 +71,7 @@ export class UserController {
   @ApiResponse({ type: UserSecureDto })
   @Get('email/:email')
   async getUserByEmail(@Param('email') email: string): Promise<UserSecureDto> {
-    const {password, ...user} = await this.userService.getUserByEmail(email);
-    return user;
+    return await this.userService.getUserByEmail(email);
   }
 
 
@@ -85,12 +81,12 @@ export class UserController {
   })
   @UseGuards(JwtAuthGuard, OwnerGuard)
   @ApiBearerAuth()
-  @Delete(':id')
+  @ApiParam({ name: 'id', required: true, type: 'string', description: 'UUID of the user' })
+  @Delete('delete/:id')
 
+  async deleteUser(@Param() params: IdDto): Promise<void> {
 
-  async deleteUser(@Param('id') id: IdDto, @Res() res: Response): Promise<Response> {
-    await this.userService.deleteUser(id);
-    return res.status(HttpStatus.OK).json({ message: 'User deleted successfully' });
+    return await this.userService.deleteUser(params.id);
   }
 
 
@@ -98,7 +94,7 @@ export class UserController {
     summary: 'Update users by id',
     description: 'Update users by id',
   })
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: UserSecureDto })
   @Patch('update')
   async updateUser(
     @Body() updateUser: UpdateUserDto,

@@ -23,18 +23,15 @@ export class JwtAuthGuard implements CanActivate {
     const token = request.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      this.logger.warn('No token provided');
+      this.logger.warn('No token provided', JwtAuthGuard.name);
       throw new UnauthorizedException('No token provided');
     }
+
     try {
       const payload = await this.jwtService.verifyAsync(token);
+
       const userWithRoles: any = await this.userRoleService.getUserWithRoles(payload.userId);
       const userPermissions: any = await this.permissionService.getPermissionsByUserId(payload.userId);
-
-      if (!userWithRoles) {
-        this.logger.warn('User not found');
-        throw new UnauthorizedException('User not found');
-      }
 
       request.user = {
         id: userWithRoles.id,
@@ -43,7 +40,7 @@ export class JwtAuthGuard implements CanActivate {
       };
 
     } catch {
-      this.logger.error('Invalid token');
+      this.logger.error('Invalid token', JwtAuthGuard.name);
       throw new UnauthorizedException('Invalid token');
     }
     return true;
