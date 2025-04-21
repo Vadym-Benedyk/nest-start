@@ -15,6 +15,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { EmailResponseInterface } from '@/src/mail/interfaces/emailResponse.interface';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
+import { checkResetRequestLimit } from '@/src/reset-password/utils/checkResetRequestLimit';
 
 
 
@@ -32,6 +33,7 @@ export class ResetPasswordService {
 
   async generateResetToken( changePasswordDto: ChangePasswordDto ): Promise<EmailResponseInterface> {
     const { email } = changePasswordDto;
+    this.logger.log("Change password request started", ResetPasswordService.name);
 
     const user = await this.userService.getUserByEmail(email);
     if (!user) {
@@ -39,60 +41,47 @@ export class ResetPasswordService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    let resetToken = await this.resetTokenModel.findOne({
-      where: { userId: user.id },
-    });
+    let resetToken = await this.resetTokenModel.findOne({ where: { userId: user.id } });
 
     if (resetToken) {
-      this.checkResetRequestLimit(resetToken);
+      checkResetRequestLimit(resetToken, this.logger, ResetPasswordService.name);
     } else {
-      resetToken = this.resetTokenModel.build({
-        userId: user.id,
-        resetRequestCount: 0,
-      });
+      resetToken = this.resetTokenModel.build({ userId: user.id, resetRequestCount: 0 });
     }
 
-    const savedTokenObject = await this.saveOrUpdateResetToken(resetToken);
+    const savedToken = await this.saveOrUpdateResetToken(resetToken);
 
-    return await this.sendPasswordResetEmail(email, savedTokenObject.token);
+    return await this.sendPasswordResetEmail(email, savedToken.token);
   }
 
-  private checkResetRequestLimit(resetToken: ResetTokenModel): void {
-    const timeDiff =
-      (Date.now() - new Date(resetToken.updatedAt).getTime()) /
-      (1000 * 60 * 60);
-
-    if (
-      resetToken.resetRequestCount >=
-        +process.env.CRYPTO_TOKEN_EXPIRATION_DAILY_RANGE &&
-      timeDiff < 24
-    ) {
-      this.logger.warn('Too many reset requests. Try again later', ResetPasswordService.name);
-      throw new HttpException(
-        'Too many reset requests. Try again after 24 hours',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-  }
 
   private async saveOrUpdateResetToken( resetToken: ResetTokenModel ): Promise<ResetUserTokenDto> {
     resetToken.token = await generateToken();
+
     resetToken.updatedAt = new Date();
+
     resetToken.expiresAt = new Date(
       Date.now() +
         parseInt(process.env.CRYPTO_TOKEN_EXPIRATION) * 60 * 60 * 1000,
     );
+
     resetToken.resetRequestCount += 1;
 
-    return await resetToken.save();
+    try {
+     const savedToken = await resetToken.save();
+     this.logger.log(`Reset token:  ${savedToken.token} saved to db`, ResetPasswordService.name);
+     return savedToken.dataValues;
+
+    } catch (error) {
+      this.logger.error(`Error saving reset token. Error: ${error}`, ResetPasswordService.name);
+    }
   }
 
-  private async sendPasswordResetEmail( to: string, token: string ): Promise<EmailResponseInterface> {
-    const resetUrl = `${this.configService.get<string>('HOST')}?token=${token}`;
 
-    const templatePath = path.join(
-      __dirname,
-      '..',
+  private async sendPasswordResetEmail( to: string, token: string ): Promise<EmailResponseInterface> {
+    const resetUrl = `${this.configService.get<string>('FRONTEND_RESET_PASSWORD_URL')}?token=${token}`;
+
+    const templatePath = path.resolve(
       'static',
       'mail',
       'templates',
@@ -108,10 +97,11 @@ export class ResetPasswordService {
     );
   }
 
+
   async confirmNewPassword(confirmNewPasswordDto: ConfirmNewPasswordDto ): Promise<UpdateUserInterface> {
     const { password, resetToken } = confirmNewPasswordDto;
     const hashedPassword = await hashPassword(password);
-    this.logger.log('hashed received password', ResetPasswordService.name);
+    this.logger.log('Accept change password started', ResetPasswordService.name);
     const findToken = await this.resetTokenModel.findOne({
       where: { token: resetToken },
     });
@@ -125,7 +115,6 @@ export class ResetPasswordService {
     }
 
     const { expiresAt, userId } = findToken;
-    this.logger.log('Valid token executed', ResetPasswordService.name);
 
     if (expiresAt && expiresAt < new Date(Date.now())) {
       this.logger.error('Reset token expired', ResetPasswordService.name);
@@ -133,6 +122,12 @@ export class ResetPasswordService {
         'Reset password token is expired',
         HttpStatus.GATEWAY_TIMEOUT,
       );
+    }
+
+    try {
+      await this.resetTokenModel.destroy({ where: { token: resetToken } });
+    } catch (error) {
+      this.logger.error(`Error deleting reset token. Error: ${error}`, ResetPasswordService.name);
     }
 
     return this.userService.updateUserPassword({

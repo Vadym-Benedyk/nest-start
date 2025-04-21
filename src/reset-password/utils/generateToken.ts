@@ -8,10 +8,10 @@ export const generateToken = async () => {
   try {
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = await bcrypt.hash(token, 10);
-    logger.log('Token generated and hashed');
+    logger.log(`Token generated and hashed, ${hashedToken}`);
     return hashedToken;
   } catch (error) {
-    logger.error('Error during generation recover password token', error);
+    logger.error(`Error during generation recover password token. Error: ${error}`);
     throw error;
   }
 };

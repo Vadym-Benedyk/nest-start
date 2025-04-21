@@ -37,6 +37,7 @@ export class MailService {
     try {
       const { ehlo, ...filteredResponse } = await this.transporter.sendMail(mailOptions);
       this.logger.log(`Email sent to ${to} with a subject: ${subject}`, MailService.name);
+      this.logger.log('Change password request finished', MailService.name);
       return filteredResponse;
     } catch (error) {
       this.logger.error(`Error sending email to ${to}. Error: ${error}`, MailService.name);

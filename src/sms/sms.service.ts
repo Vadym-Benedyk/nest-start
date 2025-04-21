@@ -25,9 +25,10 @@ export class SmsService {
   }
 
   async sendSms(smsDto: SmsDto): Promise<any> {
+
     const message = await this.client.messages.create({
       body: smsDto.body,
-      from: smsDto.from,
+      from: process.env.TWILIO_SENDER_NUMBER,
       to: smsDto.to,
     });
     return { message };

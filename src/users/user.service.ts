@@ -134,11 +134,13 @@ export class UserService {
 
     const [affectedRows] = await this.userModel.update({ password }, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
+    const newUser = { ...updatedUser.dataValues };
+    delete newUser.password;
     this.logger.log('User password updated successfully', UserService.name);
 
     return {
       updates: affectedRows,
-      user: updatedUser,
+      user: newUser,
     }
   }
 
@@ -177,8 +179,15 @@ export class UserService {
         order,
       });
 
+      //filter out password from user data
+      const filteredUsers = users.rows.map(user => {
+        const userData = user.get({ plain: true });
+        delete userData.password;
+        return userData;
+      });
+
       return {
-        data: users.rows,
+        data: filteredUsers,
         meta: {
           totalItems: users.count,
           totalPages: Math.ceil(users.count / pageSize),

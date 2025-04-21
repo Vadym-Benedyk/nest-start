@@ -23,7 +23,7 @@ export class PhoneService {
   ) {}
 
 
-  async checkPhone(phone: string): Promise<any> {
+  async checkPhone(phone: string): Promise<PhoneInterfaces> {
     return await this.phoneModel.findOne({where: {phone}})
   }
 

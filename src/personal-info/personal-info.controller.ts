@@ -14,12 +14,12 @@ import { UserInfoDto } from '@/src/personal-info/dto/userInfo.dto';
 import { JwtAuthGuard } from '@/src/auth/guards/JwtAuthGuard';
 import { RoleGuard } from '@/src/auth/guards/RoleGuard';
 import { Roles } from '@/src/auth/decorators/get-role.decorator';
+import { OwnerGuard } from '@/src/auth/guards/OwnerGuard';
 
 
 @ApiTags('User additional information')
 @ApiBearerAuth()
-@Roles('emperor', 'senator', 'legionary', 'general')
-@UseGuards(JwtAuthGuard, RoleGuard)
+@UseGuards(JwtAuthGuard, OwnerGuard)
 @Controller('user_info')
 export class PersonalInfoController {
   constructor(private readonly personalInfoService: PersonalInfoService) {}
