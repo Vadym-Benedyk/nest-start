@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import * as process from 'node:process';
+
 
 export class SmsDto {
   @ApiProperty({
@@ -11,13 +11,6 @@ export class SmsDto {
   @IsNotEmpty()
   body: string;
 
-  @ApiProperty({
-    example: process.env.TWILIO_PHONE_NUMBER,
-    description: 'Sender account or sub account phone number',
-  })
-  @IsString()
-  @IsNotEmpty()
-  from: string;
 
   @ApiProperty({
     example: '+15558675310',

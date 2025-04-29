@@ -11,8 +11,7 @@ import { User } from './models/user.model';
 import {
   UpdateUserInterface,
   UserInterfaces,
-  UserListInterfaces,
-  UserWithoutPasswordInterfaces,
+  UserListInterfaces, UserSecureInterfaces
 } from './interfaces/user.interfaces';
 import { GetUsersDto } from './dto/get-users.dto';
 import { Op } from 'sequelize';
@@ -21,7 +20,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { hashPassword } from '@/src/auth/utility/hashPassword';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
-import { IdDto } from '@/src/users/dto/id.dto';
 import { UpdatePasswordDto } from '@/src/users/dto/update-password.dto';
 
 @Injectable()
@@ -31,7 +29,7 @@ export class UserService {
     private readonly logger: LoggerFacadeService,
   ) {}
 
-  async getAllUsers(): Promise<UserWithoutPasswordInterfaces[]> {
+  async getAllUsers(): Promise<UserSecureInterfaces[]> {
     try {
       const users = await this.userModel.findAll();
 
@@ -51,29 +49,22 @@ export class UserService {
     return (await this.userModel.count({ where: { id: userId } })) > 0;
   }
 
+  async checkUserByEmail(email: string): Promise<boolean> {
+    return (await this.userModel.count({ where: { email: email } })) > 0;
+  }
+
   async createUser(createUserDto: CreateUserDto): Promise<UserInterfaces> {
     const { firstName, lastName, email, password } = createUserDto;
     const hashedPassword = await hashPassword(password);
-
-      const isUser = await this.userModel.count({ where: { email: email } });
-      if (isUser > 0) {
-        this.logger.warn(
-          `User with ${email} is already register`,
-          UserService.name,
-        );
-        throw new HttpException(
-          'This email is already register, please SignIn or use any else',
-          HttpStatus.NOT_ACCEPTABLE,
-        );
-      }
-
-      return await this.userModel.create({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-      });
+    const isUser = await this.checkUserByEmail(email);
+    if (isUser) {
+      this.logger.warn(`User with ${email} is already register`, UserService.name);
+      throw new HttpException('This email is already register, please SignIn or use any else', HttpStatus.NOT_ACCEPTABLE);
+    }
+    const result = await this.userModel.create({ firstName, lastName, email, password: hashedPassword });
+    return result.dataValues
   }
+
 
   async validatePassword(userId: string, password: string): Promise<boolean> {
     try {
@@ -84,29 +75,32 @@ export class UserService {
     }
   }
 
-  async getUserById(id: string): Promise<UserInterfaces> {
+  async getUserById(id: string): Promise<UserSecureInterfaces> {
     try {
       const user = await this.userModel.findByPk(id);
-      return user.dataValues;
+      const { password, ...rest } = user.dataValues;
+      return rest
     } catch (error) {
       this.logger.warn('User not found', UserService.name);
       throw new NotFoundException(HttpStatus.NOT_FOUND);
     }
   }
 
-  async getUserByEmail(email: string): Promise<UserInterfaces> {
+  async getUserByEmail(email: string): Promise<UserSecureInterfaces> {
     try {
       const user = await this.userModel.findOne({ where: { email } });
-      return user.dataValues;
+      const { password, ...rest } = user.dataValues;
+      return rest
     } catch (error) {
       this.logger.warn('User not found', UserService.name);
       throw new NotFoundException(HttpStatus.NOT_FOUND);
     }
   }
 
-  async deleteUser(id: IdDto): Promise<void> {
-    const user = await this.userModel.findByPk(id.id);
+  async deleteUser(id: string): Promise<void> {
+    const user = await this.userModel.findByPk(id);
     if (!user) {
+      this.logger.error("User not found", UserService.name);
       throw new NotFoundException('User not found');
     }
     await user.destroy();
@@ -121,11 +115,12 @@ export class UserService {
     const { id, ...user } = updateUserDto;
     const [affectedRows] = await this.userModel.update(user, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
+    const { password, ...rest } = updatedUser.dataValues;
     this.logger.log('User updated successfully', UserService.name);
 
     return {
       updates: affectedRows,
-      user: updatedUser,
+      user: rest,
     };
   }
 
@@ -139,11 +134,13 @@ export class UserService {
 
     const [affectedRows] = await this.userModel.update({ password }, { where: { id } });
     const updatedUser = await this.userModel.findByPk(id);
+    const newUser = { ...updatedUser.dataValues };
+    delete newUser.password;
     this.logger.log('User password updated successfully', UserService.name);
 
     return {
       updates: affectedRows,
-      user: updatedUser,
+      user: newUser,
     }
   }
 
@@ -182,8 +179,15 @@ export class UserService {
         order,
       });
 
+      //filter out password from user data
+      const filteredUsers = users.rows.map(user => {
+        const userData = user.get({ plain: true });
+        delete userData.password;
+        return userData;
+      });
+
       return {
-        data: users.rows,
+        data: filteredUsers,
         meta: {
           totalItems: users.count,
           totalPages: Math.ceil(users.count / pageSize),

@@ -7,7 +7,7 @@ import { RefreshToken } from './models/refresh.model';
 import { RefreshTokenInterface } from './interfaces/refresh.interfaces';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
 import { UpdateUserDto } from '@/src/users/dto/update-user.dto';
-import { UserDto } from '@/src/users/dto/user.dto';
+
 
 
 
@@ -21,23 +21,21 @@ export class RefreshService {
     private readonly logger: LoggerFacadeService,
   ) {}
 
-  async generateAccessToken(userDto: UserDto): Promise<string> {
-    const payload = {
-      userId: userDto.id,
-    };
+  async generateAccessToken(id: string): Promise<string> {
     try {
-      return await this.jwtService.signAsync(payload);
+      return await this.jwtService.signAsync({ id });
     } catch (error) {
+      this.logger.error(`Failed to generate access token. Error: ${error}`, RefreshService.name);
       throw new Error('Failed to generate access token. Error: ' + error);
     }
   }
 
-  async generateRefreshToken(user: UpdateUserDto): Promise<string> {
+  async generateRefreshToken(id: string): Promise<string> {
     const expirationTime =
       parseInt(process.env.JWT_REFRESH_EXPIRATION) * 24 * 60 * 60;
 
     const token: string = this.jwtweb.sign(
-      { userId: user.id },
+      { userId: id },
       process.env.JWT_REFRESH_SECRET,
       {
         expiresIn: expirationTime,
@@ -46,7 +44,7 @@ export class RefreshService {
     if (!token) {
       throw new Error('Failed to generate refresh token');
     }
-    const isSavedToken = await this.saveRefreshToken(user.id, token);
+    const isSavedToken = await this.saveRefreshToken(id, token);
 
     if (isSavedToken) {
       return token;
@@ -65,13 +63,13 @@ export class RefreshService {
 
     const tokenInDatabase = await this.getRefreshByUserId(user.id);
     if (!tokenInDatabase) {
-      return await this.generateRefreshToken(user);
+      return await this.generateRefreshToken(user.id);
     }
 
     const expirationDbRefresh = new Date(tokenInDatabase.expires).getTime();
 
     if (expirationDbRefresh < expTokenRange) {
-      return await this.generateRefreshToken(user);
+      return await this.generateRefreshToken(user.id);
     } else {
       return tokenInDatabase.refreshToken;
     }

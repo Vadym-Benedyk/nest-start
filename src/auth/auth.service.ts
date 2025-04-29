@@ -9,8 +9,8 @@ import { UserRoleService } from '@/src/user-role/user-role.service';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { LoggerFacadeService } from '@/src/logger/logger-facade.service';
-import { UserDto } from '@/src/users/dto/user.dto';
 import { LogOutInterface } from '@/src/users/interfaces/user.interfaces';
+import { UserSecureDto } from '@/src/users/dto/user-secure.dto';
 
 
 @Injectable()
@@ -23,10 +23,9 @@ export class AuthService {
     private readonly logger: LoggerFacadeService,
   ) {}
 
-  async accessResponse(user: UserDto): Promise<PayloadUserInterface> {
+  async accessResponse(user: UserSecureDto): Promise<PayloadUserInterface> {
     try {
-      const access: string = await this.token.generateAccessToken(user);
-      this.logger.log(`User ${user.firstName+' '+user.lastName} was successfully logged in`, AuthService.name);
+      const access: string = await this.token.generateAccessToken(user.id);
       return {
         user: user,
         payload: {
@@ -41,23 +40,17 @@ export class AuthService {
   }
 
   // Register a new users and return tokens
-  async registerUser(newUser: CreateUserDto): Promise<RefreshPayloadUserInterface> {
-    // Check if users already exists
-    const userExist = await this.user.getUserByEmail(newUser.email);
-    if (userExist) {
-      throw new UnauthorizedException('User already exists');
-    }
+  async registerUser(user: CreateUserDto): Promise<RefreshPayloadUserInterface> {
     // Create users and hash password in database
-    const user = await this.user.createUser(newUser);
-    if (!user) {
-      this.logger.error('Failed to register users', AuthService.name);
-      throw new Error('Failed to register users');
-    }
-    //return user obj and payload(access_token)
-    const payloadUser = await this.accessResponse(user);
-    const refresh = await this.token.generateRefreshToken(user);
+    const newUser = await this.user.createUser(user);
+
+    const { password, ...secureUser } = newUser;
+
+    const payloadUser = await this.accessResponse(secureUser);
+
+    const refresh = await this.token.generateRefreshToken(newUser.id);
     // Add default role to user when register
-    const addRole = await this.userRole.addDefaultRoleToUser(user.id);
+    const addRole = await this.userRole.addDefaultRoleToUser(newUser.id);
     if (payloadUser && refresh && addRole) {
       this.logger.log('User was successfully registered in DB', AuthService.name);
       return {
@@ -114,15 +107,13 @@ export class AuthService {
   }
 
   //refresh token
-  async refreshValidate(
-    refreshToken: string,
-  ): Promise<RefreshPayloadUserInterface>  {
-    const decodedToken = this.token.decodeRefreshToken(refreshToken);
+  async refreshValidate(refreshToken: string): Promise<RefreshPayloadUserInterface>  {
+    const { userId, iat, exp } = this.token.decodeRefreshToken(refreshToken);
 
-    if (!decodedToken.userId || !decodedToken.iat || !decodedToken.exp) {
+    if (!userId || iat || !exp) {
       throw new UnauthorizedException('Refresh token is invalid');
     }
-    const user = await this.user.getUserById(decodedToken.userId);
+    const user = await this.user.getUserById(userId);
     if (!user) {
       throw new UnauthorizedException('User from refresh token not found');
     }
@@ -134,7 +125,7 @@ export class AuthService {
     }
 
     const databaseTokenExpiration = new Date(databaseToken.expires).getTime();
-    const decodedTokenExpiration = new Date(decodedToken.exp * 1000).getTime();
+    const decodedTokenExpiration = new Date(exp * 1000).getTime();
 
     if (
       decodedTokenExpiration < Date.now() ||
@@ -152,7 +143,7 @@ export class AuthService {
 
     //If expiration date leas then 3 days remaining let's generate both tokens, else gen access token only
     if (decodedTokenExpiration < expTokenRange) {
-      const refresh = await this.token.generateRefreshToken(user);
+      const refresh = await this.token.generateRefreshToken(user.id);
       return {
         payload: accessPayload,
         refreshToken: refresh,
@@ -232,10 +223,10 @@ export class AuthService {
         throw new Error('User registration failed');
       }
 
-      const getUser = await this.user.getUserByEmail(user.email);
-      await this.userRole.addDefaultRoleToUser(getUser.id);
-      const payloadUser = await this.accessResponse(getUser);
-      const refresh = await this.token.generateRefreshToken(getUser);
+      // const getUser = await this.user.getUserByEmail(user.email);
+      await this.userRole.addDefaultRoleToUser(newUser.id);
+      const payloadUser = await this.accessResponse(newUser);
+      const refresh = await this.token.generateRefreshToken(newUser.id);
 
       return {
           payload: payloadUser,

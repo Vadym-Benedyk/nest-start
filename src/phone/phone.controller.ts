@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhoneService } from '@/src/phone/phone.service';
 import { PhoneDto } from '@/src/phone/dto/phone.dto';
 import { PhoneInterfaces, ResponseStatusInterface } from '@/src/phone/interfaces/phone.interfaces';
@@ -22,10 +22,11 @@ export class PhoneController {
   constructor(private readonly phoneService: PhoneService) {}
 
   @ApiOperation({
-    summary: 'Get phone user',
+    summary: 'Get user phone',
     description: 'Get user phone by userId',
   })
   @ApiResponse({ status: 200, type: PhoneDto })
+  @ApiParam({ name: 'userId', required: true, type: 'string', format: 'uuid', description: 'UUID' })
   @Get(':userId')
   async getUserPhone( @Param('userId') userId: IdDto ): Promise<PhoneDto> {
     return this.phoneService.getPhone(userId.id);

@@ -7,7 +7,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Response } from 'express';
 import { cookiesGenerator, resetCookies } from './utility/cookiesGenerator';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { CreateUserDataInterface } from '@/src/auth/interfaces/createUser.interface';
 import { FbTokenDto } from '@/src/auth/dto/fb-token.dto';
 import * as process from 'node:process';
 import { PayloadUserInterface } from '@/src/refresh/interfaces/refresh.interfaces';
@@ -31,20 +30,15 @@ export class AuthController {
   public async registerUser(
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
-  ): Promise<CreateUserDataInterface> {
+  ): Promise<any> {
 
     try {
       const { payload, refreshToken } = await this.authService.registerUser(createUserDto);
       cookiesGenerator(res, refreshToken);
 
-      return res.status(201).json({
-        status: 'success',
-        data: payload
-      });
+      return res.status(201).json({ payload });
     } catch (error) {
-      return res.status(400).json({
-        status: error
-      });
+      return res.status(400).json({ error });
     }
   }
 
