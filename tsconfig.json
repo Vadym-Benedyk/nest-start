@@ -1,15 +1,20 @@
 {
   "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021", "ESNext"],
     "module": "commonjs",
+    "strict": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@/*": ["*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,5 +22,14 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "migrations/**/*.ts",
+    "models/**/*.ts",
+    "seeders/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

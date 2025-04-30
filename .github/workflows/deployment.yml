@@ -1,0 +1,135 @@
+name: Deploy App on push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4.2.2
+      - name: Cache npm dependencies
+        uses: actions/cache@v4.2.0
+        with:
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+      - name: Install dependencies
+        run: npm ci
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4.2.2
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4.2.0
+        with:
+           key: node-modules-${{ hashFiles('**/package-lock.json') }}
+           path: ~/.npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify ESLint installation
+        run: npx eslint --version
+
+      - name: Run lint
+        run: npx eslint ./src/database --fix
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    continue-on-error: true
+    env:
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_NAME: poster
+      DATABASE_DIALECT: postgres
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SMTP_USER: posterfivedev@gmail.com
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4.2.2
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4.2.0
+        with:
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Nest CLI installation
+        run: npx nest --version
+
+      - name: Run build
+        run: npx nest build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    env:
+      DATABASE_HOST: database.internal
+      DATABASE_PORT: 5432
+      DATABASE_NAME: poster
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SMTP_USER: posterfivedev@gmail.com
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Fly.io CLI
+        run: |
+          curl -L https://fly.io/install.sh | sh
+          echo "$HOME/.fly/bin" >> $GITHUB_PATH
+
+
+      - name: Authenticate with Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl auth docker
+
+
+      - name: Ensure app exists in Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if ! flyctl apps list | grep -q "nest-start"; then
+            flyctl apps create nest-start
+          fi
+
+
+      - name: Set up Docker BuildKit cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+
+      - name: Build and push Docker image
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          docker buildx create --use --driver docker-container
+          docker buildx build --tag registry.fly.io/nest-start:latest . --push
+
+
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy --image registry.fly.io/nest-start:latest

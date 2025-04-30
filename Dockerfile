@@ -1,21 +1,26 @@
 FROM ubuntu:latest
-LABEL authors="otto"
+LABEL authors="otto marcus"
 
 ENTRYPOINT ["top", "-b"]
 
 # Dockerfile
-FROM node:18-alpine
+FROM node:slim
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-RUN npm install
+RUN npm ci --omit=dev
+
+RUN npm install -g @nestjs/cli
 
 COPY . .
 
 RUN npm run build
 
+RUN npm prune --omit=dev
+
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "start"]
+#CMD ["node", "dist/main.js"]

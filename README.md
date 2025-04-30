@@ -1,99 +1,92 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+Init study project on Nest.js
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+1.(06/01/2025) Create project on Nest.js
+User daemon
+db
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+2.(06/01/2025) Migrations and models for db. Using sequelize
 
-## Description
+3.(09/01/2025) Завдання: Реалізувати функціонал списку з використанням Sequelize
+Опис:
+Необхідно створити ендпоінт для отримання списку користувачів з підтримкою пагінації, сортування та пошуку.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+3. (08/01/2025)
+    TODO:
+        - Fix bug with init page loading. On init route '/' 404
 
-## Project setup
+{
+"page": 0,
+"limit": 10,  — максимальна кількість записів, які будуть повернуті на одній сторінці. Це забезпечує пагінацію
+"search": "string", // необов’язкове
+"orderBy": {
+"direction": "asc", // або "desc"
+"field": "string" // поле для сортування
+},
+"options": { // необов’язкові фільтри
+"firstName": "string",
+"lastName": "string",
+"email": "string",
+"role": "string"
+}
+}
+Відповідь має бути у форматі:
 
-```bash
-$ npm install
-```
 
-## Compile and run the project
+{
+"data": [
+{
+"id": "string",
+"firstName": "string",
+"lastName": "string",
+"email": "string",
+"role": "string"
+}
+],
+"meta": {
+"totalCount": 1, // кількість записів, що відповідають запиту
+"count": 1, // кількість записів у відповіді
+"page": 0,
+"limit": 10,
+"offset": 0, // offset = page * limit  — кількість записів, яку потрібно пропустити.
+"search": "Example" // якщо був використаний пошук
+}
+}
+Примітки:
+Пагінація: offset = page * limit.
+totalCount: має відображати всі записи, що відповідають запиту, без урахування limit і offset.
+Сортування: підтримка полів у параметрі orderBy.
+Фільтрація: враховувати поля з options.
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Заголовок:
+Реалізувати бекенд-логіку для зміни пароля з підтвердженням через email
+Опис:
+Потрібно створити серверну частину для функціоналу зміни пароля. При запиті на зміну пароля система повинна:
+1. Генерувати унікальний токен підтвердження.
+2. Зберігати токен у базі даних із прив’язкою до користувача та часом створення.
+3. Надсилати email з посиланням для підтвердження зміни пароля.
+4. Перевіряти токен під час підтвердження.
+   Для надсилання email використовується бібліотека nodemailer.
+   Acceptance Criteria (Критерії прийняття):
+1. Логіка повинна містити два ендпоінти:
+   o POST /password-change/request — приймає email користувача, генерує токен та надсилає лист із посиланням.
+   o POST /password-change/confirm — приймає новий пароль і токен, перевіряє його дійсність, змінює пароль та видаляє токен.
+2. Токен має бути унікальним, зашифрованим та з терміном дії (наприклад, 15 хвилин).
+3. Email з підтвердженням має містити:
+   o Зрозумілий текст з інструкцією.
+   o Посилання у форматі: https://your-domain.com/password-change/confirm?token=<TOKEN>.
+4. Листи повинні надсилатися лише після успішної конфігурації nodemailer.
+   Інструкція для налаштування nodemailer:
+1. Встановлення бібліотеки:
+   o Встановіть nodemailer:  npm install nodemailer
+2. Отримання SMTP-конфігурації:
+   o Для використання вашого email (наприклад, Gmail):
+   ▪ Host: smtp.gmail.com
+   ▪ Port: 587
+   ▪ Secure: false (TLS використовується, якщо порт 587).
+   ▪ User: Ваша email-адреса.
+   ▪ Password: Пароль або "пароль додатка" (у випадку Gmail з двофакторною автентифікацією).
+3. Налаштування Gmail (при потребі):
+   o Увійдіть у Google-акаунт.
+   o Ввімкніть "Менш безпечні програми" або створіть "пароль додатка" в налаштуваннях безпеки.
+4. Безпечність:
+   o Зберігайте чутливі дані (SMTP-логін і пароль) у змінних оточення (.env файл
