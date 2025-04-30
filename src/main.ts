@@ -31,7 +31,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app as any, options);
   SwaggerModule.setup('api', app as any, document);
-  await startNgrok();
+  // await startNgrok();
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
