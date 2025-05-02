@@ -1,8 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="otto marcus"
-
-ENTRYPOINT ["top", "-b"]
-
 # Dockerfile
 FROM node:slim
 
@@ -22,5 +17,5 @@ RUN npm prune --omit=dev
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
-#CMD ["node", "dist/main.js"]
+#CMD ["npm", "run", "start"]
+CMD ["node", "dist/main.js"]
