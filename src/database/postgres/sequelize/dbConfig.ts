@@ -5,6 +5,7 @@ import { Dialect } from 'sequelize';
 
 export const baseConfig: baseConfigInterface = {
   models: [__dirname + '/entities/*.models.js'],
+  url: process.env.DATABASE_URL,
   dialect: process.env.DATABASE_DIALECT as Dialect,
   username: process.env.DATABASE_USERNAME || 'postgres',
   password: process.env.DATABASE_PASSWORD || 'postgres',
