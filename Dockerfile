@@ -1,8 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="otto marcus"
-
-ENTRYPOINT ["top", "-b"]
-
 # Dockerfile
 FROM node:slim
 
