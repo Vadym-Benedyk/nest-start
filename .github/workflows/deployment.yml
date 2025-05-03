@@ -94,7 +94,7 @@ jobs:
         run: |
           flyctl apps list | grep -q "nest-start" || flyctl apps create nest-start
 
-      - name: Set up Docker BuildKit cache
+      - name: Set Up Docker BuildKit cache
         uses: actions/cache@v4.2.0
         with:
           path: /tmp/.buildx-cache
