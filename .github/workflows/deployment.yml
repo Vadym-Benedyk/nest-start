@@ -87,6 +87,9 @@ jobs:
           curl -L https://fly.io/install.sh | sh
           echo "$HOME/.fly/bin" >> $GITHUB_PATH
 
+      - name: Authenticate Fly.io
+        run: flyctl auth login --access-token ${{ secrets.FLY_API_TOKEN }}
+
       - name: Ensure app exists in Fly.io
         run: |
           flyctl apps list | grep -q "nest-start" || flyctl apps create nest-start
