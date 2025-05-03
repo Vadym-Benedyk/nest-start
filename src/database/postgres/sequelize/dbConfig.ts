@@ -5,6 +5,7 @@ import * as process from 'node:process';
 import { Dialect } from 'sequelize';
 
 
+
 export const baseConfig: baseConfigInterface = {
   models: [__dirname + '/entities/*.models.js'],
   url: process.env.DATABASE_URL,
