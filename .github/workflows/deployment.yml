@@ -94,8 +94,8 @@ jobs:
         run: |
           flyctl apps list | grep -q "nest-start" || flyctl apps create nest-start
 
-      - name: Log in to Fly.io Docker registry
-        run: echo "${{ secrets.FLY_API_TOKEN }}" | docker login -u "fly" --password-stdin registry.fly.io
+      - name: Docker login to Fly.io registry
+        run: flyctl auth docker
 
       - name: Set Up Docker BuildKit cache
         uses: actions/cache@v4.2.0
