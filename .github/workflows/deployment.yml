@@ -87,29 +87,5 @@ jobs:
           curl -L https://fly.io/install.sh | sh
           echo "$HOME/.fly/bin" >> $GITHUB_PATH
 
-      - name: Authenticate Fly.io
-        run: flyctl auth login --access-token ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Ensure app exists in Fly.io
-        run: |
-          flyctl apps list | grep -q "nest-start" || flyctl apps create nest-start
-
-      - name: Docker login to Fly.io registry
-        run: flyctl auth docker
-
-      - name: Set Up Docker BuildKit cache
-        uses: actions/cache@v4.2.0
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Build and push Docker image
-        run: |
-          docker buildx create --use --driver docker-container
-          docker buildx build --tag registry.fly.io/nest-start:latest . --push
-
       - name: Deploy to Fly.io
-        run: |
-          flyctl deploy --image registry.fly.io/nest-start:latest
+        run: flyctl deploy --remote-only --app nest-start
